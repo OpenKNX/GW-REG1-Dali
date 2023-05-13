@@ -1,0 +1,3 @@
+https://electronics.stackexchange.com/questions/429641/understanding-steval-ilm001v1-dali-transceiver-schematic-adding-protections
+
+https://www.mikrocontroller.net/topic/261045
