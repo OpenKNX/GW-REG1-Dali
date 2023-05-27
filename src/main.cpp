@@ -1,12 +1,15 @@
 #include <Arduino.h>
 #include "OpenKNX.h"
 #include "pins.h"
-#include <Dali.h>
-#include <hid/Adafruit_USBD_HID.h>
+//#include <Dali.h>
 
+//DaliClass *dali;
+
+#include <hid/Adafruit_USBD_HID.h>
 uint8_t const desc_hid_report[] =
-	{
-		TUD_HID_REPORT_DESC_GENERIC_INOUT(64)};
+{
+	TUD_HID_REPORT_DESC_GENERIC_INOUT(64)
+};
 
 // USB HID object. For ESP32 these values cannot be changed after this declaration
 // desc report, desc len, protocol, interval, use out endpoint
@@ -80,7 +83,7 @@ void handleSend(uint8_t const *buffer)
 		logInfo("HID", "Got GroupAddress A%i", x);
 	}
 
-	int resp = Dali.sendRawWait(buffer + 6, 2);
+	int resp = 0; //dali->sendRawWait(buffer + 6, 2);
 	if (resp >= 0)
 	{
 		uint8_t *report = new uint8_t[63];
@@ -128,10 +131,10 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 			report[1] = 0x00;
 			report[2] = 0x00;
 			report[3] = 0x00;
-			report[4] = 0x02;
-			report[5] = 0xbf;
-			report[6] = 0x20;
-			report[7] = 0x5a;
+			report[4] = 0x04; //04: Busspannung da | 02: keine Busspannung
+			report[5] = 0xff; //ff
+			report[6] = 0xff; //ff
+			report[7] = 0x5a; //5a
 			for (int i = 8; i < 63; i++)
 				report[i] = 0x00;
 			usb_hid.sendReport(0x12, report, 63);
@@ -158,7 +161,7 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 	}
 }
 
-void setup()
+void setup1()
 {
 	Serial.end();
 	//set vid and pid for lunatone usb maus
@@ -167,7 +170,12 @@ void setup()
 	usb_hid.setStringDescriptor("OpenKNX DALI USB"); //doesnt work
 	usb_hid.setReportCallback(get_report_callback, set_report_callback);
 	usb_hid.begin();
+	
+	//dali = new DaliClass();
+}
 
+void setup()
+{
 	Serial2.setTX(4);
 	Serial2.setRX(5);
 	SERIAL_DEBUG.begin(115200);
@@ -177,7 +185,6 @@ void setup()
 	openknx.setup();
 }
 
-long last = 0;
 void loop()
 {
 	openknx.loop();
