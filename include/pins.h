@@ -1,0 +1,39 @@
+#pragma once
+
+#define P1 0
+#define P2 1
+#define P4 2
+#define P5 3
+#define P6 4
+#define P7 5
+#define P9 6
+#define P10 7
+#define P11 8
+#define P12 9
+#define P14 10
+#define P15 11
+#define P16 12
+#define P17 13
+#define P19 14
+#define P20 15
+#define P21 16
+#define P22 17
+#define P24 18
+#define P25 19
+#define P26 20
+#define P27 21
+#define P29 22
+#define P31 26
+#define P32 27
+#define P34 28
+
+#define TX0_1 0
+#define RX0_1 1
+#define TX0_2 12
+#define RX0_2 13
+#define TX0_3 16
+#define RX0_3 17
+#define TX1_1 4
+#define RX1_1 5
+#define TX1_2 8
+#define RX1_2 9
