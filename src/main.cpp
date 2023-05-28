@@ -178,8 +178,8 @@ void setup1()
 
 void setup()
 {
-	Serial2.setTX(4);
-	Serial2.setRX(5);
+	Serial2.setTX(20); //4);
+	Serial2.setRX(21); //5);
 	SERIAL_DEBUG.begin(115200);
 
 	const uint8_t firmwareRevision = 0;
