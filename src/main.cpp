@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "OpenKNX.h"
 #include "pins.h"
-//#include <Dali.h>
+#include <Dali.h>
 
-//DaliClass *dali;
+DaliClass *dali;
 
 #include <hid/Adafruit_USBD_HID.h>
 uint8_t const desc_hid_report[] =
@@ -83,22 +83,24 @@ void handleSend(uint8_t const *buffer)
 		logInfo("HID", "Got GroupAddress A%i", x);
 	}
 
-	int resp = 0; //dali->sendRawWait(buffer + 6, 2);
+	int resp = dali->sendRawWait(buffer + 6, 2);
 	if (resp >= 0)
 	{
 		uint8_t *report = new uint8_t[63];
-		report[0] = 0x77;
+		report[0] = 0x72;
 		report[1] = 0x00;
 		report[2] = 0x00;
 		report[3] = 0x00;
-		report[4] = 0x02;
-		report[5] = 0xbf;
-		report[6] = 0x20;
-		report[7] = 0x5a;
+		report[4] = resp; //response
+		report[5] = 0x00;
+		report[6] = 0x5c; //dont know
+		report[7] = buffer[1]; //sequence
 		for (int i = 8; i < 63; i++)
 			report[i] = 0x00;
 		usb_hid.sendReport(0x12, report, 63);
 		delete[] report;
+	} else {
+		logError("HID", "Got Error Code from DALI: %i", resp);
 	}
 }
 
@@ -108,56 +110,56 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 {
 	switch (buffer[0])
 	{
-	// interface config
-	case 0x01:
-	{
-		handleConfig(buffer);
-		break;
-	}
-
-	// dali bus related
-	case 0x12:
-	{
-		int x = buffer[2] << 8;
-		x |= buffer[3];
-		if (x == 0x0003) // send to dali
+		// interface config
+		case 0x01:
 		{
-			handleSend(buffer);
+			handleConfig(buffer);
+			break;
 		}
-		else if (x == 0x4000 && buffer[1] == 0x5a)
-		{ // dont know / bus info
+
+		// dali bus related
+		case 0x12:
+		{
+			int x = buffer[2] << 8;
+			x |= buffer[3];
+			if (x == 0x0003) // send to dali
+			{
+				handleSend(buffer);
+			}
+			else if (x == 0x4000 && buffer[1] == 0x5a)
+			{ // dont know / bus info
+				uint8_t *report = new uint8_t[63];
+				report[0] = 0x77;
+				report[1] = 0x00;
+				report[2] = 0x00;
+				report[3] = 0x00;
+				report[4] = 0x04; //04: Busspannung da | 02: keine Busspannung
+				report[5] = 0xff; //ff
+				report[6] = 0xff; //ff
+				report[7] = buffer[1]; //sequence
+				for (int i = 8; i < 63; i++)
+					report[i] = 0x00;
+				usb_hid.sendReport(0x12, report, 63);
+				delete[] report;
+				break;
+			}
+			break;
+		}
+
+		// dont know
+		case 0x50:
+		{
 			uint8_t *report = new uint8_t[63];
-			report[0] = 0x77;
+			report[0] = 0x00;
 			report[1] = 0x00;
 			report[2] = 0x00;
-			report[3] = 0x00;
-			report[4] = 0x04; //04: Busspannung da | 02: keine Busspannung
-			report[5] = 0xff; //ff
-			report[6] = 0xff; //ff
-			report[7] = 0x5a; //5a
-			for (int i = 8; i < 63; i++)
+			report[3] = 0x01;
+			for (int i = 4; i < 63; i++)
 				report[i] = 0x00;
-			usb_hid.sendReport(0x12, report, 63);
+			usb_hid.sendReport(0xaf, report, 63);
 			delete[] report;
 			break;
 		}
-		break;
-	}
-
-	// dont know
-	case 0x50:
-	{
-		uint8_t *report = new uint8_t[63];
-		report[0] = 0x00;
-		report[1] = 0x00;
-		report[2] = 0x00;
-		report[3] = 0x01;
-		for (int i = 4; i < 63; i++)
-			report[i] = 0x00;
-		usb_hid.sendReport(0xaf, report, 63);
-		delete[] report;
-		break;
-	}
 	}
 }
 
