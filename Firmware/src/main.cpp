@@ -80,7 +80,7 @@ void handleSend(uint8_t const *buffer)
 		logInfo("HID", "Got ShortAddress A%i", x);
 	} else if(buffer[6] >> 5 == 0b100) {
 		int x = buffer[6] >> 1 & 0b1111;
-		logInfo("HID", "Got GroupAddress A%i", x);
+		logInfo("HID", "Got GroupAddress G%i", x);
 	}
 
 	int resp = dali->sendRawWait(buffer + 6, 2);

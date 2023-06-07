@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "DALI")(type "KiCad")(uri "${KIPRJMOD}/DALI.kicad_sym")(options "")(descr ""))
+)
