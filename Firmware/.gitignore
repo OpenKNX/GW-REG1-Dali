@@ -1,0 +1,9 @@
+.pio/*
+.vscode/*
+lib/*
+
+*/bin/*
+*/obj/*
+
+**/*-backups/**
+**/*_gerbers_*/**

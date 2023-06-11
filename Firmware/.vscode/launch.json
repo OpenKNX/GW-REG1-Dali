@@ -1,19 +1,21 @@
+// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
+//
+// PIO Unified Debugger
+//
+// Documentation: https://docs.platformio.org/page/plus/debugging.html
+// Configuration: https://docs.platformio.org/page/projectconf/section_env_debug.html
+
 {
     "version": "0.2.0",
     "configurations": [
         {
-            // Use IntelliSense to find out which attributes exist for C# debugging
-            // Use hover for the description of the existing attributes
-            // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/bin/Debug/net7.0/dalisearch.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
-            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -21,6 +23,41 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug",
+            "executable": "C:/Users/mikeg/source/repos/Knx-DaliGW/Firmware/.pio/build/debug/firmware.elf",
+            "projectEnvName": "debug",
+            "toolchainBinDir": "C:/Users/mikeg/.platformio/packages/toolchain-rp2040-earlephilhower/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/mikeg/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
+            "preLaunchTask": {
+                "type": "PlatformIO",
+                "task": "Pre-Debug (debug)"
+            }
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (skip Pre-Debug)",
+            "executable": "C:/Users/mikeg/source/repos/Knx-DaliGW/Firmware/.pio/build/debug/firmware.elf",
+            "projectEnvName": "debug",
+            "toolchainBinDir": "C:/Users/mikeg/.platformio/packages/toolchain-rp2040-earlephilhower/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/mikeg/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (without uploading)",
+            "executable": "C:/Users/mikeg/source/repos/Knx-DaliGW/Firmware/.pio/build/debug/firmware.elf",
+            "projectEnvName": "debug",
+            "toolchainBinDir": "C:/Users/mikeg/.platformio/packages/toolchain-rp2040-earlephilhower/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/mikeg/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
+            "loadMode": "manual"
         }
     ]
 }
