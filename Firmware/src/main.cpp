@@ -185,7 +185,9 @@ void setup()
 
 	const uint8_t firmwareRevision = 0;
 	openknx.init(firmwareRevision);
-	openknx.addModule(1, new DaliModule());
+	logInfo("MAIN", "Init and add Module");
+	DaliModule *mod = new DaliModule();
+	openknx.addModule(1, mod);
 	openknx.setup();
 }
 

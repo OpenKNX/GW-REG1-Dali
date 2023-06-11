@@ -1,9 +1,10 @@
 #include "OpenKNX.h"
+#include "Dali.h"
 
 class StaircaseChannel : public OpenKNX::Channel
 {
 	public:
-        StaircaseChannel(uint8_t channelIndex);
+        StaircaseChannel(uint8_t channelIndex, DaliClass *dali);
         ~StaircaseChannel();
 
 		void loop() override;
@@ -15,4 +16,7 @@ class StaircaseChannel : public OpenKNX::Channel
 		// void writeFlash() override;
 		// void readFlash(const uint8_t* data, const uint16_t size) override;
 		// uint16_t flashSize() override;
+
+	private:
+		DaliClass *_dali;
 };

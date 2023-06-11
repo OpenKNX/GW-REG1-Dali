@@ -24,8 +24,9 @@ class DaliModule : public OpenKNX::Module
 
 	private:
 		DaliClass *dali;
-		StandardChannel **standards;
-		StaircaseChannel **staircases;
-		int standardCount = 0;
-		int staircaseCount = 0;
+		OpenKNX::Channel *channels[64];
+		//StandardChannel **standards;
+		//StaircaseChannel **staircases;
+		//int standardCount = 0;
+		//int staircaseCount = 0;
 };

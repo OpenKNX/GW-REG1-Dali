@@ -24,38 +24,18 @@ void DaliModule::setup()
     dali = new DaliClass();
 	dali->begin(17, 16);
 
-    bool *types = new bool[64];
     for(int i = 0; i < 64; i++)
     {
         bool type = ParamADR_typeIndex(i);
         if(type)
-            staircaseCount++;
-        else
-            standardCount++;
-
-        types[i] = type;
-    }
-    
-    standards = new StandardChannel*[standardCount];
-    staircases = new StaircaseChannel*[staircaseCount];
-
-    int count1 = 0;
-    int count2 = 0;
-    for(int i = 0; i < 64; i++)
-    {
-        if(types[i])
         {
             logInfoP("CH%i Treppenhaus", i);
-            staircases[count2] = new StaircaseChannel(i);
-            count1++;
+            channels[i] = new StaircaseChannel(i, dali);
         } else {
             logInfoP("CH%i Normalbetrieb", i);
-            standards[count1] = new StandardChannel(i);
-            count1++;
+            channels[i] = new StandardChannel(i, dali);
         }
     }
-    
-        
 }
 
 void DaliModule::loop()
@@ -68,7 +48,13 @@ void DaliModule::loop1()
 
 void DaliModule::processInputKo(GroupObject &ko)
 {
-
+    int koNum = ko.asap();
+    if(koNum >= ADR_KoOffset && koNum <= ADR_KoOffset + ADR_KoBlockSize * 64)
+    {
+        int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
+        logInfoP("Got KO %i for CH%i", koNum, index);
+        channels[index]->processInputKo(ko);
+    }
 }
 
 bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)

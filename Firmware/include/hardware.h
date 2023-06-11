@@ -4,7 +4,3 @@
 
 #define KNX_UART_TX_PIN 0
 #define KNX_UART_RX_PIN 1
-
-#define CODE_COUNT 20
-#define CODE_SIZE 15
-#define CODE_FLASH_OFFSET 0x80000 //524288
