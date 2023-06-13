@@ -1,10 +1,11 @@
 #include "OpenKNX.h"
 #include "Dali.h"
+#include "MessageQueue.h"
 
 class StaircaseChannel : public OpenKNX::Channel
 {
 	public:
-        StaircaseChannel(uint8_t channelIndex, DaliClass *dali);
+        StaircaseChannel(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
         ~StaircaseChannel();
 
 		void loop() override;
@@ -18,5 +19,11 @@ class StaircaseChannel : public OpenKNX::Channel
 		// uint16_t flashSize() override;
 
 	private:
-		DaliClass *_dali;
+		MessageQueue *_queue;
+		bool state = false;
+		bool isGroup = false;
+		unsigned long startTime = 0;
+		uint interval = 0;
+
+		uint8_t sendMsg(MessageType t, byte value);
 };

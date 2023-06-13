@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "OpenKNX.h"
 #include "Dali.h"
+#include "MessageQueue.h"
 #include "StandardChannel.h"
 #include "StaircaseChannel.h"
 
@@ -25,6 +26,7 @@ class DaliModule : public OpenKNX::Module
 	private:
 		DaliClass *dali;
 		OpenKNX::Channel *channels[64];
+		MessageQueue *queue;
 		//StandardChannel **standards;
 		//StaircaseChannel **staircases;
 		//int standardCount = 0;

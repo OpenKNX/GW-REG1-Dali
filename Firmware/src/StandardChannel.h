@@ -1,10 +1,11 @@
 #include "OpenKNX.h"
 #include "Dali.h"
+#include "MessageQueue.h"
 
 class StandardChannel : public OpenKNX::Channel
 {
 	public:
-        StandardChannel(uint8_t channelIndex, DaliClass *dali);
+        StandardChannel(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
         ~StandardChannel();
 
 		void loop() override;
@@ -18,5 +19,6 @@ class StandardChannel : public OpenKNX::Channel
 		// uint16_t flashSize() override;
 
 	private:
-		DaliClass *_dali;
+		MessageQueue *_queue;
+		bool isGroup = false;
 };

@@ -30,20 +30,44 @@ void DaliModule::setup()
         if(type)
         {
             logInfoP("CH%i Treppenhaus", i);
-            channels[i] = new StaircaseChannel(i, dali);
+            channels[i] = new StaircaseChannel(i, queue, false);
         } else {
             logInfoP("CH%i Normalbetrieb", i);
-            channels[i] = new StandardChannel(i, dali);
+            channels[i] = new StandardChannel(i, queue, false);
         }
     }
+
+    queue = new MessageQueue();
 }
 
 void DaliModule::loop()
 {
+    for(int i = 0; i < 64; i++)
+    {
+        channels[i]->loop();
+    }
 }
 
 void DaliModule::loop1()
 {
+    for(int i = 0; i < 64; i++)
+    {
+        channels[i]->loop1();
+    }
+
+    Message *msg = queue->pop();
+    if(msg == nullptr) return;
+
+    switch(msg->type)
+    {
+        case MessageType::Arc:
+        {
+            dali->sendArcWait(msg->addr, msg->value, msg->addrtype);
+            break;
+        }
+    }
+
+    delete[] msg;
 }
 
 void DaliModule::processInputKo(GroupObject &ko)

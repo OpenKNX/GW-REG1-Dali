@@ -1,9 +1,10 @@
 #include "StandardChannel.h"
 
-StandardChannel::StandardChannel(uint8_t channelIndex, DaliClass *dali)
+StandardChannel::StandardChannel(uint8_t channelIndex, MessageQueue *queue, bool ig)
 {
     _channelIndex = channelIndex;
-    _dali = dali;
+    _queue = queue;
+    isGroup = ig;
 }
 
 StandardChannel::~StandardChannel()
@@ -41,12 +42,20 @@ void StandardChannel::processInputKo(GroupObject &ko)
             if(ko.value(DPT_Switch))
             {
                 logInfoP("Einschalten");
-                _dali->sendArc(_channelIndex, 0xFE);
+                Message *msg = new Message();
+                msg->type = MessageType::Arc;
+                msg->addr = _channelIndex;
+                msg->value = 0xFE;
+                _queue->push(msg);
             }
             else
             {
                 logInfoP("Ausschalten");
-                _dali->sendArc(_channelIndex, 0);
+                Message *msg = new Message();
+                msg->type = MessageType::Arc;
+                msg->addr = _channelIndex;
+                msg->value = 0x00;
+                _queue->push(msg);
             }
             break;
         }
@@ -60,6 +69,11 @@ void StandardChannel::processInputKo(GroupObject &ko)
         case 3:
         {
             logInfoP("Dimmen Absolut auf %i%%", ko.value(Dpt(5,1)));
+            Message *msg = new Message();
+            msg->type = MessageType::Arc;
+            msg->addr = _channelIndex;
+            msg->value = ko.value(Dpt(5,1));
+            _queue->push(msg);
             break;
         }
     }
