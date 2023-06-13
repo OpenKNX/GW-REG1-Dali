@@ -30,8 +30,8 @@ class MessageQueue
         int16_t getResponse(uint8_t id);
 
     private:
-        Message *start;
-        Message *end;
+        Message *head;
+        Message *tail;
         uint8_t currentId;
 		int16_t *responses = new int16_t[256];
 };

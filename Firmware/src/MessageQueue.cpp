@@ -3,15 +3,16 @@
 
 uint8_t MessageQueue::push(Message *msg)
 {
-    if(end == nullptr)
+    msg->next = nullptr;
+    if(tail == nullptr)
     {
-        start = msg;
-        end = msg;
+        head = msg;
+        tail = msg;
         return msg->id;
     }
 
-    end->next = msg;
-    end = msg;
+    tail->next = msg;
+    tail = msg;
     return msg->id;
 }
 
@@ -19,14 +20,14 @@ Message* MessageQueue::pop()
 {
     if(start == nullptr) return nullptr;
 
-    Message *item = start;
+    Message *item = head;
     
     if(item->next == nullptr)
     {
-        start = nullptr;
-        end = nullptr;
+        head = nullptr;
+        tail = nullptr;
     } else {
-        start = item->next;
+        head = item->next;
     }
 
     return item;
