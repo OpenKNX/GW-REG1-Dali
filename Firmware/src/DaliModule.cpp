@@ -62,7 +62,17 @@ void DaliModule::loop1()
     {
         case MessageType::Arc:
         {
-            dali->sendArcWait(msg->addr, msg->value, msg->addrtype);
+            int16_t resp = dali->sendArcWait(msg->addr, msg->value, msg->addrtype);
+            if(msg->wait)
+                queue->setResponse(msg->id, resp);
+            break;
+        }
+
+        case MessageType::Cmd:
+        {
+            int16_t resp = dali->sendCmdWait(msg->addr, msg->value, msg->addrtype);
+            if(msg->wait)
+                queue->setResponse(msg->id, resp);
             break;
         }
     }
@@ -83,10 +93,60 @@ void DaliModule::processInputKo(GroupObject &ko)
 
 bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
+    if(objectIndex != 164) return false;
+
+    switch(propertyId)
+    {
+        case 2:
+        {
+            uint8_t resp = sendMsg(MessageType::Cmd, data[0], false, dali->CMD_QUERY_DEVICE_TYPE, true);
+        
+            //todo handle error if dali is not present
+
+            resultData[0] = 0x00;
+            resultData[1] = resp;
+            resultLength = 2;
+            return true;
+        }
+    }
+
+
     return false;
 }
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
+    if(objectIndex != 164) return false;
+
+    switch(propertyId)
+    {
+        case 1:
+        {
+            int16_t resp = queue->getResponse(data[0]);
+
+            if(resp == -255)
+            {
+                resultData[0] = 0x00;
+                resultLength = 1;
+                return true;
+            } else {
+                resultData[0] = 0x01;
+                resultData[1] = resp;
+                resultLength = 2;
+                return true;
+            }
+        }
+    }
     return false;
+}
+
+uint8_t DaliModule::sendMsg(MessageType t, byte addr, bool isGroup, byte v, bool wait)
+{
+    Message *msg = new Message();
+    msg->id = queue->getNextId();
+    msg->type = t;
+    msg->addr = addr;
+    msg->addrtype = isGroup;
+    msg->value = 0xFE;
+    return queue->push(msg);
 }

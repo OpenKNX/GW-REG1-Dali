@@ -27,6 +27,7 @@ class DaliModule : public OpenKNX::Module
 		DaliClass *dali;
 		OpenKNX::Channel *channels[64];
 		MessageQueue *queue;
+		uint8_t sendMsg(MessageType t, byte addr, bool isGroup, byte v, bool wait = false);
 		//StandardChannel **standards;
 		//StaircaseChannel **staircases;
 		//int standardCount = 0;

@@ -3,7 +3,6 @@
 
 uint8_t MessageQueue::push(Message *msg)
 {
-    msg->id = currentId++;
     if(end == nullptr)
     {
         start = msg;
@@ -31,4 +30,20 @@ Message* MessageQueue::pop()
     }
 
     return item;
+}
+
+uint8_t MessageQueue::getNextId()
+{
+    responses[currentId] = -255;
+    return currentId++;
+}
+
+void MessageQueue::setResponse(uint8_t id, int16_t value)
+{
+    responses[id] = value;
+}
+
+int16_t MessageQueue::getResponse(uint8_t id)
+{
+    return responses[id];
 }

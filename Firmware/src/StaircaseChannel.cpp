@@ -44,6 +44,7 @@ void StaircaseChannel::loop1()
 uint8_t StaircaseChannel::sendMsg(MessageType t, byte v)
 {
     Message *msg = new Message();
+    msg->id = _queue->getNextId();
     msg->type = t;
     msg->addr = _channelIndex;
     msg->addrtype = isGroup;
