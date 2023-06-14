@@ -22,8 +22,11 @@ class StaircaseChannel : public OpenKNX::Channel
 		MessageQueue *_queue;
 		bool state = false;
 		bool isGroup = false;
+		bool isLocked = false;
 		unsigned long startTime = 0;
 		uint interval = 0;
+		uint8_t _min = 0;
+		uint8_t _max = 0;
 
 		uint8_t sendMsg(MessageType t, byte value);
 };

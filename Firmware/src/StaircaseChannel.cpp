@@ -22,6 +22,8 @@ const std::string StaircaseChannel::name()
 void StaircaseChannel::setup()
 {
     interval = ParamADR_stairtime;
+    _min = (ParamADR_min * 2.54);
+    _max = (ParamADR_max * 2.54);
 }
 
 void StaircaseChannel::loop()
@@ -59,8 +61,11 @@ void StaircaseChannel::processInputKo(GroupObject &ko)
 
     switch(chanIndex)
     {
+        //Schalten
         case 0:
         {
+            if(isLocked) break;
+
             if(ko.value(DPT_Switch))
             {
                 if(state)
@@ -69,9 +74,8 @@ void StaircaseChannel::processInputKo(GroupObject &ko)
                     {
                         startTime = millis();
                         return;
-                    } else {
-                        return;
                     }
+                    return;
                 }
                 logInfoP("Einschalten");
                 state = true;
@@ -92,16 +96,78 @@ void StaircaseChannel::processInputKo(GroupObject &ko)
             break;
         }
 
+        //Schalten Status
+        //case 1
+
+        //Dimmen relativ
         case 2:
         {
+            if(isLocked) break;
+
             logInfoP("Dimmen relativ");
             break;
         }
 
+        //Dimmen Absolut
         case 3:
         {
-            logInfoP("Dimmen Absolut auf %i%%", ko.value(Dpt(5,1)));
+            if(isLocked) break;
+
+            uint8_t value = ko.value(Dpt(5,1));
+            logInfoP("Dimmen Absolut auf %i%%", value);
+            uint val = _min + ((_max - _min) * (value / 100));
+            //Pvalue = 10 ^ ((value-1) / (253/3)) * Pmax / 1000
+            logInfoP("DALI Wert: %i", val);
             sendMsg(MessageType::Arc, ko.value(Dpt(5,1)));
+            break;
+        }
+
+        //Dimmen Status
+        //case 4
+
+        //Sperren
+        case 5:
+        {
+            bool value = ko.value(Dpt(1,5));
+            if(isLocked == value) break;
+            isLocked = value;
+            uint8_t behave;
+            uint8_t behavevalue;
+            if(isLocked)
+            {
+                behave = ParamADR_lockbehave;
+                behavevalue = ParamADR_lockvalue * 2.54;
+            } else {
+                behave = ParamADR_unlockbehave;
+                behavevalue = ParamADR_unlockvalue * 2.54;
+            }
+            switch(behave)
+            {
+                //nothing
+                case 0:
+                    return;
+
+                //Ausschalten
+                case 1:
+                {
+                    behavevalue = 0;
+                    break;
+                }
+
+                //Einschalten
+                case 2:
+                {
+                    behavevalue = 254;
+                    break;
+                }
+
+                //Fester Wert
+                case 3:
+                {
+                    break;
+                }
+            }
+            sendMsg(MessageType::Arc, behavevalue);
             break;
         }
     }
