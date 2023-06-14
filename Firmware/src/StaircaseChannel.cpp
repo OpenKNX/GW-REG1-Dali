@@ -30,11 +30,12 @@ void StaircaseChannel::loop()
 {
     if(state)
     {
-        if(millis() - startTime > interval)
+        if(millis() - startTime > interval * 1000)
         {
+            logInfoP("Zeit abgelaufen");
             state = false;
-            knx.getGroupObject(ADR_Koswitch_state).value(false, DPT_Switch);
-            sendMsg(MessageType::Arc, 0xFE);
+            //knx.getGroupObject(ADR_Koswitch_state).value(false, DPT_Switch);
+            sendMsg(MessageType::Arc, 0x00);
         }
     }
 }
@@ -50,7 +51,7 @@ uint8_t StaircaseChannel::sendMsg(MessageType t, byte v)
     msg->type = t;
     msg->addr = _channelIndex;
     msg->addrtype = isGroup;
-    msg->value = 0xFE;
+    msg->value = v;
     return _queue->push(msg);
 }
 
@@ -64,14 +65,21 @@ void StaircaseChannel::processInputKo(GroupObject &ko)
         //Schalten
         case 0:
         {
-            if(isLocked) break;
+            if(isLocked)
+            {
+                logInfoP("is locked");
+                return;
+            }
 
             if(ko.value(DPT_Switch))
             {
+                
                 if(state)
                 {
+                    logInfoP("ist bereits an");
                     if(ParamADR_nachtriggern)
                     {
+                        logInfoP("wurde nachgetriggert");
                         startTime = millis();
                         return;
                     }
@@ -80,17 +88,22 @@ void StaircaseChannel::processInputKo(GroupObject &ko)
                 logInfoP("Einschalten");
                 state = true;
                 startTime = millis();
+                logInfoP("interval %i", interval);
                 sendMsg(MessageType::Arc, 0xFE);
-                knx.getGroupObject(ADR_Koswitch_state).value(true, DPT_Switch);
+                //knx.getGroupObject(ADR_Koswitch_state).value(true, DPT_Switch);
             }
             else
             {
                 bool manuOff = ParamADR_manuoff;
-                if(!manuOff) return;
+                if(!manuOff)
+                {
+                    logInfoP("no manuel off");
+                    return;
+                }
 
                 logInfoP("Ausschalten");
                 sendMsg(MessageType::Arc, 0x00);
-                knx.getGroupObject(ADR_Koswitch_state).value(false, DPT_Switch);
+                //knx.getGroupObject(ADR_Koswitch_state).value(false, DPT_Switch);
                 state = false;
             }
             break;

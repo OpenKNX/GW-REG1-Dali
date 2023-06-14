@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "OpenKNX.h"
 #include "MessageQueue.h"
 
 uint8_t MessageQueue::push(Message *msg)
@@ -18,7 +19,7 @@ uint8_t MessageQueue::push(Message *msg)
 
 Message* MessageQueue::pop()
 {
-    if(start == nullptr) return nullptr;
+    if(head == nullptr) return nullptr;
 
     Message *item = head;
     
@@ -35,7 +36,7 @@ Message* MessageQueue::pop()
 
 uint8_t MessageQueue::getNextId()
 {
-    responses[currentId] = -255;
+    responses[currentId] = -200;
     return currentId++;
 }
 

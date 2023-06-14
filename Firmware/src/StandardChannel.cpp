@@ -43,6 +43,7 @@ void StandardChannel::processInputKo(GroupObject &ko)
             {
                 logInfoP("Einschalten");
                 Message *msg = new Message();
+                msg->id = _queue->getNextId();
                 msg->type = MessageType::Arc;
                 msg->addr = _channelIndex;
                 msg->value = 0xFE;
@@ -52,6 +53,7 @@ void StandardChannel::processInputKo(GroupObject &ko)
             {
                 logInfoP("Ausschalten");
                 Message *msg = new Message();
+                msg->id = _queue->getNextId();
                 msg->type = MessageType::Arc;
                 msg->addr = _channelIndex;
                 msg->value = 0x00;
@@ -70,6 +72,7 @@ void StandardChannel::processInputKo(GroupObject &ko)
         {
             logInfoP("Dimmen Absolut auf %i%%", ko.value(Dpt(5,1)));
             Message *msg = new Message();
+                msg->id = _queue->getNextId();
             msg->type = MessageType::Arc;
             msg->addr = _channelIndex;
             msg->value = ko.value(Dpt(5,1));

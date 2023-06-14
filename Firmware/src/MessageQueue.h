@@ -32,6 +32,6 @@ class MessageQueue
     private:
         Message *head;
         Message *tail;
-        uint8_t currentId;
+        uint8_t currentId = 0;
 		int16_t *responses = new int16_t[256];
 };

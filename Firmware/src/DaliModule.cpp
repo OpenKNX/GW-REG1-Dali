@@ -23,6 +23,8 @@ void DaliModule::setup()
 {
     dali = new DaliClass();
 	dali->begin(17, 16);
+    
+    queue = new MessageQueue();
 
     for(int i = 0; i < 64; i++)
     {
@@ -35,9 +37,8 @@ void DaliModule::setup()
             logInfoP("CH%i Normalbetrieb", i);
             channels[i] = new StandardChannel(i, queue, false);
         }
+        channels[i]->setup();
     }
-
-    queue = new MessageQueue();
 }
 
 void DaliModule::loop()
@@ -70,9 +71,13 @@ void DaliModule::loop1()
 
         case MessageType::Cmd:
         {
+            logInfoP("Send CMD %i", msg->value);
             int16_t resp = dali->sendCmdWait(msg->addr, msg->value, msg->addrtype);
             if(msg->wait)
+            {
+                logInfoP("Got Response %i = %i", msg->id, resp);
                 queue->setResponse(msg->id, resp);
+            }
             break;
         }
     }
@@ -116,6 +121,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
+    logInfoP("Got FunctionPropertyState %i %i", objectIndex, propertyId);
     if(objectIndex != 164) return false;
 
     switch(propertyId)
@@ -123,6 +129,7 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
         case 1:
         {
             int16_t resp = queue->getResponse(data[0]);
+            logInfoP("Check Response %i = %i", data[0], resp);
 
             if(resp == -255)
             {
@@ -130,8 +137,15 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
                 resultLength = 1;
                 return true;
             } else {
-                resultData[0] = 0x01;
-                resultData[1] = resp;
+                logInfoP("Send Response %i", resp);
+                if(resp >= 0)
+                {
+                    resultData[0] = 0x01;
+                    resultData[1] = (uint8_t)resp;
+                } else {
+                    resultData[0] = 0x02;
+                    resultData[1] = (uint8_t)(resp*-1);
+                }
                 resultLength = 2;
                 return true;
             }
@@ -147,6 +161,7 @@ uint8_t DaliModule::sendMsg(MessageType t, byte addr, bool isGroup, byte v, bool
     msg->type = t;
     msg->addr = addr;
     msg->addrtype = isGroup;
-    msg->value = 0xFE;
+    msg->value = v;
+    msg->wait = wait;
     return queue->push(msg);
 }
