@@ -32,7 +32,11 @@ void DaliModule::setup()
         if(type)
         {
             logInfoP("CH%i Treppenhaus", i);
-            channels[i] = new StaircaseChannel(i, queue, false);
+            StaircaseChannel *ch = new StaircaseChannel(i, queue, false);
+            ch->setInterval(ParamADR_stairtimeIndex(i));
+            ch->setMin((ParamADR_minIndex(i) * 2.54));
+            ch->setMax((ParamADR_maxIndex(i) * 2.54));
+            channels[i] = ch;
         } else {
             logInfoP("CH%i Normalbetrieb", i);
             channels[i] = new StandardChannel(i, queue, false);

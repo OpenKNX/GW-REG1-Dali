@@ -4,6 +4,7 @@
 #include "pins.h"
 #include "dali.h"
 #include "DaliModule.h"
+#include "UpdaterModule.h"
 #include <hid/Adafruit_USBD_HID.h>
 
 
@@ -185,9 +186,8 @@ void setup()
 
 	const uint8_t firmwareRevision = 0;
 	openknx.init(firmwareRevision);
-	logInfo("MAIN", "Init and add Module");
-	DaliModule *mod = new DaliModule();
-	openknx.addModule(1, mod);
+	openknx.addModule(1, new DaliModule());
+	openknx.addModule(2, new UpdaterModule());
 	openknx.setup();
 }
 

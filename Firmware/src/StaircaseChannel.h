@@ -12,6 +12,9 @@ class StaircaseChannel : public OpenKNX::Channel
 		void loop1() override;
 		void setup() override;
 		void processInputKo(GroupObject &ko) override;
+		void setInterval(uint i);
+		void setMin(uint8_t min);
+		void setMax(uint8_t max);
 
 		const std::string name() override;
 		// void writeFlash() override;

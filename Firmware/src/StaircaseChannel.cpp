@@ -21,9 +21,21 @@ const std::string StaircaseChannel::name()
 //only if knx.configured == true
 void StaircaseChannel::setup()
 {
-    interval = ParamADR_stairtime;
-    _min = (ParamADR_min * 2.54);
-    _max = (ParamADR_max * 2.54);
+}
+
+void StaircaseChannel::setInterval(uint i)
+{
+    interval = i;
+}
+
+void StaircaseChannel::setMin(uint8_t min)
+{
+    _min = min;
+}
+
+void StaircaseChannel::setMax(uint8_t max)
+{
+    _max = max;
 }
 
 void StaircaseChannel::loop()
