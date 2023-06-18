@@ -80,11 +80,6 @@ bool sendMessage = false;
 
 void handleSend(uint8_t const *buffer)
 {
-	logInfo("HID", "its really for me");
-
-	logHexInfo("DALI", buffer, 20);
-	logHexInfo("DALI", buffer + 6, 2);
-
 	if (buffer[6] >> 7 == 0)
 	{
 		int x = buffer[6] >> 1 & 0b111111;
@@ -102,6 +97,7 @@ void handleSend(uint8_t const *buffer)
 	logHexInfo("DALI", message, 2);
 	//DaliBus.sendRaw(message, 2);
 	sendMessage = true;
+	//todo maybe answer?
 	return;
 }
 
@@ -109,11 +105,14 @@ void handleSend(uint8_t const *buffer)
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize)
 {
+	logHexInfo("HID", buffer, 20);
+
 	switch (buffer[0])
 	{
 		// interface config
 		case 0x01:
 		{
+			logInfo("HID", "config");
 			handleConfig(buffer);
 			break;
 		}
@@ -125,10 +124,12 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 			x |= buffer[3];
 			if (x == 0x0003) // send to dali
 			{
+				logInfo("HID", "send to dali");
 				handleSend(buffer);
 			}
 			else if (x == 0x4000 && buffer[1] == 0x5a)
 			{ // dont know / bus info
+				logInfo("HID", "bus info");
 				uint8_t *report = new uint8_t[63];
 				report[0] = 0x77;
 				report[1] = 0x00;
@@ -143,6 +144,8 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 				usb_hid.sendReport(0x12, report, 63);
 				delete[] report;
 				break;
+			} else {
+				logInfo("HID", "unknown");
 			}
 			break;
 		}
@@ -150,6 +153,7 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 		// dont know
 		case 0x50:
 		{
+			logInfo("HID", "dont know");
 			uint8_t *report = new uint8_t[63];
 			report[0] = 0x00;
 			report[1] = 0x00;

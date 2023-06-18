@@ -22,7 +22,7 @@ bool DaliModule::usesDualCore()
 void DaliModule::setup()
 {
     dali = new DaliClass();
-	dali->begin(17, 16);
+	dali->begin(DALI_TX, DALI_RX);
     
     queue = new MessageQueue();
 
@@ -41,7 +41,24 @@ void DaliModule::setup()
             logInfoP("CH%i Normalbetrieb", i);
             channels[i] = new StandardChannel(i, queue, false);
         }
-        channels[i]->setup();
+    }
+
+    
+    for(int i = 0; i < 16; i++)
+    {
+        bool type = ParamADR_typeIndex(i);
+        if(type)
+        {
+            logInfoP("GR%i Treppenhaus", i);
+            StaircaseChannel *ch = new StaircaseChannel(i, queue, false);
+            ch->setInterval(ParamADR_stairtimeIndex(i)); //todo replace with group settings
+            ch->setMin((ParamADR_minIndex(i) * 2.54));
+            ch->setMax((ParamADR_maxIndex(i) * 2.54));
+            groups[i] = ch;
+        } else {
+            logInfoP("GR%i Normalbetrieb", i);
+            groups[i] = new StandardChannel(i, queue, false);
+        }
     }
 }
 
@@ -58,6 +75,23 @@ void DaliModule::loop1()
     for(int i = 0; i < 64; i++)
     {
         channels[i]->loop1();
+    }
+
+    bool daliState = digitalRead(DALI_RX);
+    if(daliState)
+    {
+        if(!_daliBusState)
+        {
+            logInfoP("DALI Bus is connected");
+        }
+        _daliBusState = true;
+        _daliStateCounter = 0;
+    } else {
+        _daliStateCounter++;
+        if(_daliStateCounter == 10)
+        {
+            logErrorP("DALI Bus is not connected");
+        }
     }
 
     Message *msg = queue->pop();
@@ -87,6 +121,11 @@ void DaliModule::loop1()
     }
 
     delete[] msg;
+}
+
+bool DaliModule::getDaliBusState()
+{
+    return _daliBusState;
 }
 
 void DaliModule::processInputKo(GroupObject &ko)

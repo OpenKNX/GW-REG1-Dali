@@ -16,12 +16,13 @@ const std::string StaircaseChannel::name()
     return "StaircaseChannel";
 }
 
-
+/*
 //will be called once
 //only if knx.configured == true
 void StaircaseChannel::setup()
 {
 }
+*/
 
 void StaircaseChannel::setInterval(uint i)
 {
