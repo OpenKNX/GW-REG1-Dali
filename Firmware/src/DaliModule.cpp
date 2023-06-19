@@ -46,18 +46,18 @@ void DaliModule::setup()
     
     for(int i = 0; i < 16; i++)
     {
-        bool type = ParamADR_typeIndex(i);
+        bool type = ParamGRP_typeIndex(i);
         if(type)
         {
             logInfoP("GR%i Treppenhaus", i);
-            StaircaseChannel *ch = new StaircaseChannel(i, queue, false);
-            ch->setInterval(ParamADR_stairtimeIndex(i)); //todo replace with group settings
-            ch->setMin((ParamADR_minIndex(i) * 2.54));
-            ch->setMax((ParamADR_maxIndex(i) * 2.54));
+            StaircaseChannel *ch = new StaircaseChannel(i, queue, true);
+            ch->setInterval(ParamGRP_stairtimeIndex(i)); //todo replace with group settings
+            ch->setMin(254); //TODO check what cockpit does with this
+            ch->setMax(254);
             groups[i] = ch;
         } else {
             logInfoP("GR%i Normalbetrieb", i);
-            groups[i] = new StandardChannel(i, queue, false);
+            groups[i] = new StandardChannel(i, queue, true);
         }
     }
 }
