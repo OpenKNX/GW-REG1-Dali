@@ -52,7 +52,7 @@ void DaliModule::setup()
             logInfoP("GR%i Treppenhaus", i);
             StaircaseChannel *ch = new StaircaseChannel(i, queue, true);
             ch->setInterval(ParamGRP_stairtimeIndex(i)); //todo replace with group settings
-            ch->setMin(254); //TODO check what cockpit does with this
+            ch->setMin(0); //TODO check what cockpit does with this
             ch->setMax(254);
             groups[i] = ch;
         } else {
