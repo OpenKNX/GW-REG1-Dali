@@ -2,11 +2,11 @@
 #include "Dali.h"
 #include "MessageQueue.h"
 
-class StandardChannel : public OpenKNX::Channel
+class DaliChannel : public OpenKNX::Channel
 {
 	public:
-        StandardChannel(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
-        ~StandardChannel();
+        DaliChannel(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
+        ~DaliChannel();
 
 		void loop() override;
 		void loop1() override;
@@ -20,5 +20,16 @@ class StandardChannel : public OpenKNX::Channel
 
 	private:
 		MessageQueue *_queue;
+		bool state = false;
 		bool isGroup = false;
+		bool isLocked = false;
+		unsigned long startTime = 0;
+		uint interval = 0;
+		uint8_t _min = 0;
+		uint8_t _max = 0;
+		bool canReTrigger = false;
+		bool _isStaircase = false;
+
+		uint16_t calcKoNumber(int asap);
+		uint8_t sendMsg(MessageType t, byte value);
 };

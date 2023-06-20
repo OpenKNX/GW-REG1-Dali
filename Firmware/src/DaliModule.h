@@ -2,8 +2,7 @@
 #include "OpenKNX.h"
 #include "Dali.h"
 #include "MessageQueue.h"
-#include "StandardChannel.h"
-#include "StaircaseChannel.h"
+#include "DaliChannel.h"
 
 #define DALI_TX 17
 #define DALI_RX 16

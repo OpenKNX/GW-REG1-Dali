@@ -28,37 +28,17 @@ void DaliModule::setup()
 
     for(int i = 0; i < 64; i++)
     {
-        bool type = ParamADR_typeIndex(i);
-        if(type)
-        {
-            logInfoP("CH%i Treppenhaus", i);
-            StaircaseChannel *ch = new StaircaseChannel(i, queue, false);
-            ch->setInterval(ParamADR_stairtimeIndex(i));
-            ch->setMin((ParamADR_minIndex(i) * 2.54));
-            ch->setMax((ParamADR_maxIndex(i) * 2.54));
-            channels[i] = ch;
-        } else {
-            logInfoP("CH%i Normalbetrieb", i);
-            channels[i] = new StandardChannel(i, queue, false);
-        }
+        DaliChannel *ch = new DaliChannel(i, queue, false);
+        ch->setup();
+        channels[i] = ch;
     }
 
     
     for(int i = 0; i < 16; i++)
     {
-        bool type = ParamGRP_typeIndex(i);
-        if(type)
-        {
-            logInfoP("GR%i Treppenhaus", i);
-            StaircaseChannel *ch = new StaircaseChannel(i, queue, true);
-            ch->setInterval(ParamGRP_stairtimeIndex(i)); //todo replace with group settings
-            ch->setMin(0); //TODO check what cockpit does with this
-            ch->setMax(254);
-            groups[i] = ch;
-        } else {
-            logInfoP("GR%i Normalbetrieb", i);
-            groups[i] = new StandardChannel(i, queue, true);
-        }
+        DaliChannel *ch = new DaliChannel(i, queue, true);
+        ch->setup();
+        groups[i] = ch;
     }
 }
 
@@ -68,6 +48,10 @@ void DaliModule::loop()
     {
         channels[i]->loop();
     }
+    for(int i = 0; i < 16; i++)
+    {
+        groups[i]->loop();
+    }
 }
 
 void DaliModule::loop1()
@@ -76,23 +60,30 @@ void DaliModule::loop1()
     {
         channels[i]->loop1();
     }
-
-    bool daliState = digitalRead(DALI_RX);
-    if(daliState)
+    for(int i = 0; i < 16; i++)
     {
-        if(!_daliBusState)
-        {
-            logInfoP("DALI Bus is connected");
-        }
-        _daliBusState = true;
-        _daliStateCounter = 0;
-    } else {
-        _daliStateCounter++;
-        if(_daliStateCounter == 10)
-        {
-            logErrorP("DALI Bus is not connected");
-        }
+        groups[i]->loop1();
     }
+
+/*
+    bool daliState = digitalRead(DALI_RX);
+
+    if(daliState != _daliBusState)
+    {
+        _daliStateCounter = 0;
+        _daliBusState = daliState;
+    } else {
+        if(_daliStateCounter == 1000)
+        {
+            if(_daliBusState)
+                logErrorP("DALI Bus is not connected");
+            else
+                logInfoP("DALI Bus is connected");
+        }
+        if(_daliStateCounter < 1010)
+            _daliStateCounter++;
+    }
+    */
 
     Message *msg = queue->pop();
     if(msg == nullptr) return;
@@ -131,11 +122,18 @@ bool DaliModule::getDaliBusState()
 void DaliModule::processInputKo(GroupObject &ko)
 {
     int koNum = ko.asap();
-    if(koNum >= ADR_KoOffset && koNum <= ADR_KoOffset + ADR_KoBlockSize * 64)
+    if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
         logInfoP("Got KO %i for CH%i", koNum, index);
         channels[index]->processInputKo(ko);
+    }
+
+    if(koNum >= GRP_KoOffset && koNum < GRP_KoOffset + GRP_KoBlockSize * 16)
+    {
+        int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
+        logInfoP("Got KO %i for G%i", koNum, index);
+        groups[index]->processInputKo(ko);
     }
 }
 
