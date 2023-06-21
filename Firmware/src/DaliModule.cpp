@@ -61,6 +61,7 @@ void DaliModule::loop1()
     if(_adrState != AddressingState::None)
     {
         loopAddressing();
+        loopMessages();
         return;
     }
 
@@ -73,6 +74,11 @@ void DaliModule::loop1()
         groups[i]->loop1();
     }
 
+    loopMessages();
+}
+
+void DaliModule::loopMessages()
+{
     Message *msg = queue->pop();
     if(msg == nullptr) return;
 
@@ -92,7 +98,7 @@ void DaliModule::loop1()
             int16_t resp = dali->sendCmdWait(msg->addr, msg->value, msg->addrtype);
             if(msg->wait)
             {
-                logInfoP("Got Response %i = %i", msg->id, resp);
+                //logInfoP("Got Response %i = %i", msg->id, resp);
                 queue->setResponse(msg->id, resp);
             }
             break;
@@ -103,7 +109,7 @@ void DaliModule::loop1()
             int16_t resp = dali->sendSpecialCmdWait(msg->addr, msg->value);
             if(msg->wait)
             {
-                logInfoP("Got Response %i = %i", msg->id, resp);
+                //logInfoP("Got Response %i = %i", msg->id, resp);
                 queue->setResponse(msg->id, resp);
             }
         }
@@ -118,7 +124,7 @@ void DaliModule::loopAddressing()
     {
         case AddressingState::Randomize_Wait:
         {
-            if(millis() - _adrTime > 100)
+            if(millis() - _adrTime > 1000)
             {
                 _adrState = AddressingState::Search;
                 logInfoP("RandomizeWait finished");
@@ -130,12 +136,12 @@ void DaliModule::loopAddressing()
         {
             if(_adrNoRespCounter == 2)
             {
-                logInfoP("No more ballasts");
+                //logInfoP("No more ballasts");
                 _adrState = AddressingState::Finish;
                 break;
             }
 
-            logInfoP("Search: %i - %i", _adrLow, _adrHigh);
+            //logInfoP("Search: %i - %i", _adrLow, _adrHigh);
             byte high = _adrHigh >> 16;
             byte middle = (_adrHigh >> 8) & 0xFF;
             byte low = _adrHigh & 0xFF;
@@ -144,13 +150,14 @@ void DaliModule::loopAddressing()
             sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRL, false, low);
             _adrResp = sendMsg(MessageType::SpecialCmd, dali->CMD_COMPARE, false, 0x00, true);
             _adrTime = millis();
+            _adrState = AddressingState::SearchWait;
             break;
         }
 
         case AddressingState::SearchWait:
         {
             int16_t response = queue->getResponse(_adrResp);
-            if(response == -255)
+            if(response == -200 || response == -1)
             {
                 if(millis() - _adrTime > SEARCHWAIT_TIME)
                 {
@@ -163,17 +170,16 @@ void DaliModule::loopAddressing()
                 if(_adrLow == _adrHigh)
                 {
                     logInfoP("Found Ballast at %X", _adrLow);
-                    _adrResp = sendMsg(MessageType::Cmd, dali->CMD_QUERY_SHORT, false, 0, true);
-                    _adrState = AddressingState::Found;
+                    _adrResp = sendMsg(MessageType::SpecialCmd, dali->CMD_QUERY_SHORT, false, 0, true);
                     _adrTime = millis();
-                    //TODO add to found list
+                    _adrState = AddressingState::Found;
                 } else {
-                    logInfoP("Range has ballast");
+                    //logInfoP("Range has ballast");
                     _adrHighLast = _adrHigh;
                     _adrHigh = (_adrLow + _adrHigh) / 2;
                     _adrNoRespCounter = 0;
+                    _adrState = AddressingState::Search;
                 }
-                _adrState = AddressingState::Search;
             } else {
                 logErrorP("Dali Error %i, aborting addressing", response);
                 _adrState = AddressingState::Finish;
@@ -204,7 +210,6 @@ void DaliModule::loopAddressing()
                 _adrHigh = 0xFFFFFF;
                 _adrHighLast = 0xFFFFFF;
                 _adrNoRespCounter = 1;
-                logInfoP("Restart Search");
                 sendMsg(MessageType::SpecialCmd, dali->CMD_WITHDRAW, false, 0x00);
                 _adrState = AddressingState::Search;
             } else {
@@ -216,6 +221,8 @@ void DaliModule::loopAddressing()
 
         case AddressingState::Finish:
         {
+            logErrorP("Found %i ballasts", _adrFound);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_TERMINATE, false, 0x00);
             sendMsg(MessageType::SpecialCmd, dali->CMD_TERMINATE, false, 0x00);
             _adrState = AddressingState::None;
             break;
