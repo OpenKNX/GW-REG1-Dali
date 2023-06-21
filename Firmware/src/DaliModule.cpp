@@ -44,6 +44,8 @@ void DaliModule::setup()
 
 void DaliModule::loop()
 {
+    if(_adrState != AddressingState::None) return;
+
     for(int i = 0; i < 64; i++)
     {
         channels[i]->loop();
@@ -56,6 +58,12 @@ void DaliModule::loop()
 
 void DaliModule::loop1()
 {
+    if(_adrState != AddressingState::None)
+    {
+        loopAddressing();
+        return;
+    }
+
     for(int i = 0; i < 64; i++)
     {
         channels[i]->loop1();
@@ -64,26 +72,6 @@ void DaliModule::loop1()
     {
         groups[i]->loop1();
     }
-
-/*
-    bool daliState = digitalRead(DALI_RX);
-
-    if(daliState != _daliBusState)
-    {
-        _daliStateCounter = 0;
-        _daliBusState = daliState;
-    } else {
-        if(_daliStateCounter == 1000)
-        {
-            if(_daliBusState)
-                logErrorP("DALI Bus is not connected");
-            else
-                logInfoP("DALI Bus is connected");
-        }
-        if(_daliStateCounter < 1010)
-            _daliStateCounter++;
-    }
-    */
 
     Message *msg = queue->pop();
     if(msg == nullptr) return;
@@ -109,9 +97,130 @@ void DaliModule::loop1()
             }
             break;
         }
+
+        case MessageType::SpecialCmd:
+        {
+            int16_t resp = dali->sendSpecialCmdWait(msg->addr, msg->value);
+            if(msg->wait)
+            {
+                logInfoP("Got Response %i = %i", msg->id, resp);
+                queue->setResponse(msg->id, resp);
+            }
+        }
     }
 
     delete[] msg;
+}
+
+void DaliModule::loopAddressing()
+{
+    switch(_adrState)
+    {
+        case AddressingState::Randomize_Wait:
+        {
+            if(millis() - _adrTime > 100)
+            {
+                _adrState = AddressingState::Search;
+                logInfoP("RandomizeWait finished");
+            }
+            break;
+        }
+
+        case AddressingState::Search:
+        {
+            if(_adrNoRespCounter == 2)
+            {
+                logInfoP("No more ballasts");
+                _adrState = AddressingState::Finish;
+                break;
+            }
+
+            logInfoP("Search: %i - %i", _adrLow, _adrHigh);
+            byte high = _adrHigh >> 16;
+            byte middle = (_adrHigh >> 8) & 0xFF;
+            byte low = _adrHigh & 0xFF;
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRH, false, high);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRM, false, middle);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRL, false, low);
+            _adrResp = sendMsg(MessageType::SpecialCmd, dali->CMD_COMPARE, false, 0x00, true);
+            _adrTime = millis();
+            break;
+        }
+
+        case AddressingState::SearchWait:
+        {
+            int16_t response = queue->getResponse(_adrResp);
+            if(response == -255)
+            {
+                if(millis() - _adrTime > SEARCHWAIT_TIME)
+                {
+                    _adrLow = _adrHigh + 1;
+                    _adrHigh = _adrHighLast;
+                    _adrState = AddressingState::Search;
+                    _adrNoRespCounter++;
+                }
+            } else if(response >= 0) {
+                if(_adrLow == _adrHigh)
+                {
+                    logInfoP("Found Ballast at %X", _adrLow);
+                    _adrResp = sendMsg(MessageType::Cmd, dali->CMD_QUERY_SHORT, false, 0, true);
+                    _adrState = AddressingState::Found;
+                    _adrTime = millis();
+                    //TODO add to found list
+                } else {
+                    logInfoP("Range has ballast");
+                    _adrHighLast = _adrHigh;
+                    _adrHigh = (_adrLow + _adrHigh) / 2;
+                    _adrNoRespCounter = 0;
+                }
+                _adrState = AddressingState::Search;
+            } else {
+                logErrorP("Dali Error %i, aborting addressing", response);
+                _adrState = AddressingState::Finish;
+            }
+            break;
+        }
+
+        case AddressingState::Found:
+        {
+            int16_t response = queue->getResponse(_adrResp);
+            if(response == -255)
+            {
+                if(millis() - _adrTime > SEARCHWAIT_TIME)
+                {
+                    logErrorP("Found ballast not answering");
+                    _adrState = AddressingState::Finish;
+                }
+            } else if(response >= 0) {
+                logInfoP("Ballast has Short Address %i", response);
+
+                ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
+                ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
+                ballasts[_adrFound].low = _adrLow & 0xFF;
+                ballasts[_adrFound].address = response;
+                _adrFound++;
+
+                _adrLow = 0;
+                _adrHigh = 0xFFFFFF;
+                _adrHighLast = 0xFFFFFF;
+                _adrNoRespCounter = 1;
+                logInfoP("Restart Search");
+                sendMsg(MessageType::SpecialCmd, dali->CMD_WITHDRAW, false, 0x00);
+                _adrState = AddressingState::Search;
+            } else {
+                logErrorP("Dali Error %i, aborting addressing", response);
+                _adrState = AddressingState::Finish;
+            }
+            break;
+        }
+
+        case AddressingState::Finish:
+        {
+            sendMsg(MessageType::SpecialCmd, dali->CMD_TERMINATE, false, 0x00);
+            _adrState = AddressingState::None;
+            break;
+        }
+    }
 }
 
 bool DaliModule::getDaliBusState()
@@ -121,6 +230,8 @@ bool DaliModule::getDaliBusState()
 
 void DaliModule::processInputKo(GroupObject &ko)
 {
+    if(_adrState != AddressingState::None) return;
+
     int koNum = ko.asap();
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
@@ -154,6 +265,30 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             resultLength = 2;
             return true;
         }
+
+        case 3:
+        {
+            ballasts = new Ballast[64];
+            logInfoP("Starting Addressing");
+            _adrState = AddressingState::Init;
+            _adrLow = 0;
+            _adrHigh = 0xFFFFFF;
+            _adrHighLast = 0xFFFFFF;
+            _adrFound = 0;
+
+            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, 0);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, 0);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_RANDOMISE, false, 0);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_RANDOMISE, false, 0);
+            logInfoP("RandomizeWait");
+
+            _adrState = AddressingState::Randomize_Wait;
+            _adrTime = millis();
+            _adrNoRespCounter = 1;
+
+            resultLength = 0;
+            return true;
+        }
     }
 
 
@@ -162,7 +297,6 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    logInfoP("Got FunctionPropertyState %i %i", objectIndex, propertyId);
     if(objectIndex != 164) return false;
 
     switch(propertyId)
@@ -190,6 +324,29 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
                 resultLength = 2;
                 return true;
             }
+        }
+
+        case 3:
+        {
+            resultData[0] = data[0] < _adrFound;
+            resultData[1] = (data[0] >= _adrFound) && _adrState == AddressingState::None;
+            if(data[0] < _adrFound)
+            {
+                resultData[2] = ballasts[data[0]].high;
+                resultData[3] = ballasts[data[0]].middle;
+                resultData[4] = ballasts[data[0]].low;
+                resultData[5] = ballasts[data[0]].address;
+                resultLength = 6;
+            } else {
+                resultLength = 2;
+            }
+
+            if(resultData[1])
+            {
+                delete[] ballasts;
+            }
+
+            return true;
         }
     }
     return false;
