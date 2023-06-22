@@ -124,7 +124,7 @@ void DaliModule::loopAddressing()
     {
         case AddressingState::Randomize_Wait:
         {
-            if(millis() - _adrTime > 1000)
+            if(millis() - _adrTime > DALI_WAIT_RANDOMIZE)
             {
                 _adrState = AddressingState::Search;
                 logInfoP("RandomizeWait finished");
@@ -159,7 +159,7 @@ void DaliModule::loopAddressing()
             int16_t response = queue->getResponse(_adrResp);
             if(response == -200 || response == -1)
             {
-                if(millis() - _adrTime > SEARCHWAIT_TIME)
+                if(millis() - _adrTime > DALI_WAIT_SEARCH)
                 {
                     _adrLow = _adrHigh + 1;
                     _adrHigh = _adrHighLast;
@@ -192,7 +192,7 @@ void DaliModule::loopAddressing()
             int16_t response = queue->getResponse(_adrResp);
             if(response == -255)
             {
-                if(millis() - _adrTime > SEARCHWAIT_TIME)
+                if(millis() - _adrTime > DALI_WAIT_SEARCH)
                 {
                     logErrorP("Found ballast not answering");
                     _adrState = AddressingState::Finish;
@@ -203,7 +203,7 @@ void DaliModule::loopAddressing()
                 ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
                 ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
                 ballasts[_adrFound].low = _adrLow & 0xFF;
-                ballasts[_adrFound].address = response;
+                ballasts[_adrFound].address = response >> 1;
                 _adrFound++;
 
                 _adrLow = 0;
@@ -225,6 +225,108 @@ void DaliModule::loopAddressing()
             sendMsg(MessageType::SpecialCmd, dali->CMD_TERMINATE, false, 0x00);
             sendMsg(MessageType::SpecialCmd, dali->CMD_TERMINATE, false, 0x00);
             _adrState = AddressingState::None;
+            break;
+        }
+
+
+        case AddressingState::Query_Wait:
+        {
+            if(millis() - _adrTime > DALI_WAIT_SEARCH)
+            {
+                _adrState = AddressingState::Withdraw_Others;
+                return;
+            }
+
+            uint16_t resp = queue->getResponse(_adrResp);
+
+            if(resp == -255) return;
+
+            if(resp >= 0)
+            {
+                logErrorP("Adresse wird bereits verwendet");
+                _assState = AssigningState::Exists;
+                _adrState = AddressingState::None;
+                return;
+            } else {
+                logErrorP("Bus Error %i", resp);
+                _assState = AssigningState::Failed;
+                _adrState = AddressingState::None;
+                return;
+            }
+            break;
+        }
+
+        case AddressingState::Withdraw_Others:
+        {
+            if(_adrHigh > 0)
+            {
+                logInfoP("Verwerfe alle mit niedrigerer Long Address");
+                _adrHigh--;
+                byte high = _adrHigh >> 16;
+                byte middle = (_adrHigh >> 8) & 0xFF;
+                byte low = _adrHigh & 0xFF;
+                sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRH, false, high);
+                sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRM, false, middle);
+                sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRL, false, low);
+                sendMsg(MessageType::SpecialCmd, dali->CMD_WITHDRAW, false, 0);
+                _adrHigh++;
+            }
+            _adrState = AddressingState::Set_Address;
+            break;
+        }
+
+        case AddressingState::Set_Address:
+        {
+            logInfoP("Setze Short Address");
+            byte high = _adrHigh >> 16;
+            byte middle = (_adrHigh >> 8) & 0xFF;
+            byte low = _adrHigh & 0xFF;
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRH, false, high);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRM, false, middle);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SEARCHADDRL, false, low);
+            _adrLow = _adrLow << 1;
+            _adrLow |= 1;
+            sendMsg(MessageType::SpecialCmd, dali->CMD_SET_DTR, false, _adrLow);
+            sendMsg(MessageType::Cmd, dali->CMD_DTR_AS_SHORT, false, 0);
+            _adrState = AddressingState::Check_Address;
+            _adrResp = sendMsg(MessageType::SpecialCmd, dali->CMD_QUERY_SHORT, false, 0, true);
+            _adrTime = millis();
+            logInfoP("Frage Short Address ab");
+            break;
+        }
+
+        case AddressingState::Check_Address:
+        {
+            if(millis() - _adrTime > DALI_WAIT_SEARCH)
+            {
+                logInfoP("Gerät antowrtet nicht");
+                _assState = AssigningState::Failed;
+                _adrState = AddressingState::None;
+                return;
+            }
+
+            uint16_t resp = queue->getResponse(_adrResp);
+
+            if(resp == -255) return;
+
+            if(resp >= 0)
+            {
+                if(resp == _adrLow)
+                {
+                    logInfoP("Adresse erfolgreich gesetzt");
+                    _assState = AssigningState::Success;
+                } else {
+                    logInfoP("Adresse wurde nicht übernommen");
+                    _assState = AssigningState::Failed;
+                }
+                _adrState = AddressingState::None;
+                return;
+            } else {
+                logInfoP("Bus Error %i", resp);
+                _assState = AssigningState::Failed;
+                _adrState = AddressingState::None;
+                return;
+            }
             break;
         }
     }
@@ -283,8 +385,8 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             _adrHighLast = 0xFFFFFF;
             _adrFound = 0;
 
-            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, 0);
-            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, 0);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, data[0] ? 255 : 0);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, data[0] ? 255 : 0);
             sendMsg(MessageType::SpecialCmd, dali->CMD_RANDOMISE, false, 0);
             sendMsg(MessageType::SpecialCmd, dali->CMD_RANDOMISE, false, 0);
             logInfoP("RandomizeWait");
@@ -295,6 +397,26 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
             resultLength = 0;
             return true;
+        }
+
+        case 4:
+        {
+            logInfoP("Starting assigning address");
+            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, 0);
+            sendMsg(MessageType::SpecialCmd, dali->CMD_INITIALISE, false, 0);
+            
+            _adrHigh = data[1] << 16;
+            _adrHigh |= data[2] << 8;
+            _adrHigh |= data[3];
+            logInfoP("Long  Addr %X", _adrHigh);
+            logInfoP("Short Addr %i", data[0]);
+            _adrLow = data[0];
+            
+            _adrResp = sendMsg(MessageType::SpecialCmd, dali->CMD_QUERY_STATUS, false, 0, true);
+            _adrTime = millis();
+            _adrState = AddressingState::Query_Wait;
+            _assState = AssigningState::Working;
+            break;
         }
     }
 
@@ -354,6 +476,40 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
             }
 
             return true;
+        }
+
+        case 4:
+        {
+            switch(_assState)
+            {
+                case AssigningState::Working:
+                {
+                    resultData[0] = 0x00;
+                    resultLength = 1;
+                    return true;
+                }
+
+                case AssigningState::Exists:
+                {
+                    resultData[0] = 0x01;
+                    resultLength = 1;
+                    return true;
+                }
+
+                case AssigningState::Success:
+                {
+                    resultData[0] = 0x02;
+                    resultLength = 1;
+                    return true;
+                }
+
+                case AssigningState::Failed:
+                {
+                    resultData[0] = 0x03;
+                    resultLength = 1;
+                    return true;
+                }
+            }
         }
     }
     return false;

@@ -8,7 +8,12 @@
 #define DALI_TX 17
 #define DALI_RX 16
 
-#define SEARCHWAIT_TIME 500
+#ifndef DALI_WAIT_RANDOMIZE
+#define DALI_WAIT_RANDOMIZE 500
+#endif
+#ifndef DALI_WAIT_SEARCH
+#define DALI_WAIT_SEARCH 200
+#endif
 
 class DaliModule : public OpenKNX::Module
 {
@@ -32,12 +37,25 @@ class DaliModule : public OpenKNX::Module
 	private:
 		enum class AddressingState {
 			None,
+			//addressing
 			Init,
 			Randomize_Wait,
 			Search,
 			SearchWait,
 			Found,
-			Finish
+			Finish,
+			//assigning
+			Query_Wait,
+			Withdraw_Others,
+			Set_Address,
+			Check_Address
+		};
+		enum class AssigningState {
+			None,
+			Working,
+			Exists,
+			Success,
+			Failed
 		};
 	
 		uint32_t _adrLow = 0;
@@ -47,6 +65,7 @@ class DaliModule : public OpenKNX::Module
 		int _adrNoRespCounter = 0;
 		unsigned long _adrTime = 0;
 		AddressingState _adrState = AddressingState::None;
+		AssigningState _assState = AssigningState::None;
 		Ballast *ballasts;
 		int _adrFound = 0;
 
