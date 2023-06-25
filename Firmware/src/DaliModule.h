@@ -9,10 +9,10 @@
 #define DALI_RX 16
 
 #ifndef DALI_WAIT_RANDOMIZE
-#define DALI_WAIT_RANDOMIZE 500
+#define DALI_WAIT_RANDOMIZE 1000
 #endif
 #ifndef DALI_WAIT_SEARCH
-#define DALI_WAIT_SEARCH 200
+#define DALI_WAIT_SEARCH 300
 #endif
 
 class DaliModule : public OpenKNX::Module
@@ -76,5 +76,7 @@ class DaliModule : public OpenKNX::Module
 		OpenKNX::Channel *groups[16];
 		MessageQueue *queue;
 
-		uint8_t sendMsg(MessageType t, byte addr, bool isGroup, byte v, bool wait = false);
+		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);
+		uint8_t sendCmd(byte addr, byte value, byte type, bool wait = false);
+		uint8_t sendCmdSpecial(int command, byte value = 0, bool wait = false);
 };

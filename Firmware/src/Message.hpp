@@ -13,9 +13,9 @@ struct Message
     Message *next;
     byte *data;
     MessageType type;
-    byte addr;
+    byte para1;
     byte addrtype = 0;
-    byte value;
+    byte para2;
     bool wait = false;
     uint8_t id = 0;
 };

@@ -82,9 +82,9 @@ uint8_t DaliChannel::sendMsg(MessageType t, byte v)
     Message *msg = new Message();
     msg->id = _queue->getNextId();
     msg->type = t;
-    msg->addr = _channelIndex;
+    msg->para1 = _channelIndex;
+    msg->para2 = v;
     msg->addrtype = isGroup;
-    msg->value = v;
     return _queue->push(msg);
 }
 
