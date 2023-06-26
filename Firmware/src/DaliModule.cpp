@@ -223,7 +223,6 @@ void DaliModule::loopAddressing()
         {
             logErrorP("Found %i ballasts", _adrFound);
             sendCmdSpecial(dali->CMD_TERMINATE);
-            sendCmdSpecial(dali->CMD_TERMINATE);
             _adrState = AddressingState::None;
             break;
         }
@@ -269,6 +268,7 @@ void DaliModule::loopAddressing()
                 sendCmdSpecial(dali->CMD_SEARCHADDRH, high);
                 sendCmdSpecial(dali->CMD_SEARCHADDRM, middle);
                 sendCmdSpecial(dali->CMD_SEARCHADDRL, low);
+                sendCmdSpecial(dali->CMD_COMPARE); //todo remove if it works
                 sendCmdSpecial(dali->CMD_WITHDRAW);
                 _adrHigh++;
             }
@@ -285,9 +285,9 @@ void DaliModule::loopAddressing()
             sendCmdSpecial(dali->CMD_SEARCHADDRH, high);
             sendCmdSpecial(dali->CMD_SEARCHADDRM, middle);
             sendCmdSpecial(dali->CMD_SEARCHADDRL, low);
+            sendCmdSpecial(dali->CMD_COMPARE); //todo remove if it works
             logInfoP("set DTR to %i", _adrLow);
-            sendCmdSpecial(dali->CMD_SET_DTR, _adrLow);
-            sendCmd(0xFF, dali->CMD_DTR_AS_SHORT, dali->DALI_GROUP_ADDRESS);
+            sendCmdSpecial(dali->CMD_PROGRAMSHORT, _adrLow);
             _adrState = AddressingState::Check_Address;
             _adrResp = sendCmdSpecial(dali->CMD_QUERY_SHORT, 0, true);
             _adrTime = millis();
@@ -299,7 +299,7 @@ void DaliModule::loopAddressing()
         {
             if(millis() - _adrTime > DALI_WAIT_SEARCH)
             {
-                logInfoP("Gerät antowrtet nicht");
+                logInfoP("Gerät antwortet nicht");
                 _assState = AssigningState::Failed;
                 _adrState = AddressingState::None;
                 return;
