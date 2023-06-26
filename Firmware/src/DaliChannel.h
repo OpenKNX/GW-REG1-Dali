@@ -31,5 +31,5 @@ class DaliChannel : public OpenKNX::Channel
 		bool _isStaircase = false;
 
 		uint16_t calcKoNumber(int asap);
-		uint8_t sendMsg(MessageType t, byte value);
+		uint8_t sendArc(byte value);
 };

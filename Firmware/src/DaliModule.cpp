@@ -155,9 +155,10 @@ void DaliModule::loopAddressing()
         case AddressingState::SearchWait:
         {
             int16_t response = queue->getResponse(_adrResp);
+            
             if(response == -200 || response == -1)
             {
-                if(millis() - _adrTime > DALI_WAIT_SEARCH)
+                if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
                 {
                     _adrLow = _adrHigh + 1;
                     _adrHigh = _adrHighLast;
@@ -188,9 +189,9 @@ void DaliModule::loopAddressing()
         case AddressingState::Found:
         {
             int16_t response = queue->getResponse(_adrResp);
-            if(response == -255)
+            if(response == -200 || response == -1)
             {
-                if(millis() - _adrTime > DALI_WAIT_SEARCH)
+                if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
                 {
                     logErrorP("Found ballast not answering");
                     _adrState = AddressingState::Finish;

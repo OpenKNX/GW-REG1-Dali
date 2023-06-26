@@ -60,7 +60,7 @@ void DaliChannel::loop()
                 knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(false, DPT_Switch);
             else
                 knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(false, DPT_Switch);
-            sendMsg(MessageType::Arc, 0x00);
+            sendArc(0x00);
         }
     }
 }
@@ -77,11 +77,11 @@ uint16_t DaliChannel::calcKoNumber(int asap)
     return asap + (ADR_KoBlockSize * _channelIndex) + ADR_KoOffset;
 }
 
-uint8_t DaliChannel::sendMsg(MessageType t, byte v)
+uint8_t DaliChannel::sendArc(byte v)
 {
     Message *msg = new Message();
     msg->id = _queue->getNextId();
-    msg->type = t;
+    msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
     msg->para2 = v;
     msg->addrtype = isGroup;
@@ -131,7 +131,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     state = true;
                     startTime = millis();
                     logInfoP("interval %i", interval);
-                    sendMsg(MessageType::Arc, 0xFE);
+                    sendArc(0xFE);
                     if(isGroup)
                         knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(false, DPT_Switch);
                     else
@@ -147,7 +147,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     }
 
                     logInfoP("Ausschalten");
-                    sendMsg(MessageType::Arc, 0x00);
+                    sendArc(0x00);
                     if(isGroup)
                         knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(false, DPT_Switch);
                     else
@@ -193,7 +193,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             uint val = _min + ((_max - _min) * (value / 100));
             //Pvalue = 10 ^ ((value-1) / (253/3)) * Pmax / 1000
             logInfoP("DALI Wert: %i", val);
-            sendMsg(MessageType::Arc, val);
+            sendArc(val);
             break;
         }
 
@@ -242,7 +242,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     break;
                 }
             }
-            sendMsg(MessageType::Arc, behavevalue);
+            sendArc(behavevalue);
             break;
         }
     }
