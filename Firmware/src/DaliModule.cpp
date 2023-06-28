@@ -312,6 +312,7 @@ void DaliModule::loopAddressing()
 
             if(resp >= 0)
             {
+                logInfoP("Got resp %i", resp);
                 if(resp == _adrLow)
                 {
                     logInfoP("Adresse erfolgreich gesetzt");
@@ -385,17 +386,24 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             _adrHigh = 0xFFFFFF;
             _adrHighLast = 0xFFFFFF;
             _adrFound = 0;
-
+            
             sendCmdSpecial(dali->CMD_INITIALISE, data[0] ? 255 : 0);
             sendCmdSpecial(dali->CMD_INITIALISE, data[0] ? 255 : 0);
-            sendCmdSpecial(dali->CMD_RANDOMISE);
-            sendCmdSpecial(dali->CMD_RANDOMISE);
-            logInfoP("RandomizeWait");
 
-            _adrState = AddressingState::Randomize_Wait;
-            _adrTime = millis();
+            if(data[1] == 1)
+            {
+                sendCmdSpecial(dali->CMD_RANDOMISE);
+                sendCmdSpecial(dali->CMD_RANDOMISE);
+                _adrState = AddressingState::Randomize_Wait;
+                _adrTime = millis();
+                logInfoP("RandomizeWait");
+            } else {
+                logInfoP("Don't Randomize");
+                _adrState = AddressingState::Search;
+            }
+
+
             _adrNoRespCounter = 1;
-
             resultLength = 0;
             return true;
         }
@@ -403,7 +411,9 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         case 4:
         {
             logInfoP("Starting assigning address");
-            _adrResp = sendCmd(dali->CMD_QUERY_STATUS, data[0], dali->DALI_SHORT_ADDRESS);
+            sendCmdSpecial(dali->CMD_INITIALISE, 0);
+            sendCmdSpecial(dali->CMD_INITIALISE, 0);
+            _adrResp = sendCmd(data[0], dali->CMD_QUERY_STATUS, dali->DALI_SHORT_ADDRESS, true);
             _adrTime = millis();
             _adrState = AddressingState::Query_Wait;
             _assState = AssigningState::Working;
@@ -413,7 +423,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             _adrHigh |= data[3];
             logInfoP("Long  Addr %X", _adrHigh);
             logInfoP("Short Addr %i", data[0]);
-            _adrLow = data[0] << 1 | 1;
+            _adrLow = (data[0] << 1) | 1;
             
             resultLength = 0;
             return true;
