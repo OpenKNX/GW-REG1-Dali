@@ -35,4 +35,9 @@
     (stroke (width 0.2) (type solid)) (fill none) (layer "F.Fab") (tstamp b1dff10f-2bf1-4093-89a5-df87e909c3dc))
   (pad "1" smd rect (at -1.6375 0) (size 0.915 1.22) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 17f032fc-b01d-4890-8b04-6023735d6266))
   (pad "2" smd rect (at 1.6375 0) (size 0.915 1.22) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp b08b74a0-c8ec-4369-b8ed-6714ea993eca))
+  (model "${DALI_3D}/DIO_MMSZ4700T1G.step"
+    (offset (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz -90 0 0))
+  )
 )

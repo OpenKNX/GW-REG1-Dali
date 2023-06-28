@@ -47,7 +47,7 @@
   (pad "2" smd rect (at -2.912 1.225 90) (size 0.95 1.925) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 0e1c4dad-895f-4165-806a-41f791223cb2))
   (pad "3" smd rect (at 2.912 1.225 90) (size 0.95 1.925) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 29643532-771c-4f0f-acd0-df5161673c18))
   (pad "4" smd rect (at 2.912 -1.225 90) (size 0.95 1.925) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 859a8f86-89e5-4f2a-b5f3-9223a09e9736))
-  (model "MB10S.stp"
+  (model "${DALI_3D}/MB10S.stp"
     (offset (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))

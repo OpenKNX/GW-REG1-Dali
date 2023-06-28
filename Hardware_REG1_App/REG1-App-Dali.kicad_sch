@@ -2269,7 +2269,7 @@
     (pin "8" (uuid 16f0a90b-6316-4923-8d80-1aef4013f739))
     (pin "9" (uuid 4b02dd31-1261-4fe3-bafc-cf6c103d56de))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "J1") (unit 1)
         )
@@ -2295,7 +2295,7 @@
     (pin "1" (uuid d8140284-8db3-4b94-b6b9-9a0a1d98d839))
     (pin "2" (uuid 16ac8787-98c8-480e-b843-d3a16e89a474))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R3") (unit 1)
         )
@@ -2321,7 +2321,7 @@
     (pin "1" (uuid bdcfabd5-6cc0-406f-a4c8-58170c6bda28))
     (pin "2" (uuid 4412eb37-30d2-45ce-9dfe-20a14311a6ca))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "C2") (unit 1)
         )
@@ -2347,7 +2347,7 @@
     (pin "1" (uuid 2da25dde-13c4-4288-bec3-d42b09bd6f79))
     (pin "2" (uuid d81b547d-a311-4249-a2f2-61a9b4fbe6fc))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R6") (unit 1)
         )
@@ -2373,7 +2373,7 @@
     (pin "1" (uuid ed19d3c2-b401-42c6-b449-c7846a1e1ec3))
     (pin "2" (uuid 6c96f4b6-2b15-48f4-9de6-0fe576ebe1ea))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R5") (unit 1)
         )
@@ -2400,7 +2400,7 @@
     (pin "2" (uuid 0a7ace15-3c80-4580-972c-0445829a7c4e))
     (pin "3" (uuid b9e0ac81-6334-4db1-af4a-640a0a1cf737))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "Q2") (unit 1)
         )
@@ -2426,7 +2426,7 @@
     (pin "1" (uuid 001832ab-c20f-4a42-9d97-1ff2a09855f2))
     (pin "2" (uuid 84e38845-4395-4999-996f-81088259ff2b))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R10") (unit 1)
         )
@@ -2452,7 +2452,7 @@
     (pin "1" (uuid 6830b9fc-486d-4784-bcde-11eb0126f247))
     (pin "2" (uuid 5ca51e83-bff4-4280-9175-d98d904c87e6))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R9") (unit 1)
         )
@@ -2478,7 +2478,7 @@
     (pin "1" (uuid 6dcc871f-0eae-4b46-94f7-d548836ed85d))
     (pin "2" (uuid 1efd0d42-652f-4ebe-bda5-1febb1f5a17f))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "D4") (unit 1)
         )
@@ -2506,7 +2506,7 @@
     (pin "3" (uuid a67cc006-549d-478b-9d45-260e43665a3e))
     (pin "4" (uuid 698c728c-e2f9-47ff-b54d-4d7a0a85e4c4))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "J2") (unit 1)
         )
@@ -2523,7 +2523,7 @@
     (property "Value" "STN1HNK60" (at 105.41 107.315 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "SOT-223" (at 111.76 105.41 0)
+    (property "Footprint" "DALI:SOT-223" (at 111.76 105.41 0)
       (effects (font (size 1.27 1.27)) (justify bottom) hide)
     )
     (property "Datasheet" "" (at 111.76 105.41 0)
@@ -2540,7 +2540,7 @@
     (pin "3" (uuid a510c7d3-5e94-45b5-b3da-9a68a0cc700e))
     (pin "4" (uuid 1fa80374-5a07-4171-bc13-698051afd1aa))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "U4") (unit 1)
         )
@@ -2566,7 +2566,7 @@
     (pin "1" (uuid d1319571-b911-4a93-93e5-11e1fbd9005d))
     (pin "2" (uuid b24a0503-7322-4c70-9d3e-b076b5a5ebff))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R8") (unit 1)
         )
@@ -2615,7 +2615,7 @@
     (pin "3" (uuid 9a8ad30b-c622-4bb3-834b-a7e2698ec9f9))
     (pin "4" (uuid be2eb8b6-561c-4e69-840b-2723dca835e5))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "U2") (unit 1)
         )
@@ -2641,7 +2641,7 @@
     (pin "1" (uuid 6b801768-a43f-4534-94aa-0e4b5240e650))
     (pin "2" (uuid e427610c-6967-4c15-97ac-590f6ba840cb))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R4") (unit 1)
         )
@@ -2669,7 +2669,7 @@
     (pin "3" (uuid 27436356-a0c3-4aa4-a8cc-73f65119ba2f))
     (pin "4" (uuid c537c039-1614-4b79-9dcc-e61df2452f21))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "U3") (unit 1)
         )
@@ -2698,7 +2698,7 @@
     (pin "A" (uuid 8bff1b75-9d9f-4871-827c-93cb78f343f4))
     (pin "C" (uuid 27efbfba-9a73-47f8-b240-4f5dca4289d6))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "D3") (unit 1)
         )
@@ -2747,7 +2747,7 @@
     (pin "3" (uuid 1dd1f24e-fc2d-4f05-a61b-9ca9fc499ef0))
     (pin "4" (uuid 13c8b60e-273a-49db-bfc5-ffa04ce4106a))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "BR1") (unit 1)
         )
@@ -2773,7 +2773,7 @@
     (pin "1" (uuid 6b041cae-c496-418b-b783-6c0a1093e110))
     (pin "2" (uuid afa92dad-3871-4d5c-bbae-5d586faacc8b))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "C1") (unit 1)
         )
@@ -2799,7 +2799,7 @@
     (pin "1" (uuid 99fe0379-c219-4335-b79b-d5a17fe1ab9b))
     (pin "2" (uuid f4f1b9c3-f1b7-4bf4-ba98-e179652d8321))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R7") (unit 1)
         )
@@ -2848,7 +2848,7 @@
     (pin "3" (uuid 18283cc6-4afa-443e-87f7-3872cc488400))
     (pin "4" (uuid d141518c-562d-4772-8b00-06867f07d839))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "U1") (unit 1)
         )
@@ -2874,7 +2874,7 @@
     (pin "1" (uuid d1b09423-3f42-478e-b76f-8c9fb7a2d618))
     (pin "2" (uuid a07a60aa-1cb0-448f-9c3b-d7b03f299514))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R2") (unit 1)
         )
@@ -2900,7 +2900,7 @@
     (pin "1" (uuid 84e6f012-ea1b-48ae-820a-bac8bd2d1a6c))
     (pin "2" (uuid 7ef53698-1818-4eba-87e9-5d1716a61ec0))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R11") (unit 1)
         )
@@ -2927,7 +2927,7 @@
     (pin "2" (uuid 577d5187-669b-4d6c-a9e6-c356b1d2e08d))
     (pin "3" (uuid ef101f7b-60d7-416c-9134-bb3ca060c81d))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "Q1") (unit 1)
         )
@@ -2952,7 +2952,7 @@
     )
     (pin "1" (uuid fc4223df-c106-4285-aacf-d5086bc072d7))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "#PWR02") (unit 1)
         )
@@ -2978,7 +2978,7 @@
     (pin "1" (uuid 500c571d-7ace-4ead-b4f1-3dabecdf71fb))
     (pin "2" (uuid c82ac110-00ba-401b-acb2-6a0d8d11c8f6))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "R1") (unit 1)
         )
@@ -3004,7 +3004,7 @@
     (pin "1" (uuid 24d0fe45-4cfd-4631-ac79-c6ef6b9ebc33))
     (pin "2" (uuid 09bd1c7e-41e8-4c7b-b05f-afcdeec8dca3))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "D2") (unit 1)
         )
@@ -3029,7 +3029,7 @@
     )
     (pin "1" (uuid 5dbf8b82-8926-471e-99b5-cb34125d2611))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "#PWR01") (unit 1)
         )
@@ -3067,7 +3067,7 @@
     (pin "A" (uuid 8247d246-8216-443d-8da9-d1b5efaec62c))
     (pin "C" (uuid e35f465a-eda9-469b-956c-4e710133cb47))
     (instances
-      (project "REG1-App-Universal"
+      (project "REG1-App-Dali"
         (path "/a0393b09-4b2d-4a64-98b7-96bb7f245f9d"
           (reference "D1") (unit 1)
         )
