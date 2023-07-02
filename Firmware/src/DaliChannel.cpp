@@ -15,9 +15,9 @@ const std::string DaliChannel::name()
 {
     if(_isStaircase)
         if(isGroup)
-            return "DaliChannel_G";
+            return "StaircaseChannel_G";
         else
-            return "DaliChannel_A";
+            return "StaircaseChannel_A";
 
             
     if(isGroup)
@@ -105,6 +105,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Schalten
         case 0:
         {
+            logInfoP("Schalten");
             if(isLocked)
             {
                 logInfoP("is locked");
@@ -155,10 +156,17 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     state = false;
                 }
             } else {
-                if(isGroup)
-                    knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(ko.value(DPT_Switch), DPT_Switch);
+                bool value = ko.value(DPT_Switch);
+                logInfoP("Schalte %i", value);
+                if(value)
+                    sendArc(0xFE);
                 else
-                    knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(ko.value(DPT_Switch), DPT_Switch);
+                    sendArc(0x00);
+                
+                if(isGroup)
+                    knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(value, DPT_Switch);
+                else
+                    knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(value, DPT_Switch);
             }
             break;
         }
@@ -169,6 +177,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Dimmen relativ
         case 2:
         {
+            logInfoP("Dimmen relativ");
             if(isLocked)
             {
                 logInfoP("is locked");
@@ -182,6 +191,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Dimmen Absolut
         case 3:
         {
+            logInfoP("Dimmen absolut");
             if(isLocked)
             {
                 logInfoP("is locked");
@@ -190,9 +200,12 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
             uint8_t value = ko.value(Dpt(5,1));
             logInfoP("Dimmen Absolut auf %i%%", value);
+            logInfoP("Min %i", _min);
+            logInfoP("Max %i", _max);
             uint val = _min + ((_max - _min) * (value / 100));
+            uint val2 = 10 ^ ((value - 1) / (253/3)) * _max / 1000;
             //Pvalue = 10 ^ ((value-1) / (253/3)) * Pmax / 1000
-            logInfoP("DALI Wert: %i", val);
+            logInfoP("DALI Wert: %i - %i", val, val2);
             sendArc(val);
             break;
         }
@@ -203,6 +216,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Sperren
         case 5:
         {
+            logInfoP("Sperren");
             bool value = ko.value(Dpt(1,5));
             if(isLocked == value) break;
             isLocked = value;

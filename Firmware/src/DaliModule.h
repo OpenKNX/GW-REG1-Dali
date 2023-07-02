@@ -48,14 +48,18 @@ class DaliModule : public OpenKNX::Module
 			Query_Wait,
 			Withdraw_Others,
 			Set_Address,
-			Check_Address
+			Check_Address,
+			Confirm_Address
 		};
 		enum class AssigningState {
 			None,
 			Working,
-			Exists,
 			Success,
-			Failed
+			Failed_Bus = 10,
+			Failed_Exists,
+			Failed_Exists_Not,
+			Failed_Confirm,
+			Failed_No_Answer
 		};
 	
 		uint32_t _adrLow = 0;
@@ -79,4 +83,5 @@ class DaliModule : public OpenKNX::Module
 		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);
 		uint8_t sendCmd(byte addr, byte value, byte type, bool wait = false);
 		uint8_t sendCmdSpecial(int command, byte value = 0, bool wait = false);
+		uint8_t sendArc(byte addr, byte value, byte type);
 };

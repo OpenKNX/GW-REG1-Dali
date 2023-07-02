@@ -9,29 +9,26 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x09
+#define MAIN_ApplicationVersion 0x13
 #define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
-#define MAIN_ParameterSize 622
-#define MAIN_MaxKoNumber 544
+#define MAIN_ParameterSize 592
+#define MAIN_MaxKoNumber 545
 
 
-#define APP_test		0x0000
-// Offset: 0, Size: 240 Bit (30 Byte), Text: Dummy
-#define ParamAPP_test knx.paramData(0)
-//!< Number: 0, Text: Dummy, Function: Dummy
-#define APP_KoKommunikationsobjekt 0
-#define KoAPP_Kommunikationsobjekt knx.getGroupObject(0)
+//!< Number: 1, Text: Broadcast, Function: Schalten
+#define APP_Kobroadcast_switch 1
+#define KoAPP_broadcast_switch knx.getGroupObject(1)
 
 //---------------------Modules----------------------------
 
 //-----Module specific starts
-#define ADR_ParamBlockOffset 30
+#define ADR_ParamBlockOffset 0
 #define ADR_ParamBlockSize 8
-#define GRP_ParamBlockOffset 542
+#define GRP_ParamBlockOffset 512
 #define GRP_ParamBlockSize 5
-#define ADR_KoOffset 1
+#define ADR_KoOffset 2
 #define ADR_KoBlockSize 7
-#define GRP_KoOffset 449
+#define GRP_KoOffset 450
 #define GRP_KoBlockSize 6
 
 //-----Module: adresse
