@@ -37,14 +37,18 @@ void DaliChannel::setup()
         _max = 0xFF;
         if(_isStaircase)
             interval = ParamGRP_stairtime;
+        _onDay = ParamGRP_onDay;
+        _onNight = ParamGRP_onNight;
     } else {
         _isStaircase = ParamADR_type;
-        _min = ParamADR_min * 2.54;
-        _max = ParamADR_max * 2.54;
+        _min = ParamADR_min;
+        _max = ParamADR_max;
         if(_isStaircase)
             interval = ParamADR_stairtime;
+        _onDay = ParamADR_onDay;
+        _onNight = ParamADR_onNight;
     }
-    logInfoP("Setup");
+    logInfoP("Min/Max: %i/%i | Day/Night: %i/%i | %is", _min, _max, _onDay, _onNight, interval);
 }
 
 
@@ -56,11 +60,8 @@ void DaliChannel::loop()
         {
             logInfoP("Zeit abgelaufen");
             state = false;
-            if(isGroup)
-                knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(false, DPT_Switch);
-            else
-                knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(false, DPT_Switch);
             sendArc(0x00);
+            setSwitchState(false);
         }
     }
 }
@@ -83,7 +84,7 @@ uint8_t DaliChannel::sendArc(byte v)
     msg->id = _queue->getNextId();
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
-    msg->para2 = v;
+    msg->para2 = percentToArc(v);
     msg->addrtype = isGroup;
     return _queue->push(msg);
 }
@@ -128,15 +129,12 @@ void DaliChannel::processInputKo(GroupObject &ko)
                         }
                         return;
                     }
-                    logInfoP("Einschalten");
+                    logInfoP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
                     state = true;
                     startTime = millis();
                     logInfoP("interval %i", interval);
-                    sendArc(0xFE);
-                    if(isGroup)
-                        knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(false, DPT_Switch);
-                    else
-                        knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(false, DPT_Switch);
+                    sendArc(isNight ? _onNight : _onDay);
+                    setSwitchState(true);
                 }
                 else
                 {
@@ -149,24 +147,22 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
                     logInfoP("Ausschalten");
                     sendArc(0x00);
-                    if(isGroup)
-                        knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(false, DPT_Switch);
-                    else
-                        knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(false, DPT_Switch);
+                    setSwitchState(false);
                     state = false;
                 }
             } else {
                 bool value = ko.value(DPT_Switch);
-                logInfoP("Schalte %i", value);
                 if(value)
-                    sendArc(0xFE);
-                else
+                {
+                    logInfoP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+                    sendArc(isNight ? _onNight : _onDay);
+                }
+                else {
+                    logInfoP(isNight ? "Ausschalten Nacht" : "Ausschalten Tag");
                     sendArc(0x00);
+                }
                 
-                if(isGroup)
-                    knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(value, DPT_Switch);
-                else
-                    knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(value, DPT_Switch);
+                setSwitchState(value);
             }
             break;
         }
@@ -184,7 +180,6 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 return;
             }
 
-            logInfoP("Dimmen relativ");
             break;
         }
 
@@ -200,13 +195,10 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
             uint8_t value = ko.value(Dpt(5,1));
             logInfoP("Dimmen Absolut auf %i%%", value);
-            logInfoP("Min %i", _min);
-            logInfoP("Max %i", _max);
-            uint val = _min + ((_max - _min) * (value / 100));
-            uint val2 = 10 ^ ((value - 1) / (253/3)) * _max / 1000;
-            //Pvalue = 10 ^ ((value-1) / (253/3)) * Pmax / 1000
-            logInfoP("DALI Wert: %i - %i", val, val2);
-            sendArc(val);
+            logInfoP("DALI Wert: %i", percentToArc(value));
+            sendArc(value);
+            setSwitchState(value > 0);
+            setDimmState(value);
             break;
         }
 
@@ -216,29 +208,33 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Sperren
         case 5:
         {
-            logInfoP("Sperren");
             bool value = ko.value(Dpt(1,5));
             if(isLocked == value) break;
             isLocked = value;
             uint8_t behave;
             uint8_t behavevalue;
-            if(isLocked)
+            if(!isLocked)
             {
+                logInfoP("Sperren");
                 behave = ParamADR_lockbehave;
-                behavevalue = ParamADR_lockvalue * 2.54;
+                behavevalue = ParamADR_lockvalue;
             } else {
+                logInfoP("Entsperren");
                 behave = ParamADR_unlockbehave;
-                behavevalue = ParamADR_unlockvalue * 2.54;
+                behavevalue = ParamADR_unlockvalue;
             }
+
             switch(behave)
             {
                 //nothing
                 case 0:
+                    logInfoP("Nichts");
                     return;
 
                 //Ausschalten
                 case 1:
                 {
+                    logInfoP("Aus");
                     behavevalue = 0;
                     break;
                 }
@@ -246,18 +242,53 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 //Einschalten
                 case 2:
                 {
-                    behavevalue = 254;
+                    logInfoP("Ein");
+                    behavevalue = 100;
                     break;
                 }
 
                 //Fester Wert
                 case 3:
                 {
+                    logInfoP("Wert");
                     break;
                 }
             }
+            logInfoP("%i - %i", behavevalue, percentToArc(behavevalue));
             sendArc(behavevalue);
+            setSwitchState(behavevalue > 0);
+            setDimmState(behavevalue);
             break;
         }
     }
+}
+
+uint8_t DaliChannel::percentToArc(uint8_t value)
+{
+    //Todo also include _max
+    uint8_t arc = (log10(value)+1) * 3 / 253;
+    arc++;
+    return arc;
+}
+
+void DaliChannel::setSwitchState(bool value)
+{
+    if(value == _lastState) return;
+    _lastState = value;
+
+    if(isGroup)
+        knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(value, DPT_Switch);
+    else
+        knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(value, DPT_Switch);
+}
+
+void DaliChannel::setDimmState(uint8_t value)
+{
+    if(value == _lastValue) return;
+    _lastValue = value;
+
+    if(isGroup)
+        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(value, DPT_Switch);
+    else
+        knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(value, DPT_Switch);
 }

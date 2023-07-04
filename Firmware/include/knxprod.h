@@ -9,26 +9,35 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x13
+#define MAIN_ApplicationVersion 0x03
 #define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
-#define MAIN_ParameterSize 592
-#define MAIN_MaxKoNumber 545
+#define MAIN_ParameterSize 753
+#define MAIN_MaxKoNumber 547
 
 
+#define APP_daynight		0x0000
+// Offset: 0, Size: 1 Bit, Text: Tag/Nacht Objekt
+#define ParamAPP_daynight knx.paramBit(0, 0)
 //!< Number: 1, Text: Broadcast, Function: Schalten
 #define APP_Kobroadcast_switch 1
 #define KoAPP_broadcast_switch knx.getGroupObject(1)
+//!< Number: 2, Text: Broadcast, Function: Dimmen Absolut
+#define APP_Kobroadcast_dimm 2
+#define KoAPP_broadcast_dimm knx.getGroupObject(2)
+//!< Number: 3, Text: Allgemein, Function: Tag/Nacht
+#define APP_Kodaynight 3
+#define KoAPP_daynight knx.getGroupObject(3)
 
 //---------------------Modules----------------------------
 
 //-----Module specific starts
-#define ADR_ParamBlockOffset 0
-#define ADR_ParamBlockSize 8
-#define GRP_ParamBlockOffset 512
-#define GRP_ParamBlockSize 5
-#define ADR_KoOffset 2
+#define ADR_ParamBlockOffset 1
+#define ADR_ParamBlockSize 10
+#define GRP_ParamBlockOffset 641
+#define GRP_ParamBlockSize 7
+#define ADR_KoOffset 4
 #define ADR_KoBlockSize 7
-#define GRP_KoOffset 450
+#define GRP_KoOffset 452
 #define GRP_KoBlockSize 6
 
 //-----Module: adresse
@@ -108,6 +117,20 @@
 #define ParamADR_unlockvalueIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 7)) >> ADR_unlockvalue_Shift) & ADR_unlockvalue_Mask))
 // Offset: 7, Size: 7 Bit, Text: 
 #define ParamADR_unlockvalue ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 7)) >> ADR_unlockvalue_Shift) & ADR_unlockvalue_Mask))
+#define ADR_onDay		0x0008
+#define ADR_onDay_Shift	1
+#define ADR_onDay_Mask	0x007F
+// Offset: 8, Size: 7 Bit, Text: Einschaltwert Tag
+#define ParamADR_onDayIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 8)) >> ADR_onDay_Shift) & ADR_onDay_Mask))
+// Offset: 8, Size: 7 Bit, Text: Einschaltwert Tag
+#define ParamADR_onDay ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 8)) >> ADR_onDay_Shift) & ADR_onDay_Mask))
+#define ADR_onNight		0x0009
+#define ADR_onNight_Shift	1
+#define ADR_onNight_Mask	0x007F
+// Offset: 9, Size: 7 Bit, Text: Einschaltwert Nacht
+#define ParamADR_onNightIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 9)) >> ADR_onNight_Shift) & ADR_onNight_Mask))
+// Offset: 9, Size: 7 Bit, Text: Einschaltwert Nacht
+#define ParamADR_onNight ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 9)) >> ADR_onNight_Shift) & ADR_onNight_Mask))
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)
@@ -188,6 +211,20 @@
 #define ParamGRP_unlockvalueIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 4)) >> GRP_unlockvalue_Shift) & GRP_unlockvalue_Mask))
 // Offset: 4, Size: 7 Bit, Text: 
 #define ParamGRP_unlockvalue ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 4)) >> GRP_unlockvalue_Shift) & GRP_unlockvalue_Mask))
+#define GRP_onDay		0x0005
+#define GRP_onDay_Shift	1
+#define GRP_onDay_Mask	0x007F
+// Offset: 5, Size: 7 Bit, Text: Einschaltwert Tag
+#define ParamGRP_onDayIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 5)) >> GRP_onDay_Shift) & GRP_onDay_Mask))
+// Offset: 5, Size: 7 Bit, Text: Einschaltwert Tag
+#define ParamGRP_onDay ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 5)) >> GRP_onDay_Shift) & GRP_onDay_Mask))
+#define GRP_onNight		0x0006
+#define GRP_onNight_Shift	1
+#define GRP_onNight_Mask	0x007F
+// Offset: 6, Size: 7 Bit, Text: Einschaltwert Nacht
+#define ParamGRP_onNightIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 6)) >> GRP_onNight_Shift) & GRP_onNight_Mask))
+// Offset: 6, Size: 7 Bit, Text: Einschaltwert Nacht
+#define ParamGRP_onNight ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 6)) >> GRP_onNight_Shift) & GRP_onNight_Mask))
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 0)

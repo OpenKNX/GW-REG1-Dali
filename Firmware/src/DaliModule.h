@@ -76,8 +76,8 @@ class DaliModule : public OpenKNX::Module
 		bool _daliBusState = false;
 		int _daliStateCounter = 0;
 		DaliClass *dali;
-		OpenKNX::Channel *channels[64];
-		OpenKNX::Channel *groups[16];
+		DaliChannel *channels[64];
+		DaliChannel *groups[16];
 		MessageQueue *queue;
 
 		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);

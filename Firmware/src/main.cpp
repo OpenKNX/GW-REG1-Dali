@@ -95,7 +95,8 @@ void handleSend(uint8_t const *buffer)
 	message[1] = buffer[7];
 	sequence = buffer[1];
 	logHexInfo("DALI", message, 2);
-	//DaliBus.sendRaw(message, 2);
+	DaliBus.sendRaw(message, 2);
+	
 	sendMessage = true;
 	//todo maybe answer?
 	return;

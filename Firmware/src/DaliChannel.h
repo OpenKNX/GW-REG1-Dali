@@ -13,6 +13,7 @@ class DaliChannel : public OpenKNX::Channel
 		void setup() override;
 		void processInputKo(GroupObject &ko) override;
 
+		bool isNight = false;
 		const std::string name() override;
 		// void writeFlash() override;
 		// void readFlash(const uint8_t* data, const uint16_t size) override;
@@ -27,9 +28,16 @@ class DaliChannel : public OpenKNX::Channel
 		uint interval = 0;
 		uint8_t _min = 0;
 		uint8_t _max = 0;
+		uint8_t _onDay = 100;
+		uint8_t _onNight = 10;
 		bool canReTrigger = false;
 		bool _isStaircase = false;
+		uint8_t _lastValue = 0;
+		bool _lastState = false;
 
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
+		uint8_t percentToArc(uint8_t value);
+		void setSwitchState(bool value);
+		void setDimmState(uint8_t value);
 };

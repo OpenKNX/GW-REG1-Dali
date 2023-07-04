@@ -381,6 +381,48 @@ void DaliModule::processInputKo(GroupObject &ko)
         logInfoP("Got KO %i for G%i", koNum, index);
         groups[index]->processInputKo(ko);
     }
+
+    switch(koNum)
+    {
+        //broadcast switch
+        case 1:
+        {
+            bool value = ko.value(DPT_Switch);
+            logInfoP("Broadcast Switch %i", value);
+            if(value)
+                dali->sendArc(0xFF, 0xFE, dali->DALI_GROUP_ADDRESS);
+            else
+                dali->sendArc(0xFF, 0x00, dali->DALI_GROUP_ADDRESS);
+            break;
+        }
+
+        //broadcast dimm absolute
+        case 2:
+        {
+            uint8_t value = ko.value(Dpt(5,1));
+            uint8_t arc = (log10(value)+1) * 3 / 253;
+            arc++;
+            dali->sendArc(0xFF, arc, dali->DALI_GROUP_ADDRESS);
+            break;
+        }
+
+        //Tag/Nacht Objekt
+        case 3:
+        {
+            bool value = ko.value(DPT_Switch);
+            if(ParamAPP_daynight) value = !value;
+
+            for(int i = 0; i < 64; i++)
+            {
+                channels[i]->isNight = value;
+            }
+            for(int i = 0; i < 16; i++)
+            {
+                groups[i]->isNight = value;
+            }
+
+        }
+    }
 }
 
 bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
