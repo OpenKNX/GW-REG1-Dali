@@ -5,6 +5,9 @@
 #include "dali.h"
 #include "DaliModule.h"
 #include "UpdaterModule.h"
+
+
+#ifdef USE_TINYUSB
 #include <hid/Adafruit_USBD_HID.h>
 
 
@@ -169,9 +172,6 @@ void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8
 	}
 }
 
-
-bool DaliBus_wrapper_timerISR(struct repeating_timer *t) { DaliBus.timerISR(); return true;}
-
 void setup1()
 {
 	Serial.end();
@@ -182,11 +182,16 @@ void setup1()
 	usb_hid.setReportCallback(get_report_callback, set_report_callback);
 	usb_hid.begin();
 }
+#endif
+
+bool DaliBus_wrapper_timerISR(struct repeating_timer *t) { DaliBus.timerISR(); return true;}
 
 void setup()
 {
-	Serial2.setTX(4);//20); //4);
-	Serial2.setRX(5);//21); //5);
+	#ifdef USE_TINYUSB
+	Serial2.setTX(4);//28);
+	Serial2.setRX(5);//29);
+	#endif
 	SERIAL_DEBUG.begin(115200);
 
 	const uint8_t firmwareRevision = 0;

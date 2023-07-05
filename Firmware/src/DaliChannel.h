@@ -12,6 +12,7 @@ class DaliChannel : public OpenKNX::Channel
 		void loop1() override;
 		void setup() override;
 		void processInputKo(GroupObject &ko) override;
+		void setOnValue(uint8_t value);
 
 		bool isNight = false;
 		const std::string name() override;

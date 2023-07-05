@@ -9,10 +9,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x03
+#define MAIN_ApplicationVersion 0x08
 #define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
 #define MAIN_ParameterSize 753
-#define MAIN_MaxKoNumber 547
+#define MAIN_MaxKoNumber 548
 
 
 #define APP_daynight		0x0000
@@ -27,6 +27,9 @@
 //!< Number: 3, Text: Allgemein, Function: Tag/Nacht
 #define APP_Kodaynight 3
 #define KoAPP_daynight knx.getGroupObject(3)
+//!< Number: 4, Text: Einschaltwert Tag, Function: Setzen
+#define APP_KoonValue 4
+#define KoAPP_onValue knx.getGroupObject(4)
 
 //---------------------Modules----------------------------
 
@@ -35,9 +38,9 @@
 #define ADR_ParamBlockSize 10
 #define GRP_ParamBlockOffset 641
 #define GRP_ParamBlockSize 7
-#define ADR_KoOffset 4
+#define ADR_KoOffset 5
 #define ADR_KoBlockSize 7
-#define GRP_KoOffset 452
+#define GRP_KoOffset 453
 #define GRP_KoBlockSize 6
 
 //-----Module: adresse

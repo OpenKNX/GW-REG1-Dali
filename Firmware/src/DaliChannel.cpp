@@ -292,3 +292,8 @@ void DaliChannel::setDimmState(uint8_t value)
     else
         knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(value, DPT_Switch);
 }
+
+void DaliChannel::setOnValue(uint8_t value)
+{
+    _onDay = value;
+}
