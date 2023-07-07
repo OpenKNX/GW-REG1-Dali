@@ -192,7 +192,6 @@ void setup()
 	Serial2.setTX(4);//28);
 	Serial2.setRX(5);//29);
 	#endif
-	SERIAL_DEBUG.begin(115200);
 
 	const uint8_t firmwareRevision = 0;
 	openknx.init(firmwareRevision);
