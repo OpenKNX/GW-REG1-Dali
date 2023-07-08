@@ -22,6 +22,7 @@ class DaliChannel : public OpenKNX::Channel
 
 	private:
 		MessageQueue *_queue;
+		bool _isConfigured = false;
 		bool state = false;
 		bool isGroup = false;
 		bool isLocked = false;

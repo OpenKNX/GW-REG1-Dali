@@ -44,6 +44,9 @@ class DaliModule : public OpenKNX::Module
 			SearchWait,
 			Found,
 			Finish,
+			//addressing auto
+			SearchAdr,
+			SearchAdrWait,
 			//assigning
 			Query_Wait,
 			Withdraw_Others,

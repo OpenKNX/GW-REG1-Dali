@@ -355,6 +355,50 @@ void DaliModule::loopAddressing()
             }
             break;
         }
+
+        case AddressingState::SearchAdr:
+        {
+            _adrState = AddressingState::SearchAdrWait;
+            _assState = AssigningState::Working;
+            _adrResp = sendCmd(_adrLow, dali->CMD_QUERY_STATUS, dali->DALI_SHORT_ADDRESS, true);
+            _adrTime = millis();
+            break;
+        }
+        
+        case AddressingState::SearchAdrWait:
+        {
+            if(millis() - _adrTime > DALI_WAIT_SEARCH)
+            {
+                logInfoP("Gerät antwortet nicht");
+                _assState = AssigningState::Failed_No_Answer;
+                _adrState = AddressingState::None;
+                return;
+            }
+
+            int16_t resp = queue->getResponse(_adrResp);
+
+            if(resp == -200) return;
+
+            if(resp >= 0)
+            {
+                logInfoP("Address %i exists", _adrLow);
+                return;
+            } else if(resp == -1) {
+                logInfoP("Address %i dont exists", _adrLow);
+                _adrState = AddressingState::SearchAdr;
+            } else {
+                logInfoP("Bus Error %i", resp);
+                _assState = AssigningState::Failed_Bus;
+                _adrState = AddressingState::None;
+            }
+            _adrLow++;
+
+            if(_adrLow < 64)
+                _adrState = AddressingState::SearchAdr;
+            else
+                _adrState = AddressingState::SearchAdr; //TODO go to next step
+            break;
+        }
     }
 }
 
@@ -397,6 +441,9 @@ void DaliModule::processInputKo(GroupObject &ko)
         case 2:
         {
             uint8_t value = ko.value(Dpt(5,1));
+            logInfoP("Broadcast Dimm %i", value);
+            value = ((253/3)*(log10(value)+1)) + 1;
+            value++;
             dali->sendArc(0xFF, value, dali->DALI_GROUP_ADDRESS);
             break;
         }
@@ -405,6 +452,8 @@ void DaliModule::processInputKo(GroupObject &ko)
         case 3:
         {
             bool value = ko.value(DPT_Switch);
+            if(ParamAPP_daynight) value = !value;
+            logInfoP("Broadcast Day/Night %i", value);
             if(ParamAPP_daynight) value = !value;
 
             for(int i = 0; i < 64; i++)
@@ -418,7 +467,6 @@ void DaliModule::processInputKo(GroupObject &ko)
         case 4:
         {
             uint8_t value = ko.value(Dpt(5,1));
-            if(ParamAPP_daynight) value = !value;
 
             for(int i = 0; i < 64; i++)
                 channels[i]->setOnValue(value);
@@ -501,8 +549,9 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         
         case 5:
         {
-            logInfoP("turn on all unaddressed");
-            sendArc(0xFE, 0xFE, dali->DALI_GROUP_ADDRESS);
+            logInfoP("Starting addressing new auto");
+            _adrLow = 0;
+            _adrState = AddressingState::SearchAdr;
             resultLength = 0;
             return true;
         }

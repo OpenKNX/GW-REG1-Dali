@@ -32,6 +32,13 @@ void DaliChannel::setup()
 {
     if(isGroup)
     {
+        _isConfigured = ParamGRP_deviceType != 0;
+        if(!_isConfigured)
+        {
+            logInfoP("Nicht konfiguriert");
+            return;
+        }
+
         _isStaircase = ParamGRP_type;
         _min = 0;
         _max = 0xFF;
@@ -40,6 +47,13 @@ void DaliChannel::setup()
         _onDay = ParamGRP_onDay;
         _onNight = ParamGRP_onNight;
     } else {
+        _isConfigured = ParamADR_deviceType != 15;
+        if(!_isConfigured)
+        {
+            logInfoP("Nicht konfiguriert");
+            return;
+        }
+
         _isStaircase = ParamADR_type;
         _min = ParamADR_min;
         _max = ParamADR_max;
@@ -208,12 +222,12 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Sperren
         case 5:
         {
-            bool value = ko.value(Dpt(1,5));
+            bool value = ko.value(Dpt(1,1));
             if(isLocked == value) break;
             isLocked = value;
             uint8_t behave;
             uint8_t behavevalue;
-            if(!isLocked)
+            if(isLocked)
             {
                 logInfoP("Sperren");
                 behave = ParamADR_lockbehave;
@@ -234,16 +248,16 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 //Ausschalten
                 case 1:
                 {
-                    logInfoP("Aus");
-                    behavevalue = 0;
+                    logInfoP("Ein");
+                    behavevalue = isNight ? _onNight : _onDay;
                     break;
                 }
 
                 //Einschalten
                 case 2:
                 {
-                    logInfoP("Ein");
-                    behavevalue = 100;
+                    logInfoP("Aus");
+                    behavevalue = 0;
                     break;
                 }
 
@@ -265,8 +279,9 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
 uint8_t DaliChannel::percentToArc(uint8_t value)
 {
+    if(value == 0) return 0;
     //Todo also include _max
-    uint8_t arc = (log10(value)+1) * 3 / 253;
+    uint8_t arc = ((253/3)*(log10(value)+1)) + 1;
     arc++;
     return arc;
 }
@@ -288,9 +303,9 @@ void DaliChannel::setDimmState(uint8_t value)
     _lastValue = value;
 
     if(isGroup)
-        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(value, DPT_Switch);
+        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(value, Dpt(5, 1));
     else
-        knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(value, DPT_Switch);
+        knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(value, Dpt(5, 1));
 }
 
 void DaliChannel::setOnValue(uint8_t value)
