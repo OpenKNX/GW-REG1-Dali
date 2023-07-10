@@ -4,6 +4,10 @@
 
 uint8_t MessageQueue::push(Message *msg)
 {
+    while(isLocked) ;
+    isLocked = true;
+    lastPush = millis();
+
     msg->next = nullptr;
     if(tail == nullptr)
     {
@@ -14,11 +18,16 @@ uint8_t MessageQueue::push(Message *msg)
 
     tail->next = msg;
     tail = msg;
+    isLocked = false;
     return msg->id;
 }
 
 Message* MessageQueue::pop()
 {
+    if(millis() - lastPush < 3) return;
+    while(isLocked) ;
+    isLocked = true;
+
     if(head == nullptr) return nullptr;
 
     Message *item = head;
@@ -31,6 +40,7 @@ Message* MessageQueue::pop()
         head = item->next;
     }
 
+    isLocked = false;
     return item;
 }
 
