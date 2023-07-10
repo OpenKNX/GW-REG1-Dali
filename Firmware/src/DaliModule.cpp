@@ -429,7 +429,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     switch(koNum)
     {
         //broadcast switch
-        case 1:
+        case APP_Kobroadcast_switch:
         {
             bool value = ko.value(DPT_Switch);
             logInfoP("Broadcast Switch %i", value);
@@ -438,7 +438,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         }
 
         //broadcast dimm absolute
-        case 2:
+        case APP_Kobroadcast_dimm:
         {
             uint8_t value = ko.value(Dpt(5,1));
             logInfoP("Broadcast Dimm %i", value);
@@ -449,7 +449,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         }
 
         //Tag/Nacht Objekt
-        case 3:
+        case APP_Kodaynight:
         {
             bool value = ko.value(DPT_Switch);
             if(ParamAPP_daynight) value = !value;
@@ -464,7 +464,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         }
 
         //Set OnValue Day
-        case 4:
+        case APP_KoonValue:
         {
             uint8_t value = ko.value(Dpt(5,1));
 
@@ -473,6 +473,11 @@ void DaliModule::processInputKo(GroupObject &ko)
             for(int i = 0; i < 16; i++)
                 groups[i]->setOnValue(value);
             break;
+        }
+
+        case APP_Koscene:
+        {
+
         }
     }
 }

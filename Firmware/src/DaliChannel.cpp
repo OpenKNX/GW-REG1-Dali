@@ -118,7 +118,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
     switch(chanIndex)
     {
         //Schalten
-        case 0:
+        case ADR_Koswitch:
         {
             logInfoP("Schalten");
             if(isLocked)
@@ -185,7 +185,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //case 1
 
         //Dimmen relativ
-        case 2:
+        case ADR_Kodimm_relative:
         {
             logInfoP("Dimmen relativ");
             if(isLocked)
@@ -198,7 +198,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         }
 
         //Dimmen Absolut
-        case 3:
+        case ADR_Kodimm_absolute:
         {
             logInfoP("Dimmen absolut");
             if(isLocked)
@@ -220,9 +220,19 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //case 4
 
         //Sperren
-        case 5:
+        case ADR_Kolock:
         {
             bool value = ko.value(Dpt(1,1));
+
+            if(isGroup)
+            {
+                if(ParamGRP_locknegate)
+                    value = !value;
+            } else {
+                if(ParamADR_locknegate)
+                    value = !value;
+            }
+
             if(isLocked == value) break;
             isLocked = value;
             uint8_t behave;
