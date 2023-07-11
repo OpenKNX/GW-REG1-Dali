@@ -467,6 +467,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         case APP_KoonValue:
         {
             uint8_t value = ko.value(Dpt(5,1));
+            logDebugP("KO OnValue: %i", value);
 
             for(int i = 0; i < 64; i++)
                 channels[i]->setOnValue(value);
@@ -477,7 +478,71 @@ void DaliModule::processInputKo(GroupObject &ko)
 
         case APP_Koscene:
         {
+            uint8_t gotNumber = ko.value(DPT_SceneNumber);
+            logDebugP("KO Scene: %i", gotNumber);
+            for(int i = 0; i < 16; i++)
+            {
+                uint8_t dest = ParamSCE_typeIndex(i);
+                logDebugP("KO Scene%i: Dest=%i", i, dest);
+                if(dest == 0) continue;
+                uint8_t number = ParamSCE_numberKnxIndex(i);
+                logDebugP("KO Scene%i: Number=%i", i, number-1);
+                if(gotNumber == number - 1)
+                {
+                    bool isSave = ko.value(Dpt(18,1,0));
+                    logDebugP("KO Scene%i: Save=%i", i, isSave);
+                    if(isSave && !ParamSCE_saveIndex(i))
+                    {
+                        logDebugP("KO Scene%i: Save not allowed", i);
+                        continue;
+                    }
 
+                    uint8_t scene = ParamSCE_numberDaliIndex(i);
+                    logDebugP("KO Scene%i: Scene=%i", i, scene);
+                    uint8_t addr = 0;
+                    uint8_t type = 0;
+                    switch(dest)
+                    {
+                        //Address
+                        case 1:
+                        {
+                            addr = ParamSCE_addressIndex(i);
+                            logDebugP("KO Scene%i: Addr=%i", i, addr);
+                            type = dali->DALI_SHORT_ADDRESS;
+                            break;
+                        }
+
+                        //Group
+                        case 2:
+                        {
+                            addr = ParamSCE_groupIndex(i);
+                            logDebugP("KO Scene%i: Grou=%i", i, addr);
+                            type = dali->DALI_GROUP_ADDRESS;
+                            sendCmd(ParamSCE_groupIndex(i), dali->CMD_GO_TO_SCENE | scene, dali->DALI_GROUP_ADDRESS);
+                            break;
+                        }
+
+                        //Broadcast
+                        case 3:
+                        {
+                            addr = 0xFF;
+                            logDebugP("KO Scene%i: Broadcast", i);
+                            type = dali->DALI_GROUP_ADDRESS;
+                            sendCmd(0xFF, dali->CMD_GO_TO_SCENE | scene, dali->DALI_GROUP_ADDRESS);
+                            break;
+                        }
+                    }
+
+                    if(isSave)
+                    {
+                        sendCmd(addr, dali->CMD_ARC_TO_DTR, type);
+                        sendCmd(addr, dali->CMD_DTR_AS_SCENE | scene, type);
+                    } else {
+                        sendCmd(addr, dali->CMD_GO_TO_SCENE | scene, type);
+                    }
+                }
+            }
+            break;
         }
     }
 }

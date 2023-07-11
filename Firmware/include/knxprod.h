@@ -9,22 +9,12 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x17
+#define MAIN_ApplicationVersion 0x0A
 #define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
-#define MAIN_ParameterSize 753
-#define MAIN_MaxKoNumber 629
+#define MAIN_ParameterSize 816
+#define MAIN_MaxKoNumber 565
 
 
-#define APP_daynight		0x0000
-// Offset: 0, Size: 1 Bit, Text: Tag/Nacht Objekt
-#define ParamAPP_daynight knx.paramBit(0, 0)
-#define APP_scenesave		0x0000
-// Offset: 0, BitOffset: 1, Size: 1 Bit, Text: Szene speichern erlauben
-#define ParamAPP_scenesave knx.paramBit(0, 1)
-#define APP_szeneoffset		0x0000
-#define APP_szeneoffset_Mask	0x003F
-// Offset: 0, BitOffset: 2, Size: 6 Bit, Text: Szenennummer offset
-#define ParamAPP_szeneoffset ((uint)((knx.paramByte(0)) & APP_szeneoffset_Mask))
 //!< Number: 1, Text: Broadcast, Function: Schalten
 #define APP_Kobroadcast_switch 1
 #define KoAPP_broadcast_switch knx.getGroupObject(1)
@@ -44,14 +34,18 @@
 //---------------------Modules----------------------------
 
 //-----Module specific starts
-#define ADR_ParamBlockOffset 1
+#define SCE_ParamBlockOffset 0
+#define SCE_ParamBlockSize 4
+#define ADR_ParamBlockOffset 64
 #define ADR_ParamBlockSize 10
-#define GRP_ParamBlockOffset 641
+#define GRP_ParamBlockOffset 704
 #define GRP_ParamBlockSize 7
-#define ADR_KoOffset 6
-#define ADR_KoBlockSize 8
-#define GRP_KoOffset 518
-#define GRP_KoBlockSize 7
+#define SCE_KoOffset 6
+#define SCE_KoBlockSize 0
+#define ADR_KoOffset 22
+#define ADR_KoBlockSize 7
+#define GRP_KoOffset 470
+#define GRP_KoBlockSize 6
 
 //-----Module: adresse
 #define ADR_deviceType		0x0000
@@ -149,11 +143,6 @@
 #define ParamADR_locknegateIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 1), 7)
 // Offset: 1, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
 #define ParamADR_locknegate knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 1), 7)
-#define ADR_scenesave		0x0002
-// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Szene speichern erlauben
-#define ParamADR_scenesaveIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 2), 7)
-// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Szene speichern erlauben
-#define ParamADR_scenesave knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 2), 7)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)
@@ -182,10 +171,6 @@
 #define ADR_Koerror 6
 #define KoADR_errorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 6)
 #define KoADR_error knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 6)
-//!< Number: 7, Text: A{{argChan}} {{0}}, Function: Szene
-#define ADR_Koscene 7
-#define KoADR_sceneIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 7)
-#define KoADR_scene knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 7)
 
 //-----Module: group
 #define GRP_type		0x0000
@@ -252,16 +237,6 @@
 #define ParamGRP_onNightIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 6)) >> GRP_onNight_Shift) & GRP_onNight_Mask))
 // Offset: 6, Size: 7 Bit, Text: Einschaltwert Nacht
 #define ParamGRP_onNight ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 6)) >> GRP_onNight_Shift) & GRP_onNight_Mask))
-#define GRP_locknegate		0x0000
-// Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
-#define ParamGRP_locknegateIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 0), 7)
-// Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
-#define ParamGRP_locknegate knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 0), 7)
-#define GRP_scenesave		0x0003
-// Offset: 3, BitOffset: 7, Size: 1 Bit, Text: Szene speichern erlauben
-#define ParamGRP_scenesaveIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 3), 7)
-// Offset: 3, BitOffset: 7, Size: 1 Bit, Text: Szene speichern erlauben
-#define ParamGRP_scenesave knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 3), 7)
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 0)
@@ -286,8 +261,46 @@
 #define GRP_Kolock 5
 #define KoGRP_lockIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 5)
 #define KoGRP_lock knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + 5)
-//!< Number: 6, Text: G{{argChan}} {{0}}, Function: Szene
-#define GRP_Koscene 6
-#define KoGRP_sceneIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 6)
-#define KoGRP_scene knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + 6)
+
+//-----Module: scene
+#define SCE_type		0x0000
+#define SCE_type_Shift	6
+#define SCE_type_Mask	0x0003
+// Offset: 0, Size: 2 Bit, Text: Typ
+#define ParamSCE_typeIndex(X) ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 0)) >> SCE_type_Shift) & SCE_type_Mask))
+// Offset: 0, Size: 2 Bit, Text: Typ
+#define ParamSCE_type ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 0)) >> SCE_type_Shift) & SCE_type_Mask))
+#define SCE_save		0x0000
+// Offset: 0, BitOffset: 2, Size: 1 Bit, Text: Speichern erlauben
+#define ParamSCE_saveIndex(X) knx.paramBit((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 0), 2)
+// Offset: 0, BitOffset: 2, Size: 1 Bit, Text: Speichern erlauben
+#define ParamSCE_save knx.paramBit((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 0), 2)
+#define SCE_numberKnx		0x0001
+#define SCE_numberKnx_Shift	1
+#define SCE_numberKnx_Mask	0x007F
+// Offset: 1, Size: 7 Bit, Text: Szenennummer Knx
+#define ParamSCE_numberKnxIndex(X) ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 1)) >> SCE_numberKnx_Shift) & SCE_numberKnx_Mask))
+// Offset: 1, Size: 7 Bit, Text: Szenennummer Knx
+#define ParamSCE_numberKnx ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 1)) >> SCE_numberKnx_Shift) & SCE_numberKnx_Mask))
+#define SCE_numberDali		0x0000
+#define SCE_numberDali_Shift	1
+#define SCE_numberDali_Mask	0x000F
+// Offset: 0, BitOffset: 3, Size: 4 Bit, Text: Szenennummer Dali
+#define ParamSCE_numberDaliIndex(X) ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 0)) >> SCE_numberDali_Shift) & SCE_numberDali_Mask))
+// Offset: 0, BitOffset: 3, Size: 4 Bit, Text: Szenennummer Dali
+#define ParamSCE_numberDali ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 0)) >> SCE_numberDali_Shift) & SCE_numberDali_Mask))
+#define SCE_address		0x0002
+#define SCE_address_Shift	2
+#define SCE_address_Mask	0x003F
+// Offset: 2, Size: 6 Bit, Text: Dali Adresse
+#define ParamSCE_addressIndex(X) ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 2)) >> SCE_address_Shift) & SCE_address_Mask))
+// Offset: 2, Size: 6 Bit, Text: Dali Adresse
+#define ParamSCE_address ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 2)) >> SCE_address_Shift) & SCE_address_Mask))
+#define SCE_group		0x0003
+#define SCE_group_Shift	4
+#define SCE_group_Mask	0x000F
+// Offset: 3, Size: 4 Bit, Text: Dali Gruppe
+#define ParamSCE_groupIndex(X) ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 3)) >> SCE_group_Shift) & SCE_group_Mask))
+// Offset: 3, Size: 4 Bit, Text: Dali Gruppe
+#define ParamSCE_group ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 3)) >> SCE_group_Shift) & SCE_group_Mask))
 
