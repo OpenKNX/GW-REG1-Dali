@@ -23,7 +23,10 @@ void DaliModule::setup()
 {
     dali = new DaliClass();
 	dali->begin(DALI_TX, DALI_RX);
-    
+    dali->setCallback([](uint8_t *data, uint8_t len) -> void {
+        logHexInfo("Test", data, len);
+    });
+
     queue = new MessageQueue();
 
     for(int i = 0; i < 64; i++)

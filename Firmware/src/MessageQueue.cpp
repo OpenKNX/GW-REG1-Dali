@@ -13,6 +13,7 @@ uint8_t MessageQueue::push(Message *msg)
     {
         head = msg;
         tail = msg;
+        isLocked = false;
         return msg->id;
     }
 
@@ -26,9 +27,9 @@ Message* MessageQueue::pop()
 {
     if(millis() - lastPush < 3) return nullptr;
     while(isLocked) ;
-    isLocked = true;
 
     if(head == nullptr) return nullptr;
+    isLocked = true;
 
     Message *item = head;
     
