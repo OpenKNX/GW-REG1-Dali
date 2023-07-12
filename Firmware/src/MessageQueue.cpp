@@ -24,7 +24,7 @@ uint8_t MessageQueue::push(Message *msg)
 
 Message* MessageQueue::pop()
 {
-    if(millis() - lastPush < 3) return;
+    if(millis() - lastPush < 3) return nullptr;
     while(isLocked) ;
     isLocked = true;
 
