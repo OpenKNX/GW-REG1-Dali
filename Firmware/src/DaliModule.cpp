@@ -436,7 +436,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         {
             bool value = ko.value(DPT_Switch);
             logInfoP("Broadcast Switch %i", value);
-            dali->sendArc(0xFF, value ? 0xFE : 0x00, dali->DALI_GROUP_ADDRESS);
+            dali->sendArcBroadcast(value ? 0xFE : 0x00);
             break;
         }
 
@@ -447,7 +447,7 @@ void DaliModule::processInputKo(GroupObject &ko)
             logInfoP("Broadcast Dimm %i", value);
             value = ((253/3)*(log10(value)+1)) + 1;
             value++;
-            dali->sendArc(0xFF, value, dali->DALI_GROUP_ADDRESS);
+            dali->sendArcBroadcast(value);
             break;
         }
 
@@ -521,7 +521,6 @@ void DaliModule::processInputKo(GroupObject &ko)
                             addr = ParamSCE_groupIndex(i);
                             logDebugP("KO Scene%i: Grou=%i", i, addr);
                             type = dali->DALI_GROUP_ADDRESS;
-                            sendCmd(ParamSCE_groupIndex(i), dali->CMD_GO_TO_SCENE | scene, dali->DALI_GROUP_ADDRESS);
                             break;
                         }
 
@@ -531,7 +530,6 @@ void DaliModule::processInputKo(GroupObject &ko)
                             addr = 0xFF;
                             logDebugP("KO Scene%i: Broadcast", i);
                             type = dali->DALI_GROUP_ADDRESS;
-                            sendCmd(0xFF, dali->CMD_GO_TO_SCENE | scene, dali->DALI_GROUP_ADDRESS);
                             break;
                         }
                     }
