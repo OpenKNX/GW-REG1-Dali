@@ -137,12 +137,10 @@ void DaliModule::loopAddressing()
         {
             if(_adrNoRespCounter == 2)
             {
-                //logInfoP("No more ballasts");
                 _adrState = AddressingState::Finish;
                 break;
             }
 
-            //logInfoP("Search: %i - %i", _adrLow, _adrHigh);
             byte high = _adrHigh >> 16;
             byte middle = (_adrHigh >> 8) & 0xFF;
             byte low = _adrHigh & 0xFF;
@@ -172,9 +170,33 @@ void DaliModule::loopAddressing()
                 if(_adrLow == _adrHigh)
                 {
                     logInfoP("Found Ballast at %X", _adrLow);
-                    _adrResp = sendCmdSpecial(dali->CMD_QUERY_SHORT, 0, true);
-                    _adrTime = millis();
-                    _adrState = AddressingState::Found;
+                    if(_adrAssign)
+                    {
+                        uint8_t addr = 0;
+                        while(addresses[addr]){
+                            addr++;
+                        }
+                        addresses[addr] = true;
+                        logInfoP("Assinging Address %i", addr);
+                        sendCmdSpecial(dali->CMD_PROGRAMSHORT, _adrLow);
+                        sendCmdSpecial(dali->CMD_WITHDRAW);
+                        ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
+                        ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
+                        ballasts[_adrFound].low = _adrLow & 0xFF;
+                        ballasts[_adrFound].address = response >> 1;
+                        _adrFound++;
+
+                        _adrLow = 0;
+                        _adrHigh = 0xFFFFFF;
+                        _adrHighLast = 0xFFFFFF;
+                        _adrNoRespCounter = 1;
+                        sendCmdSpecial(dali->CMD_WITHDRAW);
+                        _adrState = AddressingState::Search;
+                    } else {
+                        _adrResp = sendCmdSpecial(dali->CMD_QUERY_SHORT, 0, true);
+                        _adrTime = millis();
+                        _adrState = AddressingState::Found;
+                    }
                 } else {
                     //logInfoP("Range has ballast");
                     _adrHighLast = _adrHigh;
@@ -231,7 +253,6 @@ void DaliModule::loopAddressing()
             break;
         }
 
-
         case AddressingState::Query_Wait:
         {
             int16_t resp = queue->getResponse(_adrResp);
@@ -262,6 +283,8 @@ void DaliModule::loopAddressing()
 
         case AddressingState::Withdraw_Others:
         {
+            sendCmdSpecial(dali->CMD_INITIALISE, 0);
+            sendCmdSpecial(dali->CMD_INITIALISE, 0);
             if(_adrHigh > 0)
             {
                 logInfoP("Verwerfe alle mit niedrigerer Long Address");
@@ -361,6 +384,19 @@ void DaliModule::loopAddressing()
 
         case AddressingState::SearchAdr:
         {
+            if(_adrLow == 64)
+            {
+                sendCmdSpecial(dali->CMD_INITIALISE, 255);
+                sendCmdSpecial(dali->CMD_INITIALISE, 255);
+                sendCmdSpecial(dali->CMD_RANDOMISE);
+                sendCmdSpecial(dali->CMD_RANDOMISE);
+                _adrState = AddressingState::Randomize_Wait;
+                _adrLow = 0;
+                _adrHigh = 0xFFFFFF;
+                _adrHighLast = 0xFFFFFF;
+                break;
+            }
+                
             _adrState = AddressingState::SearchAdrWait;
             _assState = AssigningState::Working;
             _adrResp = sendCmd(_adrLow, dali->CMD_QUERY_STATUS, dali->DALI_SHORT_ADDRESS, true);
@@ -372,9 +408,9 @@ void DaliModule::loopAddressing()
         {
             if(millis() - _adrTime > DALI_WAIT_SEARCH)
             {
-                logInfoP("Gerät antwortet nicht");
-                _assState = AssigningState::Failed_No_Answer;
-                _adrState = AddressingState::None;
+                logInfoP("Address %i dont exists", _adrLow);
+                _adrState = AddressingState::SearchAdr;
+                _adrLow++;
                 return;
             }
 
@@ -385,23 +421,21 @@ void DaliModule::loopAddressing()
             if(resp >= 0)
             {
                 logInfoP("Address %i exists", _adrLow);
-                return;
+                ballasts[_adrFound].address = _adrLow;
+                _adrState = AddressingState::SearchAdr;
+                _adrLow++;
             } else if(resp == -1) {
                 logInfoP("Address %i dont exists", _adrLow);
                 _adrState = AddressingState::SearchAdr;
+                _adrLow++;
             } else {
                 logInfoP("Bus Error %i", resp);
                 _assState = AssigningState::Failed_Bus;
                 _adrState = AddressingState::None;
             }
-            _adrLow++;
-
-            if(_adrLow < 64)
-                _adrState = AddressingState::SearchAdr;
-            else
-                _adrState = AddressingState::SearchAdr; //TODO go to next step
             break;
         }
+
     }
 }
 
@@ -569,12 +603,13 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         case 3:
         {
             ballasts = new Ballast[64];
-            logInfoP("Starting Addressing");
+            logInfoP("Starting Scan");
             _adrState = AddressingState::Init;
             _adrLow = 0;
             _adrHigh = 0xFFFFFF;
             _adrHighLast = 0xFFFFFF;
             _adrFound = 0;
+            _adrAssign = false;
             
             sendCmdSpecial(dali->CMD_INITIALISE, data[0] ? 255 : 0);
             sendCmdSpecial(dali->CMD_INITIALISE, data[0] ? 255 : 0);
@@ -600,8 +635,6 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         case 4:
         {
             logInfoP("Starting assigning address");
-            sendCmdSpecial(dali->CMD_INITIALISE, 0);
-            sendCmdSpecial(dali->CMD_INITIALISE, 0);
             _adrResp = sendCmd(data[0], dali->CMD_QUERY_STATUS, dali->DALI_SHORT_ADDRESS, true);
             _adrTime = millis();
             _adrState = AddressingState::Query_Wait;
@@ -623,6 +656,11 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             logInfoP("Starting addressing new auto");
             _adrLow = 0;
             _adrState = AddressingState::SearchAdr;
+            _adrFound = 0;
+            _adrAssign = true;
+            ballasts = new Ballast[64];
+            addresses = new bool[64];
+            for(int i = 0; i < 64; i++) addresses[i] = false;
             resultLength = 0;
             return true;
         }
@@ -664,6 +702,7 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
         }
 
         case 3:
+        case 5:
         {
             resultData[0] = data[0] < _adrFound;
             resultData[1] = (data[0] >= _adrFound) && _adrState == AddressingState::None;
@@ -681,6 +720,7 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
             if(resultData[1])
             {
                 delete[] ballasts;
+                delete[] addresses;
             }
 
             return true;

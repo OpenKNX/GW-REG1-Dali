@@ -47,6 +47,9 @@ class DaliModule : public OpenKNX::Module
 			//addressing auto
 			SearchAdr,
 			SearchAdrWait,
+			GetHWait,
+			GetLWait,
+			GetMWait,
 			//assigning
 			Query_Wait,
 			Withdraw_Others,
@@ -74,7 +77,9 @@ class DaliModule : public OpenKNX::Module
 		AddressingState _adrState = AddressingState::None;
 		AssigningState _assState = AssigningState::None;
 		Ballast *ballasts;
+		bool *addresses;
 		int _adrFound = 0;
+		bool _adrAssign = false;
 
 		bool _daliBusState = false;
 		int _daliStateCounter = 0;

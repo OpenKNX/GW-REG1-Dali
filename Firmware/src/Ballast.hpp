@@ -5,5 +5,5 @@ struct Ballast {
     byte high;
     byte middle;
     byte low;
-    uint8_t address;
+    uint8_t address = 255;
 };
