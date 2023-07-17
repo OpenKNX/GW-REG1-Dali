@@ -5,6 +5,10 @@
 #include "DaliChannel.h"
 #include "Ballast.hpp"
 
+#ifdef USE_TINYUSB
+#include <hid/Adafruit_USBD_HID.h>
+#endif
+
 #define DALI_TX 17
 #define DALI_RX 16
 
@@ -18,11 +22,16 @@
 class DaliModule : public OpenKNX::Module
 {
 	public:
+#ifdef USE_TINYUSB
+		void setCallback(EventHandlerReceivedDataFuncPtr callback);
+#endif
+
 		void loop() override;
 		void loop1() override;
 		void loopAddressing();
 		void loopMessages();
 		void setup() override;
+		void setup1() override;
 		bool usesDualCore() override;
 		void processInputKo(GroupObject &ko) override;
 

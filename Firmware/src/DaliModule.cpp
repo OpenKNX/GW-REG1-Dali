@@ -17,16 +17,17 @@ bool DaliModule::usesDualCore()
     return true;
 }
 
+#ifdef USE_TINYUSB
+void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
+{
+    dali->setCallback(callback);
+}
+#endif
+
 //will be called once
 //only if knx.configured == true
 void DaliModule::setup()
 {
-    dali = new DaliClass();
-	dali->begin(DALI_TX, DALI_RX);
-    dali->setCallback([](uint8_t *data, uint8_t len) -> void {
-        logHexInfo("Test", data, len);
-    });
-
     queue = new MessageQueue();
 
     for(int i = 0; i < 64; i++)
@@ -43,6 +44,12 @@ void DaliModule::setup()
         ch->setup();
         groups[i] = ch;
     }
+}
+
+void DaliModule::setup1()
+{
+    dali = new DaliClass();
+	dali->begin(DALI_TX, DALI_RX);
 }
 
 void DaliModule::loop()
