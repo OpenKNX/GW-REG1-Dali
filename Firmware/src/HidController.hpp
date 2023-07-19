@@ -1,3 +1,5 @@
+#ifdef USE_TINYUSB
+
 #include "Arduino.h"
 #include <hid/Adafruit_USBD_HID.h>
 
@@ -194,3 +196,4 @@ void HidController::handleSend(uint8_t const *buffer)
         daliCallback(&response, 1);
     }
 }
+#endif
