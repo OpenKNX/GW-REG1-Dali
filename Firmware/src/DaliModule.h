@@ -32,7 +32,6 @@ class DaliModule : public OpenKNX::Module
 		void loopMessages();
 		void setup() override;
 		void setup1() override;
-		bool usesDualCore() override;
 		void processInputKo(GroupObject &ko) override;
 
 		const std::string name() override;

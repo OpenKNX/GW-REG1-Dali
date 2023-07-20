@@ -12,11 +12,6 @@ const std::string DaliModule::version()
     return "0.0dev";
 }
 
-bool DaliModule::usesDualCore()
-{
-    return true;
-}
-
 #ifdef USE_TINYUSB
 void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
 {
