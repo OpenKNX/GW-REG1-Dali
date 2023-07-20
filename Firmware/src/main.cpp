@@ -6,10 +6,10 @@
 #include "DaliModule.h"
 #include "UpdaterModule.h"
 #include "FTPServer.h"
-#include "HidController.hpp"
 
 
 #ifdef USE_TINYUSB
+#include "HidController.hpp"
 HidController hid;
 
 void setup1()
