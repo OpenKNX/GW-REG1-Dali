@@ -21,9 +21,11 @@ void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
 
 //will be called once
 //only if knx.configured == true
-void DaliModule::setup()
+void DaliModule::setup(bool conf)
 {
     queue = new MessageQueue();
+
+    if(!conf) return;
 
     for(int i = 0; i < 64; i++)
     {
@@ -41,7 +43,7 @@ void DaliModule::setup()
     }
 }
 
-void DaliModule::setup1()
+void DaliModule::setup1(bool conf)
 {
     dali = new DaliClass();
 	dali->begin(DALI_TX, DALI_RX);
@@ -618,6 +620,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
             if(data[1] == 1)
             {
+                logInfoP("Do Randomize");
                 sendCmdSpecial(dali->CMD_RANDOMISE);
                 sendCmdSpecial(dali->CMD_RANDOMISE);
                 _adrState = AddressingState::Randomize_Wait;

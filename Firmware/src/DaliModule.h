@@ -30,8 +30,8 @@ class DaliModule : public OpenKNX::Module
 		void loop1() override;
 		void loopAddressing();
 		void loopMessages();
-		void setup() override;
-		void setup1() override;
+		void setup(bool conf) override;
+		void setup1(bool conf) override;
 		void processInputKo(GroupObject &ko) override;
 
 		const std::string name() override;

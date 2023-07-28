@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include "TimerInterrupt_Generic.h"
 #include "OpenKNX.h"
-#include "pins.h"
-#include "dali.h"
 #include "DaliModule.h"
 #include "UpdaterModule.h"
 #include "FTPServer.h"
@@ -10,11 +8,12 @@
 
 #ifdef USE_TINYUSB
 #include "HidController.hpp"
-HidController hid;
+HidController *hid;
 
 void setup1()
 {
 	Serial.end();
+	hid = new HidController();
 	openknx.setup1();
 }
 
@@ -27,8 +26,8 @@ void daliCallback(uint8_t *data, uint8_t len)
 void setup()
 {
 	#ifdef USE_TINYUSB
-	Serial2.setTX(16);//28);
-	Serial2.setRX(17);//29);
+	Serial2.setTX(8);//28);
+	Serial2.setRX(9);//29);
 	#endif
 
 	const uint8_t firmwareRevision = 0;
@@ -45,9 +44,10 @@ void setup()
 	openknx.setup();
 }
 
-unsigned long lastmillis = 0;
-bool state = true;
-int addr = 0;
+void setup1()
+{
+	openknx.setup1();
+}
 
 void loop()
 {
