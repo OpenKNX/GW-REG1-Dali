@@ -68,6 +68,10 @@ void DaliChannel::setup()
 
 void DaliChannel::loop()
 {
+}
+
+void DaliChannel::loop1()
+{
     if(_isStaircase && state)
     {
         if(millis() - startTime > interval * 1000)
@@ -78,10 +82,17 @@ void DaliChannel::loop()
             setSwitchState(false);
         }
     }
-}
 
-void DaliChannel::loop1()
-{
+    if(_dimmDirection != DimmDirection::None && millis() - _dimmLast > DimmInterval)
+    {
+        if(_dimmLast == 0)
+        {
+            
+            setSwitchState(behavevalue > 0);
+        }
+        sendCmd(_dimmDirection == DimmDirection::Up ? 8 : 7);
+        _dimmLast = millis();
+    }
 }
 
 uint16_t DaliChannel::calcKoNumber(int asap)
@@ -99,6 +110,17 @@ uint8_t DaliChannel::sendArc(byte v)
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
     msg->para2 = percentToArc(v);
+    msg->addrtype = isGroup;
+    return _queue->push(msg);
+}
+
+uint8_t DaliChannel::sendCmd(byte cmd)
+{
+    Message *msg = new Message();
+    msg->id = _queue->getNextId();
+    msg->type = MessageType::Cmd;
+    msg->para1 = _channelIndex;
+    msg->para2 = cmd;
     msg->addrtype = isGroup;
     return _queue->push(msg);
 }
@@ -194,6 +216,23 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 return;
             }
 
+            _dimmStep = ko.value(Dpt(3,7,1));
+
+            if(_dimmStep == 0)
+            {
+                logInfoP("stop");
+                _dimmDirection = DimmDirection::None;
+                _dimmLast = 0;
+                return;
+            }
+
+            _dimmDirection = ko.value(Dpt(3,7,0)) ? DimmDirection::Up : DimmDirection::Down;
+            if(_dimmDirection == DimmDirection::Up)
+            {
+                logInfoP("up");
+            } else if(_dimmDirection == DimmDirection::Down) {
+                logInfoP("down");
+            }
             break;
         }
 
