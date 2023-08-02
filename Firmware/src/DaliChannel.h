@@ -46,6 +46,9 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t _onNight = 10;
 		bool canReTrigger = false;
 		bool _isStaircase = false;
+		bool _getError = false;
+		uint16_t _errorResp = 300;
+		unsigned long _lastError = 0;
 		uint8_t _lastValue = 0;
 		bool _lastState = false;
 

@@ -16,6 +16,11 @@ void setup1()
 	hid = new HidController();
 	openknx.setup1();
 }
+#else
+void setup1()
+{
+	openknx.setup1();
+}
 #endif
 
 void daliCallback(uint8_t *data, uint8_t len)

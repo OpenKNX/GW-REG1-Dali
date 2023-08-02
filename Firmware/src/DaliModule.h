@@ -22,17 +22,16 @@
 class DaliModule : public OpenKNX::Module
 {
 	public:
-#ifdef USE_TINYUSB
-		void setCallback(EventHandlerReceivedDataFuncPtr callback);
-#endif
 
 		void loop() override;
 		void loop1() override;
 		void loopAddressing();
 		void loopMessages();
+		void loopBusState();
 		void setup(bool conf) override;
 		void setup1(bool conf) override;
 		void processInputKo(GroupObject &ko) override;
+		void setCallback(EventHandlerReceivedDataFuncPtr callback);
 
 		const std::string name() override;
 		const std::string version() override;
@@ -90,7 +89,8 @@ class DaliModule : public OpenKNX::Module
 		bool _adrAssign = false;
 
 		bool _daliBusState = false;
-		int _daliStateCounter = 0;
+		bool _daliBusStateToSet = false;
+		unsigned long _daliStateLast = 0;
 		DaliClass *dali;
 		DaliChannel *channels[64];
 		DaliChannel *groups[16];

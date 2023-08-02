@@ -12,12 +12,10 @@ const std::string DaliModule::version()
     return "0.0dev";
 }
 
-#ifdef USE_TINYUSB
 void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
 {
     dali->setCallback(callback);
 }
-#endif
 
 //will be called once
 //only if knx.configured == true
@@ -82,6 +80,7 @@ void DaliModule::loop1()
     }
 
     loopMessages();
+    loopBusState();
 }
 
 void DaliModule::loopMessages()
@@ -443,6 +442,28 @@ void DaliModule::loopAddressing()
     }
 }
 
+void DaliModule::loopBusState()
+{
+    bool state = digitalRead(DALI_RX);
+    if(state != _daliBusStateToSet)
+    {
+        _daliBusStateToSet = state;
+        _daliStateLast = millis();
+        if(_daliStateLast == 0) _daliStateLast = 1;
+    } else if(_daliStateLast != 0 && millis() - _daliStateLast > 100)
+    {
+        _daliStateLast = 0;
+        if(_daliBusState != _daliBusStateToSet)
+        {
+            _daliBusState = _daliBusStateToSet;
+            if(_daliBusState)
+                logInfoP("Dali Busspg. vorhanden");
+            else
+                logInfoP("Dali Busspg. nicht vorhanden");
+        }
+    }
+}
+
 bool DaliModule::getDaliBusState()
 {
     return _daliBusState;
@@ -458,6 +479,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
         logInfoP("Got KO %i for CH%i", koNum, index);
         channels[index]->processInputKo(ko);
+        return;
     }
 
     if(koNum >= GRP_KoOffset && koNum < GRP_KoOffset + GRP_KoBlockSize * 16)
@@ -465,6 +487,7 @@ void DaliModule::processInputKo(GroupObject &ko)
         int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
         logInfoP("Got KO %i for G%i", koNum, index);
         groups[index]->processInputKo(ko);
+        return;
     }
 
     switch(koNum)
