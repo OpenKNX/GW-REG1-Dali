@@ -73,6 +73,8 @@ void DaliChannel::loop()
 
 void DaliChannel::loop1()
 {
+    if(!_isConfigured) return;
+
     if(_isStaircase && state)
     {
         if(millis() - startTime > interval * 1000)
@@ -81,17 +83,35 @@ void DaliChannel::loop1()
             state = false;
             sendArc(0x00);
             setSwitchState(false);
+            setDimmState(0);
         }
     }
 
     if(_dimmDirection != DimmDirection::None && millis() - _dimmLast > DimmInterval)
     {
-        if(_dimmLast == 0)
+        if(_dimmDirection == DimmDirection::Up)
         {
-            
-            //setSwitchState(behavevalue > 0);
+            logInfoP("Dimm Up");
+            sendCmd(8); //STEP_UP_AND_ON
+            _lastStep--;
+        } else if(_dimmDirection == DimmDirection::Down) {
+            logInfoP("Dimm Down");
+            sendCmd(7); //STEP_DOWN_AND_OFF
+            _lastStep++;
         }
-        sendCmd(_dimmDirection == DimmDirection::Up ? 8 : 7);
+
+        if(_lastStep == 0)
+        {
+            logInfoP("Dimm Stop at 0");
+            _dimmDirection = DimmDirection::None;
+        } else if(_lastStep == 254) {
+            logInfoP("Dimm Stop at 254");
+            _dimmDirection = DimmDirection::None;
+        }
+
+        setSwitchState(_lastStep > 0);
+        setDimmState(arcToPercent(_lastStep));
+
         _dimmLast = millis();
     }
 
@@ -193,7 +213,11 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     state = true;
                     startTime = millis();
                     logInfoP("interval %i", interval);
-                    sendArc(isNight ? _onNight : _onDay);
+
+                    uint8_t onValue = isNight ? _onNight : _onDay;
+                    if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
+                    sendArc(onValue);
+                    setDimmState(onValue);
                     setSwitchState(true);
                 }
                 else
@@ -208,18 +232,23 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     logInfoP("Ausschalten");
                     sendArc(0x00);
                     setSwitchState(false);
+                    setDimmState(0);
                     state = false;
                 }
             } else {
                 bool value = ko.value(DPT_Switch);
                 if(value)
                 {
+                    uint8_t onValue = isNight ? _onNight : _onDay;
+                    if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
                     logInfoP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
-                    sendArc(isNight ? _onNight : _onDay);
+                    sendArc(onValue);
+                    setDimmState(onValue);
                 }
                 else {
-                    logInfoP(isNight ? "Ausschalten Nacht" : "Ausschalten Tag");
+                    logInfoP("Ausschalten");
                     sendArc(0x00);
+                    setDimmState(0);
                 }
                 
                 setSwitchState(value);
@@ -244,18 +273,20 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
             if(_dimmStep == 0)
             {
-                logInfoP("stop");
+                logInfoP("Dimm Stop");
                 _dimmDirection = DimmDirection::None;
                 _dimmLast = 0;
+                setSwitchState(_lastStep > 0);
+                setDimmState(arcToPercent(_lastStep));
                 return;
             }
 
             _dimmDirection = ko.value(Dpt(3,7,0)) ? DimmDirection::Up : DimmDirection::Down;
             if(_dimmDirection == DimmDirection::Up)
             {
-                logInfoP("up");
+                logInfoP("Dimm Up Start");
             } else if(_dimmDirection == DimmDirection::Down) {
-                logInfoP("down");
+                logInfoP("Dimm Down Start");
             }
             break;
         }
@@ -272,7 +303,6 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
             uint8_t value = ko.value(Dpt(5,1));
             logInfoP("Dimmen Absolut auf %i%%", value);
-            logInfoP("DALI Wert: %i", percentToArc(value));
             sendArc(value);
             setSwitchState(value > 0);
             setDimmState(value);
@@ -352,10 +382,27 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
 uint8_t DaliChannel::percentToArc(uint8_t value)
 {
-    if(value == 0) return 0;
+    if(value == 0)
+    {
+        _lastState = 0;
+        return 0;
+    }
     //Todo also include _max
     uint8_t arc = ((253/3)*(log10(value)+1)) + 1;
-    arc++;
+    _lastState = arc;
+    return arc;
+}
+
+uint8_t DaliChannel::arcToPercent(uint8_t value)
+{
+    if(value == 0)
+    {
+        _lastState = 0;
+        return 0;
+    }
+    //Todo also include _max
+    uint8_t arc = pow(10, ((value-1) / (253/3) - 1));
+    _lastState = arc;
     return arc;
 }
 
@@ -372,6 +419,14 @@ void DaliChannel::setSwitchState(bool value)
 
 void DaliChannel::setDimmState(uint8_t value)
 {
+    if(_dimmDirection == DimmDirection::None && value > 0)
+    {
+        if(isNight)
+            _lastNightValue = value;
+        else
+            _lastDayValue = value;
+    }
+
     if(value == _lastValue) return;
     _lastValue = value;
 

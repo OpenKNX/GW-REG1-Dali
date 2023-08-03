@@ -51,11 +51,15 @@ class DaliChannel : public OpenKNX::Channel
 		unsigned long _lastError = 0;
 		uint8_t _lastValue = 0;
 		bool _lastState = false;
+		uint8_t _lastStep = 0;
+		uint8_t _lastDayValue = 100;
+		uint8_t _lastNightValue = 10;
 
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
 		uint8_t sendCmd(byte cmd);
 		uint8_t percentToArc(uint8_t value);
+		uint8_t arcToPercent(uint8_t value);
 		void setSwitchState(bool value);
 		void setDimmState(uint8_t value);
 };
