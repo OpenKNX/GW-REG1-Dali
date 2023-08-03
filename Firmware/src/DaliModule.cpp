@@ -444,13 +444,13 @@ void DaliModule::loopAddressing()
 
 void DaliModule::loopBusState()
 {
-    bool state = digitalRead(DALI_RX);
+    bool state = !digitalRead(DALI_RX);
     if(state != _daliBusStateToSet)
     {
         _daliBusStateToSet = state;
         _daliStateLast = millis();
         if(_daliStateLast == 0) _daliStateLast = 1;
-    } else if(_daliStateLast != 0 && millis() - _daliStateLast > 100)
+    } else if(_daliStateLast != 0 && millis() - _daliStateLast > 1000)
     {
         _daliStateLast = 0;
         if(_daliBusState != _daliBusStateToSet)

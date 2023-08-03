@@ -88,9 +88,9 @@ class DaliModule : public OpenKNX::Module
 		int _adrFound = 0;
 		bool _adrAssign = false;
 
-		bool _daliBusState = false;
-		bool _daliBusStateToSet = false;
-		unsigned long _daliStateLast = 0;
+		bool _daliBusState = true;
+		bool _daliBusStateToSet = true;
+		unsigned long _daliStateLast = 1;
 		DaliClass *dali;
 		DaliChannel *channels[64];
 		DaliChannel *groups[16];

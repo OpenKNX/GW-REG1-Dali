@@ -128,7 +128,7 @@ void DaliChannel::loop1()
             resp = resp & 0b11;
             bool val = knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(Dpt(1,0));
             if(val != resp)
-                knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(val != 0);
+                knx.getGroupObject(calcKoNumber(ADR_Koerror)).value((val != 0), DPT_Switch);
         }
 
         if(millis() - _lastError > 60000)
