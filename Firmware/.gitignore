@@ -1,9 +1,4 @@
 .pio/*
 .vscode/*
 lib/*
-
-*/bin/*
-*/obj/*
-
-**/*-backups/**
-**/*_gerbers_*/**
+include/versions.h
