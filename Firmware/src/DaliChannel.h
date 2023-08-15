@@ -2,7 +2,7 @@
 #include "Dali.h"
 #include "MessageQueue.h"
 
-#define DimmInterval 10
+#define DimmInterval 100
 
 class DaliChannel : public OpenKNX::Channel
 {
@@ -60,6 +60,6 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t sendCmd(byte cmd);
 		uint8_t percentToArc(uint8_t value);
 		uint8_t arcToPercent(uint8_t value);
-		void setSwitchState(bool value);
-		void setDimmState(uint8_t value);
+		void setSwitchState(bool value, bool isSwitchCommand = true);
+		void setDimmState(uint8_t value, bool isDimmCommand = true);
 };

@@ -477,7 +477,6 @@ void DaliModule::processInputKo(GroupObject &ko)
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
-        logInfoP("Got KO %i for CH%i", koNum, index);
         channels[index]->processInputKo(ko);
         return;
     }
@@ -485,7 +484,6 @@ void DaliModule::processInputKo(GroupObject &ko)
     if(koNum >= GRP_KoOffset && koNum < GRP_KoOffset + GRP_KoBlockSize * 16)
     {
         int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
-        logInfoP("Got KO %i for G%i", koNum, index);
         groups[index]->processInputKo(ko);
         return;
     }
