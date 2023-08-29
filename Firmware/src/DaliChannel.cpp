@@ -83,7 +83,6 @@ void DaliChannel::loop1()
             state = false;
             sendArc(0x00);
             setSwitchState(false);
-            setDimmState(0);
         }
     }
 
@@ -91,15 +90,13 @@ void DaliChannel::loop1()
     {
         if(_dimmDirection == DimmDirection::Up)
         {
-            logInfoP("Dimm Up");
             sendCmd(8); //STEP_UP_AND_ON
-            _lastStep--;
-        } else if(_dimmDirection == DimmDirection::Down) {
-            logInfoP("Dimm Down");
-            sendCmd(7); //STEP_DOWN_AND_OFF
             _lastStep++;
+        } else if(_dimmDirection == DimmDirection::Down) {
+            sendCmd(7); //STEP_DOWN_AND_OFF
+            _lastStep--;
         }
-
+        
         if(_lastStep == 0)
         {
             logInfoP("Dimm Stop at 0");
@@ -109,8 +106,7 @@ void DaliChannel::loop1()
             _dimmDirection = DimmDirection::None;
         }
 
-        setSwitchState(_lastStep > 0);
-        setDimmState(arcToPercent(_lastStep));
+        setDimmState(_lastStep);
 
         _dimmLast = millis();
     }
@@ -217,8 +213,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     uint8_t onValue = isNight ? _onNight : _onDay;
                     if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
                     sendArc(onValue);
-                    setDimmState(onValue);
-                    setSwitchState(true);
+                    setDimmState(percentToArc(onValue));
                 }
                 else
                 {
@@ -232,7 +227,6 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     logInfoP("Ausschalten");
                     sendArc(0x00);
                     setSwitchState(false);
-                    setDimmState(0);
                     state = false;
                 }
             } else {
@@ -243,15 +237,13 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
                     logInfoP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
                     sendArc(onValue);
-                    setDimmState(onValue);
+                    setDimmState(percentToArc(onValue));
                 }
                 else {
                     logInfoP("Ausschalten");
                     sendArc(0x00);
-                    setDimmState(0);
+                    setSwitchState(false);
                 }
-                
-                setSwitchState(value);
             }
             break;
         }
@@ -273,20 +265,19 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
             if(_dimmStep == 0)
             {
-                logInfoP("Dimm Stop");
                 _dimmDirection = DimmDirection::None;
                 _dimmLast = 0;
-                setSwitchState(_lastStep > 0);
-                setDimmState(arcToPercent(_lastStep));
+                setDimmState(_lastStep);
                 return;
             }
 
+            uint8_t toSet = _lastStep;
             _dimmDirection = ko.value(Dpt(3,7,0)) ? DimmDirection::Up : DimmDirection::Down;
             if(_dimmDirection == DimmDirection::Up)
             {
-                logInfoP("Dimm Up Start");
+                logInfoP("Dimm Up Start %i", toSet);
             } else if(_dimmDirection == DimmDirection::Down) {
-                logInfoP("Dimm Down Start");
+                logInfoP("Dimm Down Start %i", toSet);
             }
             break;
         }
@@ -304,8 +295,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             uint8_t value = ko.value(Dpt(5,1));
             logInfoP("Dimmen Absolut auf %i%%", value);
             sendArc(value);
-            setSwitchState(value > 0);
-            setDimmState(value);
+            setDimmState(percentToArc(value));
             break;
         }
 
@@ -373,8 +363,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             }
             logInfoP("%i - %i", behavevalue, percentToArc(behavevalue));
             sendArc(behavevalue);
-            setSwitchState(behavevalue > 0);
-            setDimmState(behavevalue);
+            setDimmState(percentToArc(behavevalue));
             break;
         }
     }
@@ -384,12 +373,12 @@ uint8_t DaliChannel::percentToArc(uint8_t value)
 {
     if(value == 0)
     {
-        _lastState = 0;
+        _lastValue = 0;
         return 0;
     }
     //Todo also include _max
     uint8_t arc = ((253/3)*(log10(value)+1)) + 1;
-    _lastState = arc;
+    _lastValue = arc;
     return arc;
 }
 
@@ -397,17 +386,31 @@ uint8_t DaliChannel::arcToPercent(uint8_t value)
 {
     if(value == 0)
     {
-        _lastState = 0;
+        _lastValue = 0;
         return 0;
     }
     //Todo also include _max
     uint8_t arc = pow(10, ((value-1) / (253/3) - 1));
-    _lastState = arc;
+    _lastValue = arc;
     return arc;
 }
 
-void DaliChannel::setSwitchState(bool value)
+void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
 {
+    if(isSwitchCommand)
+    {
+        uint8_t toSet = 0;
+        if(value)
+        {
+            toSet = percentToArc(isNight ? _onNight : _onDay);
+        } else {
+            toSet = 0;
+        }
+
+        setDimmState(toSet);
+        _lastStep = toSet;
+    }
+
     if(value == _lastState) return;
     _lastState = value;
 
@@ -417,7 +420,7 @@ void DaliChannel::setSwitchState(bool value)
         knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(value, DPT_Switch);
 }
 
-void DaliChannel::setDimmState(uint8_t value)
+void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand)
 {
     if(_dimmDirection == DimmDirection::None && value > 0)
     {
@@ -427,13 +430,23 @@ void DaliChannel::setDimmState(uint8_t value)
             _lastDayValue = value;
     }
 
-    if(value == _lastValue) return;
-    _lastValue = value;
+    if(isDimmCommand)
+    {
+        setSwitchState(value > 0, false);
+        _lastStep = value;
+    }
+
+    //TODO arcToPercent seems to not work!
+    uint8_t perc = arcToPercent(value);
+    logInfoP("SetDimmState %i/%i", perc, value);
+
+    if(perc == _lastValue) return;
+    _lastValue = perc;
 
     if(isGroup)
-        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(value, Dpt(5, 1));
+        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
     else
-        knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(value, Dpt(5, 1));
+        knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(perc, Dpt(5, 1));
 }
 
 void DaliChannel::setOnValue(uint8_t value)
