@@ -3,7 +3,7 @@
 #include "OpenKNX.h"
 #include "DaliModule.h"
 #include "UpdaterModule.h"
-#include "FTPServer.h"
+#include "FileTransferModule.h"
 
 
 #ifdef USE_TINYUSB
@@ -44,7 +44,7 @@ void setup()
 	mod->setCallback(daliCallback);
 	openknx.addModule(1, mod);
 	openknx.addModule(2, new UpdaterModule());
-	openknx.addModule(3, new FtpServer());
+	openknx.addModule(3, new FileTransferModule());
 	openknx.setup();
 }
 
