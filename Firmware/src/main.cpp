@@ -2,7 +2,6 @@
 #include "TimerInterrupt_Generic.h"
 #include "OpenKNX.h"
 #include "DaliModule.h"
-#include "UpdaterModule.h"
 #include "FileTransferModule.h"
 
 
@@ -43,7 +42,6 @@ void setup()
 	DaliModule *mod = new DaliModule();
 	mod->setCallback(daliCallback);
 	openknx.addModule(1, mod);
-	openknx.addModule(2, new UpdaterModule());
 	openknx.addModule(3, new FileTransferModule());
 	openknx.setup();
 }
