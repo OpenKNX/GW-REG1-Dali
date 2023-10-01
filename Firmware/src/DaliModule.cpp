@@ -473,6 +473,7 @@ void DaliModule::processInputKo(GroupObject &ko)
 {
     if(_adrState != AddressingState::None) return;
 
+
     int koNum = ko.asap();
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {

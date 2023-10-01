@@ -9,10 +9,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x17
+#define MAIN_ApplicationVersion 0x0D
 #define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
 #define MAIN_ParameterSize 833
-#define MAIN_MaxKoNumber 565
+#define MAIN_MaxKoNumber 629
 
 
 #define APP_daynight		0x0000
@@ -46,8 +46,8 @@
 #define SCE_KoOffset 6
 #define SCE_KoBlockSize 0
 #define ADR_KoOffset 22
-#define ADR_KoBlockSize 7
-#define GRP_KoOffset 470
+#define ADR_KoBlockSize 8
+#define GRP_KoOffset 534
 #define GRP_KoBlockSize 6
 
 //-----Module: adresse
@@ -146,6 +146,16 @@
 #define ParamADR_locknegateIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 1), 7)
 // Offset: 1, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
 #define ParamADR_locknegate knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 1), 7)
+#define ADR_colorType		0x0002
+// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe ansteuerung:
+#define ParamADR_colorTypeIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 2), 7)
+// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe ansteuerung:
+#define ParamADR_colorType knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 2), 7)
+#define ADR_colorSpace		0x0005
+// Offset: 5, BitOffset: 4, Size: 1 Bit, Text: Farbe übertragen per
+#define ParamADR_colorSpaceIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 5), 4)
+// Offset: 5, BitOffset: 4, Size: 1 Bit, Text: Farbe übertragen per
+#define ParamADR_colorSpace knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 5), 4)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)
@@ -174,6 +184,10 @@
 #define ADR_Koerror 6
 #define KoADR_errorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 6)
 #define KoADR_error knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 6)
+//!< Number: 7, Text: A{{argChan}} {{0}}, Function: RGB Farbe
+#define ADR_Kocolor 7
+#define KoADR_colorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 7)
+#define KoADR_color knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 7)
 
 //-----Module: group
 #define GRP_deviceType		0x0000

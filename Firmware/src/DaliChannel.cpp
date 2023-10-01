@@ -165,6 +165,17 @@ uint8_t DaliChannel::sendCmd(byte cmd)
     return _queue->push(msg);
 }
 
+uint8_t DaliChannel::sendSpecialCmd(byte cmd, byte value)
+{
+    Message *msg = new Message();
+    msg->id = _queue->getNextId();
+    msg->type = MessageType::SpecialCmd;
+    msg->para1 = cmd;
+    msg->para2 = value;
+    msg->addrtype = isGroup;
+    return _queue->push(msg);
+}
+
 void DaliChannel::processInputKo(GroupObject &ko)
 {
     int chanIndex = 0;
@@ -365,6 +376,55 @@ void DaliChannel::processInputKo(GroupObject &ko)
             sendArc(behavevalue);
             setDimmState(percentToArc(behavevalue));
             break;
+        }
+    
+        //Error
+        //case 6
+
+        case ADR_Kocolor:
+        {
+            bool isRGB = ParamADR_colorType;
+            uint32_t value = ko.value(Dpt(232,600));
+            logInfoP("Got Color: %X", value);
+            uint8_t r, g, b;
+
+            if(!isRGB)
+            {
+                //TODO HSV to RGB
+                ColorHelper::hslToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
+            } else {
+                r = value >> 16;
+                g = (value >> 8) & 0xFF;
+                b = value & 0xFF;
+            }
+
+            logInfoP("RGB: %i %i %i", r, g, b);
+            if(r == 255) r--;
+            if(g == 255) g--;
+            if(b == 255) b--;
+            
+            uint8_t sendType = ParamADR_colorSpace;
+            switch(sendType)
+            {
+                //send as rgb
+                case 0:
+                {
+                    sendSpecialCmd(257, r); //SET_DTR
+                    sendSpecialCmd(273, g); //SET_DTR1
+                    sendSpecialCmd(274, b); //SET_DTR2
+                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
+                    sendCmd(235); //SET_TEMPORARY_RGB_DIMLEVEL
+                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
+                    sendCmd(226); //SET_TEMPORARY_RGB_DIMLEVEL
+                    break;
+                }
+
+                //send as xy
+                case 1:
+                {
+
+                }
+            }
         }
     }
 }

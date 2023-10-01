@@ -1,1 +1,11 @@
 https://openrb.com/docs/dali.htm
+
+
+
+Color XY
+https://github.com/eikeon/hue-color-converter/blob/master/colorconverter.ts
+https://pubs.rsc.org/image/article/2016/TC/c6tc00089d/c6tc00089d-f11_hi-res.gif
+https://viereck.ch/hue-xy-rgb/
+
+float to uint16_t
+https://electronics.stackexchange.com/questions/660691/dali-209-dt8-rgb-color-commands
