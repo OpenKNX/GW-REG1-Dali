@@ -62,6 +62,7 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t sendSpecialCmd(byte cmd, byte value);
 		uint8_t percentToArc(uint8_t value);
 		uint8_t arcToPercent(uint8_t value);
+		uint8_t roundToInt(double input);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
 		void setDimmState(uint8_t value, bool isDimmCommand = true);
 };

@@ -402,6 +402,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             if(r == 255) r--;
             if(g == 255) g--;
             if(b == 255) b--;
+            logInfoP("Send: %i %i %i", r, g, b);
             
             uint8_t sendType = ParamADR_colorSpace;
             switch(sendType)
@@ -433,12 +434,10 @@ uint8_t DaliChannel::percentToArc(uint8_t value)
 {
     if(value == 0)
     {
-        _lastValue = 0;
         return 0;
     }
     //Todo also include _max
-    uint8_t arc = ((253/3)*(log10(value)+1)) + 1;
-    _lastValue = arc;
+    uint8_t arc = roundToInt(((253/3.0)*(log10(value)+1)) + 1);
     return arc;
 }
 
@@ -446,13 +445,19 @@ uint8_t DaliChannel::arcToPercent(uint8_t value)
 {
     if(value == 0)
     {
-        _lastValue = 0;
         return 0;
     }
     //Todo also include _max
-    uint8_t arc = pow(10, ((value-1) / (253/3) - 1));
-    _lastValue = arc;
+    double arc = pow(10, ((value-1) / (253/3.0)) - 1);
+    logInfoP("%f", arc);
+    uint8_t arc2 = roundToInt(arc);
     return arc;
+}
+
+uint8_t DaliChannel::roundToInt(double input)
+{
+    double temp = input + 0.5;
+    return (uint8_t)temp;
 }
 
 void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
@@ -498,7 +503,7 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand)
 
     //TODO arcToPercent seems to not work!
     uint8_t perc = arcToPercent(value);
-    logInfoP("SetDimmState %i/%i", perc, value);
+    logInfoP("SetDimmState %i/%i (%i)", perc, value, _lastValue);
 
     if(perc == _lastValue) return;
     _lastValue = perc;
