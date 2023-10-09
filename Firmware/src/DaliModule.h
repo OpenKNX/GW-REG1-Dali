@@ -25,9 +25,6 @@ class DaliModule : public OpenKNX::Module
 
 		void loop() override;
 		void loop1() override;
-		void loopAddressing();
-		void loopMessages();
-		void loopBusState();
 		void setup(bool conf) override;
 		void setup1(bool conf) override;
 		void processInputKo(GroupObject &ko) override;
@@ -74,6 +71,12 @@ class DaliModule : public OpenKNX::Module
 			Failed_Confirm,
 			Failed_No_Answer
 		};
+		
+		void loopAddressing();
+		void loopMessages();
+		void loopBusState();
+		void loopInitData();
+		int16_t getInfo(byte address, byte command);
 	
 		uint32_t _adrLow = 0;
 		uint32_t _adrHigh = 0xFFFFFF;
@@ -88,6 +91,7 @@ class DaliModule : public OpenKNX::Module
 		int _adrFound = 0;
 		bool _adrAssign = false;
 
+		bool _gotInitData = false;
 		bool _daliBusState = true;
 		bool _daliBusStateToSet = true;
 		unsigned long _daliStateLast = 1;

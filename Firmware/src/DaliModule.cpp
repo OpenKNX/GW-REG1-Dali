@@ -51,6 +51,13 @@ void DaliModule::loop()
 {
     if(_adrState != AddressingState::None) return;
 
+    if(!_gotInitData)
+    {
+        if(millis() > 10000)
+            loopInitData();
+        return;
+    }
+
     for(int i = 0; i < 64; i++)
     {
         channels[i]->loop();
@@ -81,6 +88,67 @@ void DaliModule::loop1()
 
     loopMessages();
     loopBusState();
+}
+
+void DaliModule::loopInitData()
+{
+    DaliChannel* channel = channels[_adrFound];
+
+    if(channel->isConfigured())
+    {
+        if(_adrFound == 0)
+            sendArc(0xFF, 170, 1); //turn on all at 10%
+
+        int16_t resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_0_7);
+        if(resp >= 0)
+        {
+
+        }
+        resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_8_15);
+        if(resp >= 0)
+        {
+            
+        }
+        
+        sendCmd(channel->channelIndex(), dali->CMD_OFF, channel->isGroup());
+    }
+
+    _adrFound++;
+    if(_adrFound > 63)
+    {
+        _adrFound = 0;
+        _gotInitData = true;
+        _daliStateLast = 1;
+    }
+}
+
+int16_t DaliModule::getInfo(byte address, byte command)
+{
+    _daliStateLast = millis();
+    uint8_t respId = sendCmd(address, command, 0, true);
+    bool gotResponse = false;
+    int16_t resp = queue->getResponse(respId);
+    
+    while(!gotResponse)
+    {
+        resp = queue->getResponse(respId);
+
+        if(resp == -1)
+        {
+            //error
+            gotResponse = true;
+            logErrorP("Got no response from channel %i", address);
+        } else if(resp >= 0)
+        {
+            gotResponse = true;
+            logErrorP("Got response from channel %i: %i", address, resp);
+        } else if(millis() - _daliStateLast > 2000)
+        {
+            logErrorP("Got no response from channel %i (2)", address);
+            gotResponse = true;
+        }
+    }
+    return (int16_t)resp;
 }
 
 void DaliModule::loopMessages()

@@ -16,6 +16,8 @@ class DaliChannel : public OpenKNX::Channel
 		void setup() override;
 		void processInputKo(GroupObject &ko) override;
 		void setOnValue(uint8_t value);
+		const bool isConfigured();
+		const bool isGroup();
 
 		bool isNight = false;
 		const std::string name() override;
@@ -37,7 +39,7 @@ class DaliChannel : public OpenKNX::Channel
 		unsigned long _dimmLast = 0;
 		bool _isConfigured = false;
 		bool state = false;
-		bool isGroup = false;
+		bool _isGroup = false;
 		bool isLocked = false;
 		unsigned long startTime = 0;
 		uint interval = 0;
@@ -64,5 +66,5 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t arcToPercent(uint8_t value);
 		uint8_t roundToInt(double input);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
-		void setDimmState(uint8_t value, bool isDimmCommand = true);
+		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);
 };

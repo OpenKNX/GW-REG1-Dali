@@ -4,7 +4,7 @@ DaliChannel::DaliChannel(uint8_t channelIndex, MessageQueue *queue, bool ig)
 {
     _channelIndex = channelIndex;
     _queue = queue;
-    isGroup = ig;
+    _isGroup = ig;
 }
 
 DaliChannel::~DaliChannel()
@@ -14,15 +14,25 @@ DaliChannel::~DaliChannel()
 const std::string DaliChannel::name()
 {
     if(_isStaircase)
-        if(isGroup)
+        if(_isGroup)
             return "StaircaseChannel_G";
         else
             return "StaircaseChannel_A";
 
             
-    if(isGroup)
+    if(_isGroup)
         return "StandardChannel_G";
     return "StandardChannel_A";
+}
+
+const bool DaliChannel::isConfigured()
+{
+    return _isConfigured;
+}
+
+const bool DaliChannel::isGroup()
+{
+    return _isGroup;
 }
 
 
@@ -30,7 +40,7 @@ const std::string DaliChannel::name()
 //only if knx.configured == true
 void DaliChannel::setup()
 {
-    if(isGroup)
+    if(_isGroup)
     {
         _isConfigured = ParamGRP_deviceType != 0;
         if(!_isConfigured)
@@ -111,7 +121,7 @@ void DaliChannel::loop1()
         _dimmLast = millis();
     }
 
-    if(!isGroup && _getError)
+    if(!_isGroup && _getError)
     {
         if(_errorResp != 300)
         {
@@ -137,7 +147,7 @@ void DaliChannel::loop1()
 
 uint16_t DaliChannel::calcKoNumber(int asap)
 {
-    if(isGroup)
+    if(_isGroup)
         return asap + (GRP_KoBlockSize * _channelIndex) + GRP_KoOffset;
     
     return asap + (ADR_KoBlockSize * _channelIndex) + ADR_KoOffset;
@@ -150,7 +160,7 @@ uint8_t DaliChannel::sendArc(byte v)
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
     msg->para2 = percentToArc(v);
-    msg->addrtype = isGroup;
+    msg->addrtype = _isGroup;
     return _queue->push(msg);
 }
 
@@ -161,7 +171,7 @@ uint8_t DaliChannel::sendCmd(byte cmd)
     msg->type = MessageType::Cmd;
     msg->para1 = _channelIndex;
     msg->para2 = cmd;
-    msg->addrtype = isGroup;
+    msg->addrtype = _isGroup;
     return _queue->push(msg);
 }
 
@@ -172,14 +182,14 @@ uint8_t DaliChannel::sendSpecialCmd(byte cmd, byte value)
     msg->type = MessageType::SpecialCmd;
     msg->para1 = cmd;
     msg->para2 = value;
-    msg->addrtype = isGroup;
+    msg->addrtype = _isGroup;
     return _queue->push(msg);
 }
 
 void DaliChannel::processInputKo(GroupObject &ko)
 {
     int chanIndex = 0;
-    if(isGroup)
+    if(_isGroup)
     {
         chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
         logInfoP("Got KO %i", chanIndex);
@@ -278,7 +288,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             {
                 _dimmDirection = DimmDirection::None;
                 _dimmLast = 0;
-                setDimmState(_lastStep);
+                setDimmState(_lastStep, true, true);
                 return;
             }
 
@@ -306,7 +316,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             uint8_t value = ko.value(Dpt(5,1));
             logInfoP("Dimmen Absolut auf %i%%", value);
             sendArc(value);
-            setDimmState(percentToArc(value));
+            setDimmState(percentToArc(value), true, true);
             break;
         }
 
@@ -318,7 +328,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         {
             bool value = ko.value(Dpt(1,1));
 
-            if(isGroup)
+            if(_isGroup)
             {
                 if(ParamGRP_locknegate)
                     value = !value;
@@ -423,9 +433,28 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 //send as xy
                 case 1:
                 {
+                    uint16_t x;
+                    uint16_t y;
+                    ColorHelper::rgbToXY(r, g, b, x, y);
 
+                    sendSpecialCmd(257, x & 0xFF); //SET_DTR
+                    sendSpecialCmd(273, (x >> 8) & 0xFF); //SET_DTR1
+                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
+                    sendCmd(224); //SET_ TEMPORARY X-COORDINATE
+                    
+                    sendSpecialCmd(257, y & 0xFF); //SET_DTR
+                    sendSpecialCmd(273, (y >> 8) & 0xFF); //SET_DTR1
+                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
+                    sendCmd(225); //SET_ TEMPORARY Y-COORDINATE
+                    
+                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
+                    sendCmd(226); //ACTIVATE
+                    break;
                 }
             }
+
+            setDimmState(254, true, true);
+            break;
         }
     }
 }
@@ -479,13 +508,13 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
     if(value == _lastState) return;
     _lastState = value;
 
-    if(isGroup)
+    if(_isGroup)
         knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(value, DPT_Switch);
     else
         knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(value, DPT_Switch);
 }
 
-void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand)
+void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCommand)
 {
     if(_dimmDirection == DimmDirection::None && value > 0)
     {
@@ -508,7 +537,7 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand)
     if(perc == _lastValue) return;
     _lastValue = perc;
 
-    if(isGroup)
+    if(_isGroup)
         knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
     else
         knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(perc, Dpt(5, 1));
