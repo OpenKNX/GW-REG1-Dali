@@ -15,9 +15,13 @@ class DaliChannel : public OpenKNX::Channel
 		void loop1() override;
 		void setup() override;
 		void processInputKo(GroupObject &ko) override;
-		void setOnValue(uint8_t value);
 		const bool isConfigured();
 		const bool isGroup();
+
+		void setOnValue(uint8_t value);
+		void setGroups(uint16_t groups);
+		void setGroupState(uint8_t group, bool state);
+		void setGroupState(uint8_t group, uint8_t value);
 
 		bool isNight = false;
 		const std::string name() override;
@@ -57,6 +61,8 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t _lastStep = 0;
 		uint8_t _lastDayValue = 100;
 		uint8_t _lastNightValue = 10;
+
+		uint16_t _groups = 0;
 
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
