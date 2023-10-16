@@ -102,7 +102,7 @@ void DaliModule::loopInitData()
         int16_t resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_0_7);
         if(resp >= 0)
         {
-
+            
         }
         resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_8_15);
         if(resp >= 0)
@@ -141,7 +141,6 @@ int16_t DaliModule::getInfo(byte address, byte command)
         } else if(resp >= 0)
         {
             gotResponse = true;
-            logErrorP("Got response from channel %i: %i", address, resp);
         } else if(millis() - _daliStateLast > 2000)
         {
             logErrorP("Got no response from channel %i (2)", address);

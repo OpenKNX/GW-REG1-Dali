@@ -1,13 +1,11 @@
+#pragma once
+
 #include <Arduino.h>
 #include "OpenKNX.h"
 #include "Dali.h"
 #include "MessageQueue.h"
 #include "DaliChannel.h"
 #include "Ballast.hpp"
-
-#ifdef USE_TINYUSB
-#include <hid/Adafruit_USBD_HID.h>
-#endif
 
 #define DALI_TX 17
 #define DALI_RX 16
@@ -18,6 +16,8 @@
 #ifndef DALI_WAIT_SEARCH
 #define DALI_WAIT_SEARCH 300
 #endif
+
+typedef void (*EventHandlerChangedGroupFuncPtr)(uint8_t index, uint8_t value);
 
 class DaliModule : public OpenKNX::Module
 {
@@ -37,6 +37,9 @@ class DaliModule : public OpenKNX::Module
 
 		bool processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
 		bool processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
+
+		static uint8_t _lastChangedGroup;
+		static uint8_t _lastChangedValue;
 
 	private:
 		enum class AddressingState {
@@ -104,4 +107,5 @@ class DaliModule : public OpenKNX::Module
 		uint8_t sendCmd(byte addr, byte value, byte type, bool wait = false);
 		uint8_t sendCmdSpecial(int command, byte value = 0, bool wait = false);
 		uint8_t sendArc(byte addr, byte value, byte type);
+
 };

@@ -1,4 +1,5 @@
 #include "DaliChannel.h"
+#include "OpenKNX.h"
 
 DaliChannel::DaliChannel(uint8_t channelIndex, MessageQueue *queue, bool ig)
 {
@@ -45,7 +46,7 @@ void DaliChannel::setup()
         _isConfigured = ParamGRP_deviceType != 0;
         if(!_isConfigured)
         {
-            logInfoP("Nicht konfiguriert");
+            logDebugP("Nicht konfiguriert");
             return;
         }
 
@@ -60,7 +61,7 @@ void DaliChannel::setup()
         _isConfigured = ParamADR_deviceType != 15;
         if(!_isConfigured)
         {
-            logInfoP("Nicht konfiguriert");
+            logDebugP("Nicht konfiguriert");
             return;
         }
 
@@ -73,7 +74,7 @@ void DaliChannel::setup()
         _onNight = ParamADR_onNight;
         _getError = ParamADR_error;
     }
-    logInfoP("Min/Max: %i/%i | Day/Night: %i/%i | %is", _min, _max, _onDay, _onNight, interval);
+    logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is", _min, _max, _onDay, _onNight, interval);
 }
 
 
@@ -89,7 +90,7 @@ void DaliChannel::loop1()
     {
         if(millis() - startTime > interval * 1000)
         {
-            logInfoP("Zeit abgelaufen");
+            logDebugP("Zeit abgelaufen");
             state = false;
             sendArc(0x00);
             setSwitchState(false);
@@ -109,10 +110,10 @@ void DaliChannel::loop1()
         
         if(_lastStep == 0)
         {
-            logInfoP("Dimm Stop at 0");
+            logDebugP("Dimm Stop at 0");
             _dimmDirection = DimmDirection::None;
         } else if(_lastStep == 254) {
-            logInfoP("Dimm Stop at 254");
+            logDebugP("Dimm Stop at 254");
             _dimmDirection = DimmDirection::None;
         }
 
@@ -192,10 +193,10 @@ void DaliChannel::processInputKo(GroupObject &ko)
     if(_isGroup)
     {
         chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
-        logInfoP("Got KO %i", chanIndex);
+        logDebugP("Got KO %i", chanIndex);
     } else {
         chanIndex = (ko.asap() - ADR_KoOffset) % ADR_KoBlockSize;
-        logInfoP("Got KO %i", chanIndex);
+        logDebugP("Got KO %i", chanIndex);
     }
 
     switch(chanIndex)
@@ -203,10 +204,10 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Schalten
         case ADR_Koswitch:
         {
-            logInfoP("Schalten");
+            logDebugP("Schalten");
             if(isLocked)
             {
-                logInfoP("is locked");
+                logErrorP("is locked");
                 return;
             }
 
@@ -217,19 +218,19 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     
                     if(state)
                     {
-                        logInfoP("ist bereits an");
+                        logDebugP("ist bereits an");
                         if(ParamADR_nachtriggern)
                         {
-                            logInfoP("wurde nachgetriggert");
+                            logDebugP("wurde nachgetriggert");
                             startTime = millis();
                             return;
                         }
                         return;
                     }
-                    logInfoP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+                    logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
                     state = true;
                     startTime = millis();
-                    logInfoP("interval %i", interval);
+                    logDebugP("interval %i", interval);
 
                     uint8_t onValue = isNight ? _onNight : _onDay;
                     if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
@@ -241,11 +242,11 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     bool manuOff = ParamADR_manuoff;
                     if(!manuOff)
                     {
-                        logInfoP("no manuel off");
+                        logErrorP("no manuel off");
                         return;
                     }
 
-                    logInfoP("Ausschalten");
+                    logDebugP("Ausschalten");
                     sendArc(0x00);
                     setSwitchState(false);
                     state = false;
@@ -256,12 +257,12 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 {
                     uint8_t onValue = isNight ? _onNight : _onDay;
                     if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
-                    logInfoP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+                    logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
                     sendArc(onValue);
                     setDimmState(percentToArc(onValue));
                 }
                 else {
-                    logInfoP("Ausschalten");
+                    logDebugP("Ausschalten");
                     sendArc(0x00);
                     setSwitchState(false);
                 }
@@ -275,10 +276,10 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Dimmen relativ
         case ADR_Kodimm_relative:
         {
-            logInfoP("Dimmen relativ");
+            logDebugP("Dimmen relativ");
             if(isLocked)
             {
-                logInfoP("is locked");
+                logErrorP("is locked");
                 return;
             }
 
@@ -296,9 +297,9 @@ void DaliChannel::processInputKo(GroupObject &ko)
             _dimmDirection = ko.value(Dpt(3,7,0)) ? DimmDirection::Up : DimmDirection::Down;
             if(_dimmDirection == DimmDirection::Up)
             {
-                logInfoP("Dimm Up Start %i", toSet);
+                logDebugP("Dimm Up Start %i", toSet);
             } else if(_dimmDirection == DimmDirection::Down) {
-                logInfoP("Dimm Down Start %i", toSet);
+                logDebugP("Dimm Down Start %i", toSet);
             }
             break;
         }
@@ -306,15 +307,15 @@ void DaliChannel::processInputKo(GroupObject &ko)
         //Dimmen Absolut
         case ADR_Kodimm_absolute:
         {
-            logInfoP("Dimmen absolut");
+            logDebugP("Dimmen absolut");
             if(isLocked)
             {
-                logInfoP("is locked");
+                logErrorP("is locked");
                 return;
             }
 
             uint8_t value = ko.value(Dpt(5,1));
-            logInfoP("Dimmen Absolut auf %i%%", value);
+            logDebugP("Dimmen Absolut auf %i%%", value);
             sendArc(value);
             setDimmState(percentToArc(value), true, true);
             break;
@@ -343,11 +344,11 @@ void DaliChannel::processInputKo(GroupObject &ko)
             uint8_t behavevalue;
             if(isLocked)
             {
-                logInfoP("Sperren");
+                logDebugP("Sperren");
                 behave = ParamADR_lockbehave;
                 behavevalue = ParamADR_lockvalue;
             } else {
-                logInfoP("Entsperren");
+                logDebugP("Entsperren");
                 behave = ParamADR_unlockbehave;
                 behavevalue = ParamADR_unlockvalue;
             }
@@ -356,13 +357,13 @@ void DaliChannel::processInputKo(GroupObject &ko)
             {
                 //nothing
                 case 0:
-                    logInfoP("Nichts");
+                    logDebugP("Nichts");
                     return;
 
                 //Ausschalten
                 case 1:
                 {
-                    logInfoP("Ein");
+                    logDebugP("Ein");
                     behavevalue = isNight ? _onNight : _onDay;
                     break;
                 }
@@ -370,7 +371,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 //Einschalten
                 case 2:
                 {
-                    logInfoP("Aus");
+                    logDebugP("Aus");
                     behavevalue = 0;
                     break;
                 }
@@ -378,11 +379,11 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 //Fester Wert
                 case 3:
                 {
-                    logInfoP("Wert");
+                    logDebugP("Wert");
                     break;
                 }
             }
-            logInfoP("%i - %i", behavevalue, percentToArc(behavevalue));
+            logDebugP("%i - %i", behavevalue, percentToArc(behavevalue));
             sendArc(behavevalue);
             setDimmState(percentToArc(behavevalue));
             break;
@@ -395,7 +396,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         {
             bool isRGB = ParamADR_colorType;
             uint32_t value = ko.value(Dpt(232,600));
-            logInfoP("Got Color: %X", value);
+            logDebugP("Got Color: %X", value);
             uint8_t r, g, b;
 
             if(!isRGB)
@@ -408,11 +409,11 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 b = value & 0xFF;
             }
 
-            logInfoP("RGB: %i %i %i", r, g, b);
+            logDebugP("RGB: %i %i %i", r, g, b);
             if(r == 255) r--;
             if(g == 255) g--;
             if(b == 255) b--;
-            logInfoP("Send: %i %i %i", r, g, b);
+            logDebugP("Send: %i %i %i", r, g, b);
             
             uint8_t sendType = ParamADR_colorSpace;
             switch(sendType)
@@ -478,7 +479,6 @@ uint8_t DaliChannel::arcToPercent(uint8_t value)
     }
     //Todo also include _max
     double arc = pow(10, ((value-1) / (253/3.0)) - 1);
-    logInfoP("%f", arc);
     uint8_t arc2 = roundToInt(arc);
     return arc;
 }
@@ -532,7 +532,7 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
 
     //TODO arcToPercent seems to not work!
     uint8_t perc = arcToPercent(value);
-    logInfoP("SetDimmState %i/%i (%i)", perc, value, _lastValue);
+    logDebugP("SetDimmState %i/%i (%i)", perc, value, _lastValue);
 
     if(perc == _lastValue) return;
     _lastValue = perc;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "OpenKNX.h"
 #include "Dali.h"
 #include "MessageQueue.h"
