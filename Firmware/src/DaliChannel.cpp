@@ -547,3 +547,20 @@ void DaliChannel::setOnValue(uint8_t value)
 {
     _onDay = value;
 }
+
+void DaliChannel::setGroups(uint16_t groups)
+{
+    _groups = groups;
+}
+
+void DaliChannel::setGroupState(uint8_t group, bool state)
+{
+    if(_groups & 1 << group)
+        setSwitchState(state, false);
+}
+
+void DaliChannel::setGroupState(uint8_t group, uint8_t value)
+{
+    if(_groups & 1 << group)
+        setDimmState(value, false, true);
+}

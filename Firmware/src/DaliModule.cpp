@@ -88,32 +88,54 @@ void DaliModule::loop1()
 
     loopMessages();
     loopBusState();
+
+    if(_lastChangedGroup != 255)
+    {
+        if(_lastChangedGroup > 15)
+        {
+            _lastChangedGroup -= 16;
+            for(int i = 0; i < 64; i++)
+                channels[i]->setGroupState(_lastChangedGroup, _lastChangedValue == 1);
+        } else {
+            for(int i = 0; i < 64; i++)
+                channels[i]->setGroupState(_lastChangedGroup, _lastChangedValue);
+        }
+
+        _lastChangedGroup = 255;
+    }
 }
 
 void DaliModule::loopInitData()
 {
     DaliChannel* channel = channels[_adrFound];
+    _adrFound++;
 
     if(channel->isConfigured())
     {
         if(_adrFound == 0)
             sendArc(0xFF, 170, 1); //turn on all at 10%
 
+        uint16_t groups = 0;
         int16_t resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_0_7);
-        if(resp >= 0)
+        if(resp < 0)
         {
-            
+            logErrorP("Dali Error %i: Code %i", _adrFound-1, resp);
+            return;
         }
+        groups = resp;
+
         resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_8_15);
-        if(resp >= 0)
+        if(resp < 0)
         {
-            
+            logErrorP("Dali Error %i: Code %i", _adrFound-1, resp);
+            return;
         }
-        
+        groups |= resp << 8;
+        channel->setGroups(groups);
+
         sendCmd(channel->channelIndex(), dali->CMD_OFF, channel->isGroup());
     }
 
-    _adrFound++;
     if(_adrFound > 63)
     {
         _adrFound = 0;
@@ -552,7 +574,25 @@ void DaliModule::processInputKo(GroupObject &ko)
     if(koNum >= GRP_KoOffset && koNum < GRP_KoOffset + GRP_KoBlockSize * 16)
     {
         int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
+        int chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
         groups[index]->processInputKo(ko);
+
+        if(chanIndex == GRP_Koswitch_state)
+        {
+            if(_lastChangedGroup != 255)
+                logErrorP("lastChanged not handleded!");
+            
+            _lastChangedGroup = index + 16;
+            _lastChangedValue = ko.value(Dpt(1,1));
+        }
+        if(chanIndex == GRP_Kodimm_state)
+        {
+            if(_lastChangedGroup != 255)
+                logErrorP("lastChanged not handleded!");
+            _lastChangedGroup = index;
+            _lastChangedValue = ko.value(Dpt(5,1));
+        }
+        
         return;
     }
 

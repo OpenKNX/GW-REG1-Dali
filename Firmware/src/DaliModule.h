@@ -94,6 +94,9 @@ class DaliModule : public OpenKNX::Module
 		int _adrFound = 0;
 		bool _adrAssign = false;
 
+		uint8_t _lastChangedGroup = 255;
+		uint8_t _lastChangedValue = 0;
+
 		bool _gotInitData = false;
 		bool _daliBusState = true;
 		bool _daliBusStateToSet = true;
