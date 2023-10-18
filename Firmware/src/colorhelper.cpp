@@ -17,11 +17,6 @@ void ColorHelper::rgbToXY(uint8_t in_r, uint8_t in_g, uint8_t in_b, uint16_t& x,
     float cx = X / (X + Y + Z);
     float cy = Y / (X + Y + Z);
     
-    Serial.print("HUE: ");
-	Serial.print(cx);
-	Serial.print("/");
-	Serial.println(cy);
-
     x = getBytes(cx);
     y = getBytes(cy);
 
@@ -29,28 +24,54 @@ void ColorHelper::rgbToXY(uint8_t in_r, uint8_t in_g, uint8_t in_b, uint16_t& x,
     y = y - 1;
 }
 
-void ColorHelper::hslToRGB(uint8_t in_h, uint8_t in_s, uint8_t in_l, uint8_t& r, uint8_t& g, uint8_t& b)
+void ColorHelper::hsvToRGB(uint8_t in_h, uint8_t in_s, uint8_t in_v, uint8_t& r, uint8_t& g, uint8_t& b)
 {
     float h = in_h / 255.0;
     float s = in_s / 255.0;
-    float l = in_l / 255.0;
+    float v = in_v / 255.0;
 
-    if (in_s == 0)
+    double rt, gt, bt;
+
+    int i = int(h * 6);
+    double f = h * 6 - i;
+    double p = v * (1 - s);
+    double q = v * (1 - f * s);
+    double t = v * (1 - (1 - f) * s);
+
+    switch(i % 6){
+        case 0: rt = v, gt = t, bt = p; break;
+        case 1: rt = q, gt = v, bt = p; break;
+        case 2: rt = p, gt = v, bt = t; break;
+        case 3: rt = p, gt = q, bt = v; break;
+        case 4: rt = t, gt = p, bt = v; break;
+        case 5: rt = v, gt = p, bt = q; break;
+    }
+
+	r = rt * 255;
+	g = gt * 255;
+	b = bt * 255;
+}
+
+void ColorHelper::kelvinToRGB(uint16_t kelvin, uint8_t& r, uint8_t& g, uint8_t& b)
+{
+    auto temp = kelvin / 100;
+
+	if (temp <= 66)
 	{
-		r = g = b = in_l; // achromatic
+		r = 255;
+		g = 99.4708025861 * log(temp) - 161.1195681661;
+
+		if (temp <= 19)
+			b = 0;
+		else
+			b = 138.5177312231 * log(temp - 10) - 305.0447927307;
 	}
 	else
 	{
-		auto q = in_l < 0.5 ? in_l * (1 + in_s) : in_l + in_s - in_l * in_s;
-		auto p = 2 * in_l - q;
-		r = hue2rgb(p, q, in_h + 1 / 3.0);
-		g = hue2rgb(p, q, in_h);
-		b = hue2rgb(p, q, in_h - 1 / 3.0);
+		r = 329.698727446 * pow(temp - 60, -0.1332047592);
+		g = 288.1221695283 * pow(temp - 60, -0.0755148492);
+		b = 255;
 	}
-
-	r = static_cast<uint8_t>(r * 255);
-	g = static_cast<uint8_t>(g * 255);
-	b = static_cast<uint8_t>(b * 255);
 }
 
 uint16_t ColorHelper::getBytes(float input)
