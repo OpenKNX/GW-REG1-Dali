@@ -4,6 +4,7 @@
 #include "Dali.h"
 #include "MessageQueue.h"
 #include "colorhelper.h"
+#include "DaliCommands.h"
 
 #define DimmInterval 100
 
@@ -69,7 +70,7 @@ class DaliChannel : public OpenKNX::Channel
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
 		uint8_t sendCmd(byte cmd);
-		uint8_t sendSpecialCmd(byte cmd, byte value);
+		uint8_t sendSpecialCmd(DaliSpecialCmd cmd, byte value);
 		uint8_t percentToArc(uint8_t value);
 		uint8_t arcToPercent(uint8_t value);
 		uint8_t roundToInt(double input);

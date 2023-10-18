@@ -116,7 +116,7 @@ void DaliModule::loopInitData()
             sendArc(0xFF, 170, 1); //turn on all at 10%
 
         uint16_t groups = 0;
-        int16_t resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_0_7);
+        int16_t resp = getInfo(channel->channelIndex(), DaliCmd::QUERY_GROUPS_0_7);
         if(resp < 0)
         {
             logErrorP("Dali Error %i: Code %i", _adrFound-1, resp);
@@ -124,7 +124,7 @@ void DaliModule::loopInitData()
         }
         groups = resp;
 
-        resp = getInfo(channel->channelIndex(), dali->CMD_QUERY_GROUPS_8_15);
+        resp = getInfo(channel->channelIndex(), DaliCmd::QUERY_GROUPS_8_15);
         if(resp < 0)
         {
             logErrorP("Dali Error %i: Code %i", _adrFound-1, resp);
@@ -133,7 +133,7 @@ void DaliModule::loopInitData()
         groups |= resp << 8;
         channel->setGroups(groups);
 
-        sendCmd(channel->channelIndex(), dali->CMD_OFF, channel->isGroup());
+        sendCmd(channel->channelIndex(), DaliCmd::OFF, channel->isGroup());
     }
 
     if(_adrFound > 63)
@@ -144,7 +144,7 @@ void DaliModule::loopInitData()
     }
 }
 
-int16_t DaliModule::getInfo(byte address, byte command)
+int16_t DaliModule::getInfo(byte address, DaliCmd command)
 {
     _daliStateLast = millis();
     uint8_t respId = sendCmd(address, command, 0, true);
@@ -189,7 +189,7 @@ void DaliModule::loopMessages()
 
         case MessageType::Cmd:
         {
-            int16_t resp = dali->sendCmdWait(msg->para1, msg->para2, msg->addrtype);
+            int16_t resp = dali->sendCmdWait(msg->para1, static_cast<DaliCmd>(msg->para2), msg->addrtype);
             if(msg->wait)
             {
                 //logInfoP("Got Response %i = %i", msg->id, resp);
@@ -236,10 +236,10 @@ void DaliModule::loopAddressing()
             byte high = _adrHigh >> 16;
             byte middle = (_adrHigh >> 8) & 0xFF;
             byte low = _adrHigh & 0xFF;
-            sendCmdSpecial(dali->CMD_SEARCHADDRH, high);
-            sendCmdSpecial(dali->CMD_SEARCHADDRM, middle);
-            sendCmdSpecial(dali->CMD_SEARCHADDRL, low);
-            _adrResp = sendCmdSpecial(dali->CMD_COMPARE, 0x00, true);
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
+            _adrResp = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0x00, true);
             _adrTime = millis();
             _adrState = AddressingState::SearchWait;
             break;
@@ -270,8 +270,8 @@ void DaliModule::loopAddressing()
                         }
                         addresses[addr] = true;
                         logInfoP("Assinging Address %i", addr);
-                        sendCmdSpecial(dali->CMD_PROGRAMSHORT, _adrLow);
-                        sendCmdSpecial(dali->CMD_WITHDRAW);
+                        sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, _adrLow);
+                        sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
                         ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
                         ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
                         ballasts[_adrFound].low = _adrLow & 0xFF;
@@ -282,10 +282,10 @@ void DaliModule::loopAddressing()
                         _adrHigh = 0xFFFFFF;
                         _adrHighLast = 0xFFFFFF;
                         _adrNoRespCounter = 1;
-                        sendCmdSpecial(dali->CMD_WITHDRAW);
+                        sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
                         _adrState = AddressingState::Search;
                     } else {
-                        _adrResp = sendCmdSpecial(dali->CMD_QUERY_SHORT, 0, true);
+                        _adrResp = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
                         _adrTime = millis();
                         _adrState = AddressingState::Found;
                     }
@@ -328,7 +328,7 @@ void DaliModule::loopAddressing()
                 _adrHigh = 0xFFFFFF;
                 _adrHighLast = 0xFFFFFF;
                 _adrNoRespCounter = 1;
-                sendCmdSpecial(dali->CMD_WITHDRAW);
+                sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
                 _adrState = AddressingState::Search;
             } else {
                 logErrorP("Dali Error %i, aborting addressing", response);
@@ -340,7 +340,7 @@ void DaliModule::loopAddressing()
         case AddressingState::Finish:
         {
             logErrorP("Found %i ballasts", _adrFound);
-            sendCmdSpecial(dali->CMD_TERMINATE);
+            sendCmdSpecial(DaliSpecialCmd::TERMINATE);
             _adrState = AddressingState::None;
             break;
         }
@@ -375,8 +375,8 @@ void DaliModule::loopAddressing()
 
         case AddressingState::Withdraw_Others:
         {
-            sendCmdSpecial(dali->CMD_INITIALISE, 0);
-            sendCmdSpecial(dali->CMD_INITIALISE, 0);
+            sendCmdSpecial(DaliSpecialCmd::INITIALISE, 0);
+            sendCmdSpecial(DaliSpecialCmd::INITIALISE, 0);
             if(_adrHigh > 0)
             {
                 logInfoP("Verwerfe alle mit niedrigerer Long Address");
@@ -384,19 +384,19 @@ void DaliModule::loopAddressing()
                 byte high = _adrHigh >> 16;
                 byte middle = (_adrHigh >> 8) & 0xFF;
                 byte low = _adrHigh & 0xFF;
-                sendCmdSpecial(dali->CMD_SEARCHADDRH, high);
-                sendCmdSpecial(dali->CMD_SEARCHADDRM, middle);
-                sendCmdSpecial(dali->CMD_SEARCHADDRL, low);
-                sendCmdSpecial(dali->CMD_WITHDRAW);
+                sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
+                sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
+                sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
+                sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
                 _adrHigh++;
             }
             byte high = _adrHigh >> 16;
             byte middle = (_adrHigh >> 8) & 0xFF;
             byte low = _adrHigh & 0xFF;
-            sendCmdSpecial(dali->CMD_SEARCHADDRH, high);
-            sendCmdSpecial(dali->CMD_SEARCHADDRM, middle);
-            sendCmdSpecial(dali->CMD_SEARCHADDRL, low);
-            _adrResp =  sendCmdSpecial(dali->CMD_COMPARE, 0, true);
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
+            _adrResp =  sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
             _adrTime = millis();
             _adrState = AddressingState::Check_Address;
             break;
@@ -420,9 +420,9 @@ void DaliModule::loopAddressing()
             {
                 logInfoP("Long Address exists");
                 logInfoP("CMD_PROGRAMSHORT to %i", _adrLow);
-                sendCmdSpecial(dali->CMD_PROGRAMSHORT, _adrLow);
+                sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, _adrLow);
                 _adrState = AddressingState::Confirm_Address;
-                _adrResp = sendCmdSpecial(dali->CMD_QUERY_SHORT, 0, true);
+                _adrResp = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
                 _adrTime = millis();
                 logInfoP("Frage Short Address ab");
                 return;
@@ -478,10 +478,10 @@ void DaliModule::loopAddressing()
         {
             if(_adrLow == 64)
             {
-                sendCmdSpecial(dali->CMD_INITIALISE, 255);
-                sendCmdSpecial(dali->CMD_INITIALISE, 255);
-                sendCmdSpecial(dali->CMD_RANDOMISE);
-                sendCmdSpecial(dali->CMD_RANDOMISE);
+                sendCmdSpecial(DaliSpecialCmd::INITIALISE, 255);
+                sendCmdSpecial(DaliSpecialCmd::INITIALISE, 255);
+                sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
+                sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
                 _adrState = AddressingState::Randomize_Wait;
                 _adrLow = 0;
                 _adrHigh = 0xFFFFFF;
@@ -491,7 +491,7 @@ void DaliModule::loopAddressing()
                 
             _adrState = AddressingState::SearchAdrWait;
             _assState = AssigningState::Working;
-            _adrResp = sendCmd(_adrLow, dali->CMD_QUERY_STATUS, dali->DALI_SHORT_ADDRESS, true);
+            _adrResp = sendCmd(_adrLow, DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
             _adrTime = millis();
             break;
         }
@@ -678,7 +678,7 @@ void DaliModule::processInputKo(GroupObject &ko)
                         {
                             addr = ParamSCE_addressIndex(i);
                             logDebugP("KO Scene%i: Addr=%i", i, addr);
-                            type = dali->DALI_SHORT_ADDRESS;
+                            type = static_cast<uint8_t>(DaliAddressTypes::SHORT);
                             break;
                         }
 
@@ -687,7 +687,7 @@ void DaliModule::processInputKo(GroupObject &ko)
                         {
                             addr = ParamSCE_groupIndex(i);
                             logDebugP("KO Scene%i: Grou=%i", i, addr);
-                            type = dali->DALI_GROUP_ADDRESS;
+                            type = static_cast<uint8_t>(DaliAddressTypes::GROUP);
                             break;
                         }
 
@@ -696,17 +696,21 @@ void DaliModule::processInputKo(GroupObject &ko)
                         {
                             addr = 0xFF;
                             logDebugP("KO Scene%i: Broadcast", i);
-                            type = dali->DALI_GROUP_ADDRESS;
+                            type = static_cast<uint8_t>(DaliAddressTypes::GROUP);
                             break;
                         }
                     }
 
                     if(isSave)
                     {
-                        sendCmd(addr, dali->CMD_ARC_TO_DTR, type);
-                        sendCmd(addr, dali->CMD_DTR_AS_SCENE | scene, type);
+                        sendCmd(addr, DaliCmd::ARC_TO_DTR, type);
+                        uint8_t temp = static_cast<uint8_t>(DaliCmd::DTR_AS_SCENE);
+                        temp |= scene;
+                        sendCmd(addr, static_cast<DaliCmd>(temp), type);
                     } else {
-                        sendCmd(addr, dali->CMD_GO_TO_SCENE | scene, type);
+                        uint8_t temp = static_cast<uint8_t>(DaliCmd::GO_TO_SCENE);
+                        temp |= scene;
+                        sendCmd(addr, static_cast<DaliCmd>(temp), type);
                     }
                 }
             }
@@ -723,7 +727,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
     {
         case 2:
         {
-            uint8_t resp = sendMsg(MessageType::Cmd, data[0], false, dali->CMD_QUERY_DEVICE_TYPE, true);
+            uint8_t resp = sendMsg(MessageType::Cmd, data[0], false, DaliCmd::QUERY_DEVICE_TYPE, true);
         
             //todo handle error if dali is not present
 
@@ -744,14 +748,14 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             _adrFound = 0;
             _adrAssign = false;
             
-            sendCmdSpecial(dali->CMD_INITIALISE, data[0] ? 255 : 0);
-            sendCmdSpecial(dali->CMD_INITIALISE, data[0] ? 255 : 0);
+            sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[0] ? 255 : 0);
+            sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[0] ? 255 : 0);
 
             if(data[1] == 1)
             {
                 logInfoP("Do Randomize");
-                sendCmdSpecial(dali->CMD_RANDOMISE);
-                sendCmdSpecial(dali->CMD_RANDOMISE);
+                sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
+                sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
                 _adrState = AddressingState::Randomize_Wait;
                 _adrTime = millis();
                 logInfoP("RandomizeWait");
@@ -769,7 +773,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         case 4:
         {
             logInfoP("Starting assigning address");
-            _adrResp = sendCmd(data[0], dali->CMD_QUERY_STATUS, dali->DALI_SHORT_ADDRESS, true);
+            _adrResp = sendCmd(data[0], DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
             _adrTime = millis();
             _adrState = AddressingState::Query_Wait;
             _assState = AssigningState::Working;
@@ -882,7 +886,7 @@ uint8_t DaliModule::sendArc(byte addr, byte value, byte type)
     return queue->push(msg);
 }
 
-uint8_t DaliModule::sendCmd(byte addr, byte value, byte type, bool wait)
+uint8_t DaliModule::sendCmd(byte addr, DaliCmd value, byte type, bool wait)
 {
     Message *msg = new Message();
     msg->id = queue->getNextId();
@@ -894,12 +898,12 @@ uint8_t DaliModule::sendCmd(byte addr, byte value, byte type, bool wait)
     return queue->push(msg);
 }
 
-uint8_t DaliModule::sendCmdSpecial(int command, byte value, bool wait)
+uint8_t DaliModule::sendCmdSpecial(DaliSpecialCmd command, byte value, bool wait)
 {
     Message *msg = new Message();
     msg->id = queue->getNextId();
     msg->type = MessageType::SpecialCmd;
-    msg->para1 = command;
+    msg->para1 = static_cast<uint8_t>(command);
     msg->para2 = value;
     msg->addrtype = 0;
     msg->wait = wait;

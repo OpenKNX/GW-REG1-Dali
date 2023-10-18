@@ -176,12 +176,12 @@ uint8_t DaliChannel::sendCmd(byte cmd)
     return _queue->push(msg);
 }
 
-uint8_t DaliChannel::sendSpecialCmd(byte cmd, byte value)
+uint8_t DaliChannel::sendSpecialCmd(DaliSpecialCmd cmd, byte value)
 {
     Message *msg = new Message();
     msg->id = _queue->getNextId();
     msg->type = MessageType::SpecialCmd;
-    msg->para1 = cmd;
+    msg->para1 = static_cast<uint8_t>(cmd);
     msg->para2 = value;
     msg->addrtype = _isGroup;
     return _queue->push(msg);
@@ -402,7 +402,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
             if(!isRGB)
             {
                 //TODO HSV to RGB
-                ColorHelper::hslToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
+                ColorHelper::hsvToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
             } else {
                 r = value >> 16;
                 g = (value >> 8) & 0xFF;
@@ -421,13 +421,13 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 //send as rgb
                 case 0:
                 {
-                    sendSpecialCmd(257, r); //SET_DTR
-                    sendSpecialCmd(273, g); //SET_DTR1
-                    sendSpecialCmd(274, b); //SET_DTR2
-                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
-                    sendCmd(235); //SET_TEMPORARY_RGB_DIMLEVEL
-                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
-                    sendCmd(226); //SET_TEMPORARY_RGB_DIMLEVEL
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
+                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                    sendCmd(DaliCmd::SET_TEMP_RGB);
+                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                    sendCmd(DaliCmd::ACTIVATE);
                     break;
                 }
 
@@ -438,23 +438,23 @@ void DaliChannel::processInputKo(GroupObject &ko)
                     uint16_t y;
                     ColorHelper::rgbToXY(r, g, b, x, y);
 
-                    sendSpecialCmd(257, x & 0xFF); //SET_DTR
-                    sendSpecialCmd(273, (x >> 8) & 0xFF); //SET_DTR1
-                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
-                    sendCmd(224); //SET_ TEMPORARY X-COORDINATE
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, (x >> 8) & 0xFF);
+                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                    sendCmd(DaliCmd::SET_COORDINATE_X);
                     
-                    sendSpecialCmd(257, y & 0xFF); //SET_DTR
-                    sendSpecialCmd(273, (y >> 8) & 0xFF); //SET_DTR1
-                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
-                    sendCmd(225); //SET_ TEMPORARY Y-COORDINATE
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
+                    sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
+                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                    sendCmd(DaliCmd::SET_COORDINATE_Y);
                     
-                    sendSpecialCmd(272, 8); //ENABLE_DT: 8
-                    sendCmd(226); //ACTIVATE
+                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                    sendCmd(DaliCmd::ACTIVATE);
                     break;
                 }
             }
 
-            setDimmState(254, true, true);
+            setDimmState(254, true, true); //TODO get real 
             break;
         }
     }
@@ -479,8 +479,7 @@ uint8_t DaliChannel::arcToPercent(uint8_t value)
     }
     //Todo also include _max
     double arc = pow(10, ((value-1) / (253/3.0)) - 1);
-    uint8_t arc2 = roundToInt(arc);
-    return arc;
+    return roundToInt(arc);;
 }
 
 uint8_t DaliChannel::roundToInt(double input)
