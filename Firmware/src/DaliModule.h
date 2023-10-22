@@ -109,4 +109,10 @@ class DaliModule : public OpenKNX::Module
 		uint8_t sendCmdSpecial(DaliSpecialCmd command, byte value = 0, bool wait = false);
 		uint8_t sendArc(byte addr, byte value, byte type);
 
+		void koHandleSwitch(GroupObject & ko);
+		void koHandleDimm(GroupObject & ko);
+		void koHandleDayNight(GroupObject & ko);
+		void koHandleOnValue(GroupObject & ko);
+		void koHandleScene(GroupObject & ko);
+
 };

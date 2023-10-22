@@ -193,271 +193,285 @@ void DaliChannel::processInputKo(GroupObject &ko)
     if(_isGroup)
     {
         chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
-        logDebugP("Got KO %i", chanIndex);
+        logDebugP("Got GROUP KO %i", chanIndex);
     } else {
         chanIndex = (ko.asap() - ADR_KoOffset) % ADR_KoBlockSize;
-        logDebugP("Got KO %i", chanIndex);
+        logDebugP("Got SHORT KO %i", chanIndex);
     }
 
     switch(chanIndex)
     {
         //Schalten
         case ADR_Koswitch:
-        {
-            logDebugP("Schalten");
-            if(isLocked)
-            {
-                logErrorP("is locked");
-                return;
-            }
-
-            if(_isStaircase)
-            {
-                if(ko.value(DPT_Switch))
-                {
-                    
-                    if(state)
-                    {
-                        logDebugP("ist bereits an");
-                        if(ParamADR_nachtriggern)
-                        {
-                            logDebugP("wurde nachgetriggert");
-                            startTime = millis();
-                            return;
-                        }
-                        return;
-                    }
-                    logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
-                    state = true;
-                    startTime = millis();
-                    logDebugP("interval %i", interval);
-
-                    uint8_t onValue = isNight ? _onNight : _onDay;
-                    if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
-                    sendArc(onValue);
-                    setDimmState(percentToArc(onValue));
-                }
-                else
-                {
-                    bool manuOff = ParamADR_manuoff;
-                    if(!manuOff)
-                    {
-                        logErrorP("no manuel off");
-                        return;
-                    }
-
-                    logDebugP("Ausschalten");
-                    sendArc(0x00);
-                    setSwitchState(false);
-                    state = false;
-                }
-            } else {
-                bool value = ko.value(DPT_Switch);
-                if(value)
-                {
-                    uint8_t onValue = isNight ? _onNight : _onDay;
-                    if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
-                    logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
-                    sendArc(onValue);
-                    setDimmState(percentToArc(onValue));
-                }
-                else {
-                    logDebugP("Ausschalten");
-                    sendArc(0x00);
-                    setSwitchState(false);
-                }
-            }
+            koHandleSwitch(ko);
             break;
-        }
 
         //Schalten Status
         //case 1
 
         //Dimmen relativ
         case ADR_Kodimm_relative:
-        {
-            logDebugP("Dimmen relativ");
-            if(isLocked)
-            {
-                logErrorP("is locked");
-                return;
-            }
-
-            _dimmStep = ko.value(Dpt(3,7,1));
-
-            if(_dimmStep == 0)
-            {
-                _dimmDirection = DimmDirection::None;
-                _dimmLast = 0;
-                setDimmState(_lastStep, true, true);
-                return;
-            }
-
-            uint8_t toSet = _lastStep;
-            _dimmDirection = ko.value(Dpt(3,7,0)) ? DimmDirection::Up : DimmDirection::Down;
-            if(_dimmDirection == DimmDirection::Up)
-            {
-                logDebugP("Dimm Up Start %i", toSet);
-            } else if(_dimmDirection == DimmDirection::Down) {
-                logDebugP("Dimm Down Start %i", toSet);
-            }
+            koHandleDimmRel(ko);
             break;
-        }
 
         //Dimmen Absolut
         case ADR_Kodimm_absolute:
-        {
-            logDebugP("Dimmen absolut");
-            if(isLocked)
-            {
-                logErrorP("is locked");
-                return;
-            }
-
-            uint8_t value = ko.value(Dpt(5,1));
-            logDebugP("Dimmen Absolut auf %i%%", value);
-            sendArc(value);
-            setDimmState(percentToArc(value), true, true);
+            koHandleDimmAbs(ko);
             break;
-        }
 
         //Dimmen Status
         //case 4
 
         //Sperren
         case ADR_Kolock:
-        {
-            bool value = ko.value(Dpt(1,1));
-
-            if(_isGroup)
-            {
-                if(ParamGRP_locknegate)
-                    value = !value;
-            } else {
-                if(ParamADR_locknegate)
-                    value = !value;
-            }
-
-            if(isLocked == value) break;
-            isLocked = value;
-            uint8_t behave;
-            uint8_t behavevalue;
-            if(isLocked)
-            {
-                logDebugP("Sperren");
-                behave = ParamADR_lockbehave;
-                behavevalue = ParamADR_lockvalue;
-            } else {
-                logDebugP("Entsperren");
-                behave = ParamADR_unlockbehave;
-                behavevalue = ParamADR_unlockvalue;
-            }
-
-            switch(behave)
-            {
-                //nothing
-                case 0:
-                    logDebugP("Nichts");
-                    return;
-
-                //Ausschalten
-                case 1:
-                {
-                    logDebugP("Ein");
-                    behavevalue = isNight ? _onNight : _onDay;
-                    break;
-                }
-
-                //Einschalten
-                case 2:
-                {
-                    logDebugP("Aus");
-                    behavevalue = 0;
-                    break;
-                }
-
-                //Fester Wert
-                case 3:
-                {
-                    logDebugP("Wert");
-                    break;
-                }
-            }
-            logDebugP("%i - %i", behavevalue, percentToArc(behavevalue));
-            sendArc(behavevalue);
-            setDimmState(percentToArc(behavevalue));
+            koHandleLock(ko);
             break;
-        }
     
         //Error
         //case 6
 
         case ADR_Kocolor:
+            koHandleColor(ko);
+            break;
+    }
+}
+
+void DaliChannel::koHandleSwitch(GroupObject &ko)
+{
+    logDebugP("Schalten");
+    if(isLocked)
+    {
+        logErrorP("is locked");
+        return;
+    }
+
+    if(_isStaircase)
+    {
+        if(ko.value(DPT_Switch))
         {
-            bool isRGB = ParamADR_colorType;
-            uint32_t value = ko.value(Dpt(232,600));
-            logDebugP("Got Color: %X", value);
-            uint8_t r, g, b;
-
-            if(!isRGB)
-            {
-                //TODO HSV to RGB
-                ColorHelper::hsvToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
-            } else {
-                r = value >> 16;
-                g = (value >> 8) & 0xFF;
-                b = value & 0xFF;
-            }
-
-            logDebugP("RGB: %i %i %i", r, g, b);
-            if(r == 255) r--;
-            if(g == 255) g--;
-            if(b == 255) b--;
-            logDebugP("Send: %i %i %i", r, g, b);
             
-            uint8_t sendType = ParamADR_colorSpace;
-            switch(sendType)
+            if(state)
             {
-                //send as rgb
-                case 0:
+                logDebugP("ist bereits an");
+                if(ParamADR_nachtriggern)
                 {
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
-                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-                    sendCmd(DaliCmd::SET_TEMP_RGB);
-                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-                    sendCmd(DaliCmd::ACTIVATE);
-                    break;
+                    logDebugP("wurde nachgetriggert");
+                    startTime = millis();
+                    return;
                 }
+                return;
+            }
+            logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+            state = true;
+            startTime = millis();
+            logDebugP("interval %i", interval);
 
-                //send as xy
-                case 1:
-                {
-                    uint16_t x;
-                    uint16_t y;
-                    ColorHelper::rgbToXY(r, g, b, x, y);
-
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, (x >> 8) & 0xFF);
-                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-                    sendCmd(DaliCmd::SET_COORDINATE_X);
-                    
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
-                    sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
-                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-                    sendCmd(DaliCmd::SET_COORDINATE_Y);
-                    
-                    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-                    sendCmd(DaliCmd::ACTIVATE);
-                    break;
-                }
+            uint8_t onValue = isNight ? _onNight : _onDay;
+            if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
+            sendArc(onValue);
+            setDimmState(percentToArc(onValue));
+        }
+        else
+        {
+            bool manuOff = ParamADR_manuoff;
+            if(!manuOff)
+            {
+                logErrorP("no manuel off");
+                return;
             }
 
-            setDimmState(254, true, true); //TODO get real 
+            logDebugP("Ausschalten");
+            sendArc(0x00);
+            setSwitchState(false);
+            state = false;
+        }
+    } else {
+        bool value = ko.value(DPT_Switch);
+        if(value)
+        {
+            uint8_t onValue = isNight ? _onNight : _onDay;
+            if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
+            logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+            sendArc(onValue);
+            setDimmState(percentToArc(onValue));
+        } else {
+            logDebugP("Ausschalten");
+            sendArc(0x00);
+            setSwitchState(false);
+        }
+    }
+}
+
+void DaliChannel::koHandleDimmRel(GroupObject &ko)
+{
+    logDebugP("Dimmen relativ");
+    if(isLocked)
+    {
+        logErrorP("is locked");
+        return;
+    }
+
+    _dimmStep = ko.value(Dpt(3,7,1));
+
+    if(_dimmStep == 0)
+    {
+        _dimmDirection = DimmDirection::None;
+        _dimmLast = 0;
+        setDimmState(_lastStep, true, true);
+        return;
+    }
+
+    uint8_t toSet = _lastStep;
+    _dimmDirection = ko.value(Dpt(3,7,0)) ? DimmDirection::Up : DimmDirection::Down;
+    if(_dimmDirection == DimmDirection::Up)
+    {
+        logDebugP("Dimm Up Start %i", toSet);
+    } else if(_dimmDirection == DimmDirection::Down) {
+        logDebugP("Dimm Down Start %i", toSet);
+    }
+}
+
+void DaliChannel::koHandleDimmAbs(GroupObject &ko)
+{
+    logDebugP("Dimmen absolut");
+    if(isLocked)
+    {
+        logErrorP("is locked");
+        return;
+    }
+
+    uint8_t value = ko.value(Dpt(5,1));
+    logDebugP("Dimmen Absolut auf %i%%", value);
+    sendArc(value);
+    setDimmState(percentToArc(value), true, true);
+}
+
+void DaliChannel::koHandleLock(GroupObject & ko)
+{    
+    bool value = ko.value(Dpt(1,1));
+
+    if(_isGroup)
+    {
+        if(ParamGRP_locknegate)
+            value = !value;
+    } else {
+        if(ParamADR_locknegate)
+            value = !value;
+    }
+
+    if(isLocked == value) return;
+    isLocked = value;
+    uint8_t behave;
+    uint8_t behavevalue;
+    if(isLocked)
+    {
+        logDebugP("Sperren");
+        behave = ParamADR_lockbehave;
+        behavevalue = ParamADR_lockvalue;
+    } else {
+        logDebugP("Entsperren");
+        behave = ParamADR_unlockbehave;
+        behavevalue = ParamADR_unlockvalue;
+    }
+
+    switch(behave)
+    {
+        //nothing
+        case 0:
+            logDebugP("Nichts");
+            return;
+
+        //Ausschalten
+        case 1:
+        {
+            logDebugP("Ein");
+            behavevalue = isNight ? _onNight : _onDay;
+            break;
+        }
+
+        //Einschalten
+        case 2:
+        {
+            logDebugP("Aus");
+            behavevalue = 0;
+            break;
+        }
+
+        //Fester Wert
+        case 3:
+        {
+            logDebugP("Wert");
             break;
         }
     }
+    logDebugP("%i - %i", behavevalue, percentToArc(behavevalue));
+    sendArc(behavevalue);
+    setDimmState(percentToArc(behavevalue));
+}
+
+void DaliChannel::koHandleColor(GroupObject &ko)
+{
+    bool isRGB = ParamADR_colorType;
+    uint32_t value = ko.value(Dpt(232,600));
+    logDebugP("Got Color: %X", value);
+    uint8_t r, g, b;
+
+    if(!isRGB)
+    {
+        //TODO HSV to RGB
+        ColorHelper::hsvToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
+    } else {
+        r = value >> 16;
+        g = (value >> 8) & 0xFF;
+        b = value & 0xFF;
+    }
+
+    logDebugP("RGB: %i %i %i", r, g, b);
+    if(r == 255) r--;
+    if(g == 255) g--;
+    if(b == 255) b--;
+    logDebugP("Send: %i %i %i", r, g, b);
+    
+    uint8_t sendType = ParamADR_colorSpace;
+    switch(sendType)
+    {
+        //send as rgb
+        case 0:
+        {
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmd::SET_TEMP_RGB);
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmd::ACTIVATE);
+            break;
+        }
+
+        //send as xy
+        case 1:
+        {
+            uint16_t x;
+            uint16_t y;
+            ColorHelper::rgbToXY(r, g, b, x, y);
+
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR, (x >> 8) & 0xFF);
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmd::SET_COORDINATE_X);
+            
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmd::SET_COORDINATE_Y);
+            
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmd::ACTIVATE);
+            break;
+        }
+    }
+
+    setDimmState(254, true, true); //TODO get real 
 }
 
 uint8_t DaliChannel::percentToArc(uint8_t value)
@@ -508,9 +522,9 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
     _lastState = value;
 
     if(_isGroup)
-        knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(value, DPT_Switch);
-    else
         knx.getGroupObject(calcKoNumber(GRP_Koswitch_state)).value(value, DPT_Switch);
+    else
+        knx.getGroupObject(calcKoNumber(ADR_Koswitch_state)).value(value, DPT_Switch);
 }
 
 void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCommand)
@@ -537,9 +551,9 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
     _lastValue = perc;
 
     if(_isGroup)
-        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
-    else
         knx.getGroupObject(calcKoNumber(GRP_Kodimm_state)).value(perc, Dpt(5, 1));
+    else
+        knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
 }
 
 void DaliChannel::setOnValue(uint8_t value)
@@ -560,6 +574,6 @@ void DaliChannel::setGroupState(uint8_t group, bool state)
 
 void DaliChannel::setGroupState(uint8_t group, uint8_t value)
 {
-    if(_groups & 1 << group)
-        setDimmState(value, false, true);
+    if(_groups & (1 << group))
+        setDimmState(percentToArc(value), true, true);
 }

@@ -76,4 +76,10 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t roundToInt(double input);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
 		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);
+		
+		void koHandleSwitch(GroupObject &ko);
+		void koHandleDimmRel(GroupObject &ko);
+		void koHandleDimmAbs(GroupObject &ko);
+		void koHandleLock(GroupObject & ko);
+		void koHandleColor(GroupObject &ko);
 };

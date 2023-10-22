@@ -9,7 +9,7 @@ const std::string DaliModule::name()
 //will be displayed in Command Infos 
 const std::string DaliModule::version()
 {
-    return "0.0dev";
+    return std::string("0.0dev+") + std::string(MAIN_Version);
 }
 
 void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
@@ -53,7 +53,7 @@ void DaliModule::loop()
 
     if(!_gotInitData)
     {
-        if(millis() > 10000)
+        if(millis() > 1000)
             loopInitData();
         return;
     }
@@ -141,6 +141,7 @@ void DaliModule::loopInitData()
         _adrFound = 0;
         _gotInitData = true;
         _daliStateLast = 1;
+        logInfoP("Finished init");
     }
 }
 
@@ -191,10 +192,7 @@ void DaliModule::loopMessages()
         {
             int16_t resp = dali->sendCmdWait(msg->para1, static_cast<DaliCmd>(msg->para2), msg->addrtype);
             if(msg->wait)
-            {
-                //logInfoP("Got Response %i = %i", msg->id, resp);
                 queue->setResponse(msg->id, resp);
-            }
             break;
         }
 
@@ -202,9 +200,8 @@ void DaliModule::loopMessages()
         {
             int16_t resp = dali->sendSpecialCmdWait(msg->para1, msg->para2);
             if(msg->wait)
-            {
                 queue->setResponse(msg->id, resp);
-            }
+            break;
         }
     }
 
@@ -579,16 +576,11 @@ void DaliModule::processInputKo(GroupObject &ko)
 
         if(chanIndex == GRP_Koswitch_state)
         {
-            if(_lastChangedGroup != 255)
-                logErrorP("lastChanged not handleded!");
-            
             _lastChangedGroup = index + 16;
             _lastChangedValue = ko.value(Dpt(1,1));
         }
         if(chanIndex == GRP_Kodimm_state)
         {
-            if(_lastChangedGroup != 255)
-                logErrorP("lastChanged not handleded!");
             _lastChangedGroup = index;
             _lastChangedValue = ko.value(Dpt(5,1));
         }
@@ -600,121 +592,136 @@ void DaliModule::processInputKo(GroupObject &ko)
     {
         //broadcast switch
         case APP_Kobroadcast_switch:
-        {
-            bool value = ko.value(DPT_Switch);
-            logInfoP("Broadcast Switch %i", value);
-            dali->sendArcBroadcast(value ? 0xFE : 0x00);
+            koHandleSwitch(ko);
             break;
-        }
 
         //broadcast dimm absolute
         case APP_Kobroadcast_dimm:
-        {
-            uint8_t value = ko.value(Dpt(5,1));
-            logInfoP("Broadcast Dimm %i", value);
-            value = ((253/3)*(log10(value)+1)) + 1;
-            value++;
-            dali->sendArcBroadcast(value);
+            koHandleDimm(ko);
             break;
-        }
 
         //Tag/Nacht Objekt
         case APP_Kodaynight:
-        {
-            bool value = ko.value(DPT_Switch);
-            if(ParamAPP_daynight) value = !value;
-            logInfoP("Broadcast Day/Night %i", value);
-            if(ParamAPP_daynight) value = !value;
-
-            for(int i = 0; i < 64; i++)
-                channels[i]->isNight = value;
-            for(int i = 0; i < 16; i++)
-                groups[i]->isNight = value;
+            koHandleDayNight(ko);
             break;
-        }
 
         //Set OnValue Day
         case APP_KoonValue:
-        {
-            uint8_t value = ko.value(Dpt(5,1));
-            logDebugP("KO OnValue: %i", value);
-
-            for(int i = 0; i < 64; i++)
-                channels[i]->setOnValue(value);
-            for(int i = 0; i < 16; i++)
-                groups[i]->setOnValue(value);
+            koHandleOnValue(ko);
             break;
-        }
 
         case APP_Koscene:
+            koHandleScene(ko);
+            break;
+    }
+}
+
+void DaliModule::koHandleSwitch(GroupObject & ko)
+{
+    bool value = ko.value(DPT_Switch);
+    logDebugP("Broadcast Switch %i", value);
+    dali->sendArcBroadcast(value ? 0xFE : 0x00);
+}
+
+void DaliModule::koHandleDimm(GroupObject & ko)
+{
+    uint8_t value = ko.value(Dpt(5,1));
+    logDebugP("Broadcast Dimm %i", value);
+    value = ((253/3)*(log10(value)+1)) + 1;
+    value++;
+    dali->sendArcBroadcast(value);
+}
+
+void DaliModule::koHandleDayNight(GroupObject & ko)
+{
+    bool value = ko.value(DPT_Switch);
+    if(ParamAPP_daynight) value = !value;
+    logDebugP("Broadcast Day/Night %i", value);
+    if(ParamAPP_daynight) value = !value;
+
+    for(int i = 0; i < 64; i++)
+        channels[i]->isNight = value;
+    for(int i = 0; i < 16; i++)
+        groups[i]->isNight = value;
+}
+
+void DaliModule::koHandleOnValue(GroupObject & ko)
+{
+    uint8_t value = ko.value(Dpt(5,1));
+    logDebugP("KO OnValue: %i", value);
+
+    for(int i = 0; i < 64; i++)
+        channels[i]->setOnValue(value);
+    for(int i = 0; i < 16; i++)
+        groups[i]->setOnValue(value);
+}
+
+void DaliModule::koHandleScene(GroupObject & ko)
+{
+    uint8_t gotNumber = ko.value(DPT_SceneNumber);
+    logDebugP("KO Scene: %i", gotNumber);
+    for(int i = 0; i < 16; i++)
+    {
+        uint8_t dest = ParamSCE_typeIndex(i);
+        logDebugP("KO Scene%i: Dest=%i", i, dest);
+        if(dest == 0) continue;
+        uint8_t number = ParamSCE_numberKnxIndex(i);
+        logDebugP("KO Scene%i: Number=%i", i, number-1);
+        if(gotNumber == number - 1)
         {
-            uint8_t gotNumber = ko.value(DPT_SceneNumber);
-            logDebugP("KO Scene: %i", gotNumber);
-            for(int i = 0; i < 16; i++)
+            bool isSave = ko.value(Dpt(18,1,0));
+            logDebugP("KO Scene%i: Save=%i", i, isSave);
+            if(isSave && !ParamSCE_saveIndex(i))
             {
-                uint8_t dest = ParamSCE_typeIndex(i);
-                logDebugP("KO Scene%i: Dest=%i", i, dest);
-                if(dest == 0) continue;
-                uint8_t number = ParamSCE_numberKnxIndex(i);
-                logDebugP("KO Scene%i: Number=%i", i, number-1);
-                if(gotNumber == number - 1)
+                logDebugP("KO Scene%i: Save not allowed", i);
+                continue;
+            }
+
+            uint8_t scene = ParamSCE_numberDaliIndex(i);
+            logDebugP("KO Scene%i: Scene=%i", i, scene);
+            uint8_t addr = 0;
+            uint8_t type = 0;
+            switch(dest)
+            {
+                //Address
+                case 1:
                 {
-                    bool isSave = ko.value(Dpt(18,1,0));
-                    logDebugP("KO Scene%i: Save=%i", i, isSave);
-                    if(isSave && !ParamSCE_saveIndex(i))
-                    {
-                        logDebugP("KO Scene%i: Save not allowed", i);
-                        continue;
-                    }
+                    addr = ParamSCE_addressIndex(i);
+                    logDebugP("KO Scene%i: Addr=%i", i, addr);
+                    type = static_cast<uint8_t>(DaliAddressTypes::SHORT);
+                    break;
+                }
 
-                    uint8_t scene = ParamSCE_numberDaliIndex(i);
-                    logDebugP("KO Scene%i: Scene=%i", i, scene);
-                    uint8_t addr = 0;
-                    uint8_t type = 0;
-                    switch(dest)
-                    {
-                        //Address
-                        case 1:
-                        {
-                            addr = ParamSCE_addressIndex(i);
-                            logDebugP("KO Scene%i: Addr=%i", i, addr);
-                            type = static_cast<uint8_t>(DaliAddressTypes::SHORT);
-                            break;
-                        }
+                //Group
+                case 2:
+                {
+                    addr = ParamSCE_groupIndex(i);
+                    logDebugP("KO Scene%i: Grou=%i", i, addr);
+                    type = static_cast<uint8_t>(DaliAddressTypes::GROUP);
+                    break;
+                }
 
-                        //Group
-                        case 2:
-                        {
-                            addr = ParamSCE_groupIndex(i);
-                            logDebugP("KO Scene%i: Grou=%i", i, addr);
-                            type = static_cast<uint8_t>(DaliAddressTypes::GROUP);
-                            break;
-                        }
-
-                        //Broadcast
-                        case 3:
-                        {
-                            addr = 0xFF;
-                            logDebugP("KO Scene%i: Broadcast", i);
-                            type = static_cast<uint8_t>(DaliAddressTypes::GROUP);
-                            break;
-                        }
-                    }
-
-                    if(isSave)
-                    {
-                        sendCmd(addr, DaliCmd::ARC_TO_DTR, type);
-                        uint8_t temp = static_cast<uint8_t>(DaliCmd::DTR_AS_SCENE);
-                        temp |= scene;
-                        sendCmd(addr, static_cast<DaliCmd>(temp), type);
-                    } else {
-                        uint8_t temp = static_cast<uint8_t>(DaliCmd::GO_TO_SCENE);
-                        temp |= scene;
-                        sendCmd(addr, static_cast<DaliCmd>(temp), type);
-                    }
+                //Broadcast
+                case 3:
+                {
+                    addr = 0xFF;
+                    logDebugP("KO Scene%i: Broadcast", i);
+                    type = static_cast<uint8_t>(DaliAddressTypes::GROUP);
+                    break;
                 }
             }
-            break;
+
+            if(isSave)
+            {
+                sendCmd(addr, DaliCmd::ARC_TO_DTR, type);
+                uint8_t temp = static_cast<uint8_t>(DaliCmd::DTR_AS_SCENE);
+                temp |= scene;
+                sendCmd(addr, static_cast<DaliCmd>(temp), type);
+            } else {
+                uint8_t temp = static_cast<uint8_t>(DaliCmd::GO_TO_SCENE);
+                temp |= scene;
+                sendCmd(addr, static_cast<DaliCmd>(temp), type);
+            }
         }
     }
 }

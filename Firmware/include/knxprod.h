@@ -9,10 +9,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x0D
+#define MAIN_ApplicationVersion 0x10
 #define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
 #define MAIN_ParameterSize 833
-#define MAIN_MaxKoNumber 629
+#define MAIN_MaxKoNumber 0
 
 
 #define APP_daynight		0x0000
@@ -43,11 +43,9 @@
 #define ADR_ParamBlockSize 10
 #define GRP_ParamBlockOffset 705
 #define GRP_ParamBlockSize 8
-#define SCE_KoOffset 6
-#define SCE_KoBlockSize 0
 #define ADR_KoOffset 22
-#define ADR_KoBlockSize 8
-#define GRP_KoOffset 534
+#define ADR_KoBlockSize 18
+#define GRP_KoOffset 1174
 #define GRP_KoBlockSize 6
 
 //-----Module: adresse
@@ -188,6 +186,46 @@
 #define ADR_Kocolor 7
 #define KoADR_colorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 7)
 #define KoADR_color knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 7)
+//!< Number: 8, Text: A{{argChan}} {{0}}, Function: RGB Farbe Status
+#define ADR_Kocolor_rgb_state 8
+#define KoADR_color_rgb_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 8)
+#define KoADR_color_rgb_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 8)
+//!< Number: 9, Text: A{{argChan}} {{0}}, Function: Rot Relativ
+#define ADR_Kocolor_red_relative 9
+#define KoADR_color_red_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 9)
+#define KoADR_color_red_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 9)
+//!< Number: 10, Text: A{{argChan}} {{0}}, Function: Rot Absolut
+#define ADR_Kocolor_red_absolute 10
+#define KoADR_color_red_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 10)
+#define KoADR_color_red_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 10)
+//!< Number: 11, Text: A{{argChan}} {{0}}, Function: Rot Status
+#define ADR_Kocolor_red_state 11
+#define KoADR_color_red_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 11)
+#define KoADR_color_red_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 11)
+//!< Number: 12, Text: A{{argChan}} {{0}}, Function: Grün Relativ
+#define ADR_Kocolor_green_relative 12
+#define KoADR_color_green_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 12)
+#define KoADR_color_green_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 12)
+//!< Number: 13, Text: A{{argChan}} {{0}}, Function: Grün Absolut
+#define ADR_Kocolor_green_absolute 13
+#define KoADR_color_green_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 13)
+#define KoADR_color_green_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 13)
+//!< Number: 14, Text: A{{argChan}} {{0}}, Function: Grün Status
+#define ADR_Kocolor_green_state 14
+#define KoADR_color_green_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 14)
+#define KoADR_color_green_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 14)
+//!< Number: 15, Text: A{{argChan}} {{0}}, Function: Blau Relativ
+#define ADR_Kocolor_blue_relative 15
+#define KoADR_color_blue_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 15)
+#define KoADR_color_blue_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 15)
+//!< Number: 16, Text: A{{argChan}} {{0}}, Function: Blau Absolut
+#define ADR_Kocolor_blue_absolute 16
+#define KoADR_color_blue_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 16)
+#define KoADR_color_blue_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 16)
+//!< Number: 17, Text: A{{argChan}} {{0}}, Function: Blau Status
+#define ADR_Kocolor_blue_state 17
+#define KoADR_color_blue_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 17)
+#define KoADR_color_blue_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + 17)
 
 //-----Module: group
 #define GRP_deviceType		0x0000
