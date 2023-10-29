@@ -9,7 +9,7 @@ const std::string DaliModule::name()
 //will be displayed in Command Infos 
 const std::string DaliModule::version()
 {
-    return std::string("0.0dev+") + std::string(MAIN_Version);
+    return "";
 }
 
 void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
