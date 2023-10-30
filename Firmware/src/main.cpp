@@ -17,10 +17,9 @@ void setup()
 
 	const uint8_t firmwareRevision = 0;
 	openknx.init(firmwareRevision);
-	DaliModule *mod = new DaliModule();
-	mod->setCallback(daliCallback);
-	openknx.addModule(1, mod);
-	openknx.addModule(3, new FileTransferModule());
+	openknxDaliModule.setCallback(daliCallback);
+	openknx.addModule(1, &openknxDaliModule);
+	openknx.addModule(3, &openknxFileTransferModule);
 	openknx.setup();
 }
 
