@@ -17,6 +17,5 @@ class MessageQueue
         Message *tail;
         uint8_t currentId = 0;
 		int16_t *responses = new int16_t[256];
-        unsigned long lastPush = 0;
         bool isLocked = false;
 };
