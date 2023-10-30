@@ -921,3 +921,5 @@ uint8_t DaliModule::sendMsg(MessageType t, byte p1, byte p2, byte type, bool wai
     msg->wait = wait;
     return queue->push(msg);
 }
+
+DaliModule openknxDaliModule;

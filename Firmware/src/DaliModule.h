@@ -110,3 +110,5 @@ class DaliModule : public OpenKNX::Module
 		uint8_t sendArc(byte addr, byte value, byte type);
 
 };
+
+extern DaliModule openknxDaliModule;

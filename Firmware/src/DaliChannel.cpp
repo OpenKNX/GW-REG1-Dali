@@ -290,6 +290,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
                 _dimmDirection = DimmDirection::None;
                 _dimmLast = 0;
                 setDimmState(_lastStep, true, true);
+                logDebugP("Dimm Stop");
                 return;
             }
 
