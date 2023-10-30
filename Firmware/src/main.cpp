@@ -4,7 +4,6 @@
 #include "DaliModule.h"
 #include "FileTransferModule.h"
 
-
 void daliCallback(uint8_t *data, uint8_t len)
 {
 	logHexInfo("Dali In", data, len);
@@ -12,14 +11,11 @@ void daliCallback(uint8_t *data, uint8_t len)
 
 void setup()
 {
-	//Serial2.setTX(8);
-	//Serial2.setRX(9);
-
-	const uint8_t firmwareRevision = 0;
+	const uint8_t firmwareRevision = 1;
 	openknx.init(firmwareRevision);
 	openknxDaliModule.setCallback(daliCallback);
-	openknx.addModule(1, &openknxDaliModule);
-	openknx.addModule(3, &openknxFileTransferModule);
+	openknx.addModule(1, openknxDaliModule);
+	openknx.addModule(3, openknxFileTransferModule);
 	openknx.setup();
 }
 
