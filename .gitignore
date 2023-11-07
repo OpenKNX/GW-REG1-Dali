@@ -1,2 +1,4 @@
 **/*-backups/**
 **/*_gerbers_*/**
+/Hardware_REG1_App/*.kicad_prl
+/Hardware_REG1_App/fp-info-cache
