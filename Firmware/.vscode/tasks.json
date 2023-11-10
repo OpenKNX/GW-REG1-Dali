@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "label": "Build-and-Upload",
+            "type": "shell",
+            "command": "scripts/Upload-Firmware.ps1",
+            "args": [
+                "release_REG1"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        }
+	]
+}
