@@ -10,9 +10,9 @@ if(-Not (Test-Path -Path platformio.ini)) {
 }
 $projectDir = Get-Location
 
-if(!Test-Path -Path $projectDir/.pio/platformio.base.ini) {
+if(-Not (Test-Path -Path $projectDir/.pio/platformio.base.ini)) {
     Write-Host "Lade benötigte inis..."
-    $projectDir/scripts/Restore-First.ps1
+    scripts/Restore-First.ps1
 }
 
 if ($IsMacOS -or $IsLinux) { ~/.platformio/penv/bin/pio run -e $env }
