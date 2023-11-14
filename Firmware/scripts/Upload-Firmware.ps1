@@ -10,6 +10,22 @@ if(-Not (Test-Path -Path platformio.ini)) {
 }
 $projectDir = Get-Location
 
+if($env -eq $null)
+{
+    Write-Host "No environment specified. Will search for release..."
+    $content = Get-Content $projectDir/platformio.ini -raw
+    if($content -match '\[env:(release_.*)\]')
+    {
+        Write-Host "Found release $($Matches.1)"
+        $env = $Matches.1
+    } else {
+        Write-Host "Didnt found host"
+        timeout /T 20
+        exit 1
+    }
+}
+
+
 if(-Not (Test-Path -Path $projectDir/.pio/platformio.base.ini)) {
     Write-Host "Lade benötigte inis..."
     scripts/Restore-First.ps1
