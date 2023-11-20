@@ -809,6 +809,18 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             resultLength = 0;
             return true;
         }
+
+        case 10:
+        {
+            logInfoP("Starting setting up EVG");
+            break;
+        }
+
+        case 111:
+        {
+            logInfoP("Starting reading EVG settings");
+            break;
+        }
     }
 
 
