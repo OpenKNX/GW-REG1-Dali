@@ -68,7 +68,7 @@ void DaliModule::loop()
     }
 }
 
-void DaliModule::loop1()
+void DaliModule::loop1(bool configured)
 {
     if(_adrState != AddressingState::None)
     {
@@ -76,6 +76,11 @@ void DaliModule::loop1()
         loopMessages();
         return;
     }
+
+    loopMessages();
+    loopBusState();
+
+    if(!configured) return;
 
     for(int i = 0; i < 64; i++)
     {
@@ -85,9 +90,6 @@ void DaliModule::loop1()
     {
         groups[i]->loop1();
     }
-
-    loopMessages();
-    loopBusState();
 
     if(_lastChangedGroup != 255)
     {
@@ -190,6 +192,7 @@ void DaliModule::loopMessages()
 
         case MessageType::Cmd:
         {
+            logDebugP("sending Command %i %i", msg->para2, static_cast<DaliCmd>(msg->para2));
             int16_t resp = dali->sendCmdWait(msg->para1, static_cast<DaliCmd>(msg->para2), msg->addrtype);
             if(msg->wait)
                 queue->setResponse(msg->id, resp);
@@ -559,7 +562,6 @@ void DaliModule::processInputKo(GroupObject &ko)
 {
     if(_adrState != AddressingState::None) return;
 
-
     int koNum = ko.asap();
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
@@ -763,7 +765,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
 void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    uint8_t resp = sendMsg(MessageType::Cmd, data[0], false, DaliCmd::QUERY_DEVICE_TYPE, true);
+    uint8_t resp = sendMsg(MessageType::Cmd, data[0], DaliCmd::QUERY_DEVICE_TYPE, DaliAddressTypes::SHORT, true);
     resultData[0] = 0x00;
     resultData[1] = resp;
     resultLength = 2;

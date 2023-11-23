@@ -25,7 +25,7 @@ class DaliModule : public OpenKNX::Module
 	public:
 
 		void loop() override;
-		void loop1() override;
+		void loop1(bool configured) override;
 		void setup(bool conf) override;
 		void setup1(bool conf) override;
 		void processInputKo(GroupObject &ko) override;
