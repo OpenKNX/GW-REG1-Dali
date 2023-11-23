@@ -77,7 +77,7 @@ class DaliModule : public OpenKNX::Module
 		void loopMessages();
 		void loopBusState();
 		void loopInitData();
-		int16_t getInfo(byte address, DaliCmd command);
+		int16_t getInfo(byte address, DaliCmd command, uint8_t additional = 0);
 	
 		uint32_t _adrLow = 0;
 		uint32_t _adrHigh = 0xFFFFFF;
@@ -105,7 +105,7 @@ class DaliModule : public OpenKNX::Module
 		MessageQueue *queue;
 
 		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);
-		uint8_t sendCmd(byte addr, DaliCmd value, byte type, bool wait = false);
+		uint8_t sendCmd(byte addr, DaliCmd value, byte type = 0, bool wait = false);
 		uint8_t sendCmdSpecial(DaliSpecialCmd command, byte value = 0, bool wait = false);
 		uint8_t sendArc(byte addr, byte value, byte type);
 		void koHandleSwitch(GroupObject & ko);
@@ -113,6 +113,17 @@ class DaliModule : public OpenKNX::Module
 		void koHandleDayNight(GroupObject & ko);
 		void koHandleOnValue(GroupObject & ko);
 		void koHandleScene(GroupObject & ko);
+
+		void funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void funcHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void funcHandleAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+
+		void stateHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void stateHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void stateHandleScanAndAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 };
 
 extern DaliModule openknxDaliModule;

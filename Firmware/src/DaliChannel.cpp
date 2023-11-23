@@ -160,7 +160,7 @@ uint8_t DaliChannel::sendArc(byte v)
     msg->id = _queue->getNextId();
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
-    msg->para2 = percentToArc(v);
+    msg->para2 = DaliHelper::percentToArc(v);
     msg->addrtype = _isGroup;
     return _queue->push(msg);
 }
@@ -269,7 +269,7 @@ void DaliChannel::koHandleSwitch(GroupObject &ko)
             uint8_t onValue = isNight ? _onNight : _onDay;
             if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
             sendArc(onValue);
-            setDimmState(percentToArc(onValue));
+            setDimmState(DaliHelper::percentToArc(onValue));
         }
         else
         {
@@ -293,7 +293,7 @@ void DaliChannel::koHandleSwitch(GroupObject &ko)
             if(onValue == 0) onValue = isNight ? _lastNightValue : _lastDayValue;
             logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
             sendArc(onValue);
-            setDimmState(percentToArc(onValue));
+            setDimmState(DaliHelper::percentToArc(onValue));
         } else {
             logDebugP("Ausschalten");
             sendArc(0x00);
@@ -344,7 +344,7 @@ void DaliChannel::koHandleDimmAbs(GroupObject &ko)
     uint8_t value = ko.value(Dpt(5,1));
     logDebugP("Dimmen Absolut auf %i%%", value);
     sendArc(value);
-    setDimmState(percentToArc(value), true, true);
+    setDimmState(DaliHelper::percentToArc(value), true, true);
 }
 
 void DaliChannel::koHandleLock(GroupObject & ko)
@@ -405,9 +405,9 @@ void DaliChannel::koHandleLock(GroupObject & ko)
             break;
         }
     }
-    logDebugP("%i - %i", behavevalue, percentToArc(behavevalue));
+    logDebugP("%i - %i", behavevalue, DaliHelper::percentToArc(behavevalue));
     sendArc(behavevalue);
-    setDimmState(percentToArc(behavevalue));
+    setDimmState(DaliHelper::percentToArc(behavevalue));
 }
 
 void DaliChannel::koHandleColor(GroupObject &ko)
@@ -475,34 +475,6 @@ void DaliChannel::koHandleColor(GroupObject &ko)
     setDimmState(254, true, true); //TODO get real 
 }
 
-uint8_t DaliChannel::percentToArc(uint8_t value)
-{
-    if(value == 0)
-    {
-        return 0;
-    }
-    //Todo also include _max
-    uint8_t arc = roundToInt(((253/3.0)*(log10(value)+1)) + 1);
-    return arc;
-}
-
-uint8_t DaliChannel::arcToPercent(uint8_t value)
-{
-    if(value == 0)
-    {
-        return 0;
-    }
-    //Todo also include _max
-    double arc = pow(10, ((value-1) / (253/3.0)) - 1);
-    return roundToInt(arc);;
-}
-
-uint8_t DaliChannel::roundToInt(double input)
-{
-    double temp = input + 0.5;
-    return (uint8_t)temp;
-}
-
 void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
 {
     if(isSwitchCommand)
@@ -510,7 +482,7 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
         uint8_t toSet = 0;
         if(value)
         {
-            toSet = percentToArc(isNight ? _onNight : _onDay);
+            toSet = DaliHelper::percentToArc(isNight ? _onNight : _onDay);
         } else {
             toSet = 0;
         }
@@ -545,7 +517,7 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
     }
 
     //TODO arcToPercent seems to not work!
-    uint8_t perc = arcToPercent(value);
+    uint8_t perc = DaliHelper::arcToPercent(value);
     logDebugP("SetDimmState %i/%i (%i)", perc, value, _lastValue);
 
     if(perc == _lastValue) return;
@@ -576,5 +548,26 @@ void DaliChannel::setGroupState(uint8_t group, bool state)
 void DaliChannel::setGroupState(uint8_t group, uint8_t value)
 {
     if(_groups & (1 << group))
-        setDimmState(percentToArc(value), true, true);
+        setDimmState(DaliHelper::percentToArc(value), true, true);
+}
+
+void DaliChannel::setMinMax(uint8_t min, uint8_t max)
+{
+    _min = min;
+    _max = max;
+}
+
+uint8_t DaliChannel::getMin()
+{
+    return _min;
+}
+
+uint8_t DaliChannel::getMax()
+{
+    return _max;
+}
+
+uint16_t DaliChannel::getGroups()
+{
+    return _groups;
 }

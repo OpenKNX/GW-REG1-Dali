@@ -5,6 +5,7 @@
 #include "MessageQueue.h"
 #include "colorhelper.h"
 #include "DaliCommands.h"
+#include "DaliHelper.h"
 
 #define DimmInterval 100
 
@@ -25,6 +26,10 @@ class DaliChannel : public OpenKNX::Channel
 		void setGroups(uint16_t groups);
 		void setGroupState(uint8_t group, bool state);
 		void setGroupState(uint8_t group, uint8_t value);
+		void setMinMax(uint8_t min, uint8_t max);
+		uint8_t getMin();
+		uint8_t getMax();
+		uint16_t getGroups();
 
 		bool isNight = false;
 		const std::string name() override;
@@ -71,9 +76,6 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t sendArc(byte value);
 		uint8_t sendCmd(byte cmd);
 		uint8_t sendSpecialCmd(DaliSpecialCmd cmd, byte value);
-		uint8_t percentToArc(uint8_t value);
-		uint8_t arcToPercent(uint8_t value);
-		uint8_t roundToInt(double input);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
 		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);
 		
