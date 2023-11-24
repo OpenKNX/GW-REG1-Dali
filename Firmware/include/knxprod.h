@@ -5,14 +5,14 @@
             (time & 0xC000) == 0x0000 ? (time & 0x3FFF) * 1000 : \
             (time & 0xC000) == 0x4000 ? (time & 0x3FFF) * 60000 : \
             (time & 0xC000) == 0x8000 ? ((time & 0x3FFF) > 1000 ? 3600000 : \
-                                         (time & 0x3FFF) * 3600000 ) : 0 )
+                                            (time & 0x3FFF) * 3600000 ) : 0 )
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x10
-#define MAIN_OrderNumber "TW-DALI.GW.01" //may not work with multiple devices on same hardware or app on different hardware
-#define MAIN_ParameterSize 833
-#define MAIN_MaxKoNumber 0
+#define MAIN_ApplicationVersion 0x00
+#define MAIN_OrderNumber "GW-REG1-Dali.01"
+#define MAIN_ParameterSize 1089
+#define MAIN_MaxKoNumber 1269
 
 
 #define APP_daynight		0x0000
@@ -40,9 +40,11 @@
 #define SCE_ParamBlockOffset 1
 #define SCE_ParamBlockSize 4
 #define ADR_ParamBlockOffset 65
-#define ADR_ParamBlockSize 10
-#define GRP_ParamBlockOffset 705
+#define ADR_ParamBlockSize 14
+#define GRP_ParamBlockOffset 961
 #define GRP_ParamBlockSize 8
+#define SCE_KoOffset 6
+#define SCE_KoBlockSize 0
 #define ADR_KoOffset 22
 #define ADR_KoBlockSize 18
 #define GRP_KoOffset 1174
@@ -144,16 +146,33 @@
 #define ParamADR_locknegateIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 1), 7)
 // Offset: 1, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
 #define ParamADR_locknegate knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 1), 7)
-#define ADR_colorType		0x0002
-// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe ansteuerung:
-#define ParamADR_colorTypeIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 2), 7)
-// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe ansteuerung:
-#define ParamADR_colorType knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 2), 7)
-#define ADR_colorSpace		0x0005
-// Offset: 5, BitOffset: 4, Size: 1 Bit, Text: Farbe übertragen per
-#define ParamADR_colorSpaceIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 5), 4)
-// Offset: 5, BitOffset: 4, Size: 1 Bit, Text: Farbe übertragen per
-#define ParamADR_colorSpace knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 5), 4)
+#define ADR_colorType		0x0005
+#define ADR_colorType_Shift	2
+#define ADR_colorType_Mask	0x0003
+// Offset: 5, BitOffset: 4, Size: 2 Bit, Text: Farbe ansteuern per
+#define ParamADR_colorTypeIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 5)) >> ADR_colorType_Shift) & ADR_colorType_Mask))
+// Offset: 5, BitOffset: 4, Size: 2 Bit, Text: Farbe ansteuern per
+#define ParamADR_colorType ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 5)) >> ADR_colorType_Shift) & ADR_colorType_Mask))
+#define ADR_colorSpace		0x0002
+// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
+#define ParamADR_colorSpaceIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 2), 7)
+// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
+#define ParamADR_colorSpace knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 2), 7)
+#define ADR_tempMin		0x000A
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ParamADR_tempMinIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 10)))))
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ParamADR_tempMin ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 10)))))
+#define ADR_tempMax		0x000C
+// Offset: 12, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ParamADR_tempMaxIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 12)))))
+// Offset: 12, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ParamADR_tempMax ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 12)))))
+#define ADR_hcl		0x0005
+// Offset: 5, BitOffset: 6, Size: 1 Bit, Text: HCL aktivieren
+#define ParamADR_hclIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 5), 6)
+// Offset: 5, BitOffset: 6, Size: 1 Bit, Text: HCL aktivieren
+#define ParamADR_hcl knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 5), 6)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)
