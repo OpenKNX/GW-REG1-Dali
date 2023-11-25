@@ -192,7 +192,6 @@ void DaliModule::loopMessages()
 
         case MessageType::Cmd:
         {
-            logDebugP("sending Command %i %i", msg->para2, static_cast<DaliCmd>(msg->para2));
             int16_t resp = dali->sendCmdWait(msg->para1, static_cast<DaliCmd>(msg->para2), msg->addrtype);
             if(msg->wait)
                 queue->setResponse(msg->id, resp);
@@ -754,7 +753,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
             funcHandleEvgWrite(data, resultData, resultLength);
             return true;
 
-        case 111:
+        case 11:
             funcHandleEvgRead(data, resultData, resultLength);
             return true;
     }
@@ -765,9 +764,39 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
 void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    uint8_t resp = sendMsg(MessageType::Cmd, data[0], DaliCmd::QUERY_DEVICE_TYPE, DaliAddressTypes::SHORT, true);
+    int16_t resp = getInfo(data[0], DaliCmd::QUERY_DEVICE_TYPE);
+    if(resp < 0)
+    {
+        logErrorP("Dali Error (DT): Code %i", resp);
+        resultData[0] = 0x01;
+        resultLength = 1;
+        return;
+    }
+    logDebugP("Resp: %.2X", resp);
+
+    uint8_t deviceType = resp;
+    if(resp == 255)
+    {
+        while(true)
+        {
+            resp = getInfo(data[0], DaliCmd::QUERY_NEXT_DEVTYPE);
+            if(resp < 0)
+            {
+                logErrorP("Dali Error (NDT): Code %i", resp);
+                resultData[0] = 0x01;
+                resultLength = 1;
+                return;
+            }
+            logDebugP("Resp: %.2X", resp);
+            if(resp == 254)
+                break;
+            else
+                deviceType = resp;
+        }
+    }
+    
     resultData[0] = 0x00;
-    resultData[1] = resp;
+    resultData[1] = deviceType;
     resultLength = 2;
 }
 
@@ -881,53 +910,93 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
 void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     logInfoP("Starting reading EVG settings");
-
     
+    resultData[0] = 0x00;
     DaliChannel* channel = channels[data[0]];
-    resultData[1] = channel->getMin();
-    resultData[2] = channel->getMax();
-    int16_t resp = getInfo(data[0], DaliCmd::QUERY_POWER_ON_LEVEL);
+
+    uint8_t errorByte = 0;
+    uint16_t errorByteScene = 0;
+
+    int16_t resp = getInfo(data[0], DaliCmd::QUERY_MIN_LEVEL);
+    if(resp < 0)
+    {
+        logErrorP("Dali Error (MIN): Code %i", resp);
+        errorByte |= 0b1;
+        resp = 0xFF;
+    }
+    logDebugP("MIN: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
+    resultData[1] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+
+    resp = getInfo(data[0], DaliCmd::QUERY_MAX_LEVEL);
+    if(resp < 0)
+    {
+        logErrorP("Dali Error (MAX): Code %i", resp);
+        errorByte |= 0b10;
+        resp = 0xFF;
+    }
+    logDebugP("MAX: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
+    resultData[2] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+
+    resp = getInfo(data[0], DaliCmd::QUERY_POWER_ON_LEVEL);
     if(resp < 0)
     {
         logErrorP("Dali Error (POWER): Code %i", resp);
-        resultData[0] = 0x01;
-        resultLength = 1;
-        return;
+        errorByte |= 0b100;
+        resp = 0xFF;
     }
-    resultData[3] = resp;
+    logDebugP("POWER: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
+    resultData[3] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
 
     resp = getInfo(data[0], DaliCmd::QUERY_POWER_FAILURE);
     if(resp < 0)
     {
         logErrorP("Dali Error (FAILURE): Code %i", resp);
-        resultData[0] = 0x02;
-        resultLength = 1;
-        return;
+        errorByte |= 0b1000;
+        resp = 0xFF;
     }
-    resultData[4] = resp;
+    logDebugP("FAILURE: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
+    resultData[4] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
     
     //fadetime
     //faderate
 
-    resultData[7] = channel->getGroups() & 0xFF;
-    resultData[8] = (channel->getGroups() >> 8) & 0xFF;
-
+    resp = getInfo(data[0], DaliCmd::QUERY_GROUPS_0_7);
+    if(resp < 0)
+    {
+        logErrorP("Dali Error (GROUP1): Code %i", resp);
+        errorByte |= 0b1000000;
+        resp = 0;
+    }
+    logDebugP("GROUPS0-7: %.2X");
+    resultData[7] = resp;
+    
+    resp = getInfo(data[0], DaliCmd::QUERY_GROUPS_8_15);
+    if(resp < 0)
+    {
+        logErrorP("Dali Error (GROUP2): Code %i", resp);
+        errorByte |= 0b10000000;
+        resp = 0;
+    }
+    logDebugP("GROUPS8-15: %.2X", resp);
+    resultData[8] = resp;
+    
     for(int i = 0; i < 16; i++)
     {
         resp = getInfo(data[0], DaliCmd::QUERY_SCENE_LEVEL, i);
         if(resp < 0)
         {
             logErrorP("Dali Error (SCENE%i): Code %i", i, resp);
-            resultData[0] = i+3;
-            resultLength = 1;
-            return;
+            errorByteScene |= (uint16_t)pow(2, i);
+            resp = 0xFF;
         }
-        if(resp == 255)
-            resultData[i+9] = resp;
-        else
-            resultData[i+9] = DaliHelper::arcToPercent(resp);
+        logDebugP("SCENE %i: %.2X / %.2X", i, resp, DaliHelper::arcToPercent(resp));
+        resultData[i+9] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
     }
-    resultLength = 25;
+
+    resultData[25] = errorByte;
+    resultData[26] = errorByteScene & 0xFF;
+    resultData[27] = (errorByteScene >> 8) & 0xFF;
+    resultLength = 28;
 }
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
@@ -936,10 +1005,6 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
 
     switch(propertyId)
     {
-        case 1:
-            stateHandleType(data, resultData, resultLength);
-            return true;
-
         case 3:
         case 5:
             stateHandleScanAndAddress(data, resultData, resultLength);
