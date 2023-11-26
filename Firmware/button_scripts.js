@@ -46,7 +46,10 @@ else {
     device.getParameterByName("failureon").value = (data[4] == 255) ? "1" : "0";
     if (data[4] < 255) device.getParameterByName("failureonlevel").value = data[4].toString();
 }
-//fadetime
+if(data[25] & 16) {
+    //device.getParameterByName("fadeTime").value = (data[5] >> 4).toString();
+    //device.getParameterByName("fadeRate").value = (data[5] & 15).toString();
+}
 //faderate
 if(data[25] & 64) errors += "Groups 0-7, ";
 else {
@@ -111,14 +114,23 @@ else
 }
 
 function buttonsettingsWrite(device, online, progress, context) {
-var data = new Array(10);
-data[0] = context.Channel;
-data[1] = parseInt(device.getParameterByName("min").value, 10);
-data[2] = parseInt(device.getParameterByName("max").value, 10);
-data[3] = (device.getParameterByName("poweron").value == "0") ? parseInt(device.getParameterByName("poweronlevel").value, 10) : 255;
-data[4] = (device.getParameterByName("failureon").value == "0") ? parseInt(device.getParameterByName("failureonlevel").value, 10) : 255;
-//fadetime
-//faderate
+if(device.getParameterByName("fadeTime").value != "0" && device.getParameterByName("fadeTimeExtendedMultiplier").value != "0")
+    throw new Error(device.getMessage(18)); // error 
+
+progress.setText(device.getMessage(15)); // start
+
+var data = [];
+data.push(context.Channel);
+data.push(parseInt(device.getParameterByName("min").value, 10));
+data.push(parseInt(device.getParameterByName("max").value, 10));
+data.push((device.getParameterByName("poweron").value == "0") ? parseInt(device.getParameterByName("poweronlevel").value, 10) : 255);
+data.push((device.getParameterByName("failureon").value == "0") ? parseInt(device.getParameterByName("failureonlevel").value, 10) : 255);
+var fade = 0;
+//var fade = parseInt(device.getParameterByName("fadeTime").value);
+//fade = fade << 4;
+//fade |= parseInt(device.getParameterByName("fadeRate").value)
+data.push(fade);
+data.push(0);//faderate
 var groups = parseInt(device.getParameterByName("g0").value, 10);
 groups |= parseInt(device.getParameterByName("g1").value, 10) << 1;
 groups |= parseInt(device.getParameterByName("g2").value, 10) << 2;
@@ -127,7 +139,7 @@ groups |= parseInt(device.getParameterByName("g4").value, 10) << 4;
 groups |= parseInt(device.getParameterByName("g5").value, 10) << 5;
 groups |= parseInt(device.getParameterByName("g6").value, 10) << 6;
 groups |= parseInt(device.getParameterByName("g7").value, 10) << 7;
-data[7] = groups;
+data.push(groups);
 groups = parseInt(device.getParameterByName("g8").value, 10);
 groups |= parseInt(device.getParameterByName("g9").value, 10) << 1;
 groups |= parseInt(device.getParameterByName("g10").value, 10) << 2;
@@ -136,27 +148,29 @@ groups |= parseInt(device.getParameterByName("g12").value, 10) << 4;
 groups |= parseInt(device.getParameterByName("g13").value, 10) << 5;
 groups |= parseInt(device.getParameterByName("g14").value, 10) << 6;
 groups |= parseInt(device.getParameterByName("g15").value, 10) << 7;
-data[8] = groups;
-data[9] = (device.getParameterByName("s0t").value == "0") ? parseInt(device.getParameterByName("s0v").value, 10) : 255;
-data[10] = (device.getParameterByName("s1t").value == "0") ? parseInt(device.getParameterByName("s1v").value, 10) : 255;
-data[11] = (device.getParameterByName("s2t").value == "0") ? parseInt(device.getParameterByName("s2v").value, 10) : 255;
-data[12] = (device.getParameterByName("s3t").value == "0") ? parseInt(device.getParameterByName("s3v").value, 10) : 255;
-data[13] = (device.getParameterByName("s4t").value == "0") ? parseInt(device.getParameterByName("s4v").value, 10) : 255;
-data[14] = (device.getParameterByName("s5t").value == "0") ? parseInt(device.getParameterByName("s5v").value, 10) : 255;
-data[15] = (device.getParameterByName("s6t").value == "0") ? parseInt(device.getParameterByName("s6v").value, 10) : 255;
-data[16] = (device.getParameterByName("s7t").value == "0") ? parseInt(device.getParameterByName("s7v").value, 10) : 255;
-data[17] = (device.getParameterByName("s8t").value == "0") ? parseInt(device.getParameterByName("s8v").value, 10) : 255;
-data[18] = (device.getParameterByName("s9t").value == "0") ? parseInt(device.getParameterByName("s9v").value, 10) : 255;
-data[19] = (device.getParameterByName("s10t").value == "0") ? parseInt(device.getParameterByName("s10v").value, 10) : 255;
-data[20] = (device.getParameterByName("s11t").value == "0") ? parseInt(device.getParameterByName("s11v").value, 10) : 255;
-data[21] = (device.getParameterByName("s12t").value == "0") ? parseInt(device.getParameterByName("s12v").value, 10) : 255;
-data[22] = (device.getParameterByName("s13t").value == "0") ? parseInt(device.getParameterByName("s13v").value, 10) : 255;
-data[23] = (device.getParameterByName("s14t").value == "0") ? parseInt(device.getParameterByName("s14v").value, 10) : 255;
-data[24] = (device.getParameterByName("s15t").value == "0") ? parseInt(device.getParameterByName("s15v").value, 10) : 255;
+data.push(groups);
+data.push((device.getParameterByName("s0t").value == "1") ? parseInt(device.getParameterByName("s0v").value, 10) : 255);
+data.push((device.getParameterByName("s1t").value == "1") ? parseInt(device.getParameterByName("s1v").value, 10) : 255);
+data.push((device.getParameterByName("s2t").value == "1") ? parseInt(device.getParameterByName("s2v").value, 10) : 255);
+data.push((device.getParameterByName("s3t").value == "1") ? parseInt(device.getParameterByName("s3v").value, 10) : 255);
+data.push((device.getParameterByName("s4t").value == "1") ? parseInt(device.getParameterByName("s4v").value, 10) : 255);
+data.push((device.getParameterByName("s5t").value == "1") ? parseInt(device.getParameterByName("s5v").value, 10) : 255);
+data.push((device.getParameterByName("s6t").value == "1") ? parseInt(device.getParameterByName("s6v").value, 10) : 255);
+data.push((device.getParameterByName("s7t").value == "1") ? parseInt(device.getParameterByName("s7v").value, 10) : 255);
+data.push((device.getParameterByName("s8t").value == "1") ? parseInt(device.getParameterByName("s8v").value, 10) : 255);
+data.push((device.getParameterByName("s9t").value == "1") ? parseInt(device.getParameterByName("s9v").value, 10) : 255);
+data.push((device.getParameterByName("s10t").value == "1") ? parseInt(device.getParameterByName("s10v").value, 10) : 255);
+data.push((device.getParameterByName("s11t").value == "1") ? parseInt(device.getParameterByName("s11v").value, 10) : 255);
+data.push((device.getParameterByName("s12t").value == "1") ? parseInt(device.getParameterByName("s12v").value, 10) : 255);
+data.push((device.getParameterByName("s13t").value == "1") ? parseInt(device.getParameterByName("s13v").value, 10) : 255);
+data.push((device.getParameterByName("s14t").value == "1") ? parseInt(device.getParameterByName("s14v").value, 10) : 255);
+data.push((device.getParameterByName("s15t").value == "1") ? parseInt(device.getParameterByName("s15v").value, 10) : 255);
 
+progress.setText(device.getMessage(16)); // transmit
 online.connect();
 var resp = online.invokeFunctionProperty(164, 10, data);
 online.disconnect();
+progress.setText(device.getMessage(17)); // fin
 }
 function buttonautoAddr(device, online, progress, context) {
     online.connect();

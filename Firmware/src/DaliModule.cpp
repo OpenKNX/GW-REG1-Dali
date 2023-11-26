@@ -878,9 +878,12 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
     sendCmd(data[0], DaliCmd::DTR_AS_POWER_ON);
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[4] == 255) ? 255 : DaliHelper::percentToArc(data[4]));
     sendCmd(data[0], DaliCmd::DTR_AS_FAIL);
+    sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[5] >> 4) & 0xF);
+    sendCmd(data[0], DaliCmd::DTR_AS_FADE_TIME);
+    sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[5] & 0xF);
+    sendCmd(data[0], DaliCmd::DTR_AS_FADE_RATE);
 
-    //fadetime
-    //faderate
+    //1byte free
 
     uint16_t groups = data[7];
     groups |= data[8] << 8;
@@ -891,9 +894,7 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
         if((groups >> i) & 0x1)
         {
             sendMsg(MessageType::Cmd, data[0], DaliCmd::ADD_TO_GROUP | i);
-            sendMsg(MessageType::Cmd, data[0], DaliCmd::ADD_TO_GROUP | i);
         } else {
-            sendMsg(MessageType::Cmd, data[0], DaliCmd::REMOVE_FROM_GROUP | i);
             sendMsg(MessageType::Cmd, data[0], DaliCmd::REMOVE_FROM_GROUP | i);
         }
     }
@@ -947,7 +948,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("POWER: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
     resultData[3] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
 
-    resp = getInfo(data[0], DaliCmd::QUERY_POWER_FAILURE);
+    resp = getInfo(data[0], DaliCmd::QUERY_FAIL_LEVEL);
     if(resp < 0)
     {
         logErrorP("Dali Error (FAILURE): Code %i", resp);
@@ -957,8 +958,17 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("FAILURE: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
     resultData[4] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
     
-    //fadetime
-    //faderate
+    resp = getInfo(data[0], DaliCmd::QUERY_FADE_SPEEDS);
+    if(resp < 0)
+    {
+        logErrorP("Dali Error (FAID): Code %i", resp);
+        errorByte |= 0b10000;
+        resp = 0xFF;
+    }
+    logDebugP("FAID: %.2X", resp);
+    resultData[5] = resp;
+    
+    //1byte free
 
     resp = getInfo(data[0], DaliCmd::QUERY_GROUPS_0_7);
     if(resp < 0)
@@ -967,7 +977,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         errorByte |= 0b1000000;
         resp = 0;
     }
-    logDebugP("GROUPS0-7: %.2X");
+    logDebugP("GROUPS0-7: %.2X", resp);
     resultData[7] = resp;
     
     resp = getInfo(data[0], DaliCmd::QUERY_GROUPS_8_15);
