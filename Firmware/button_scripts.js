@@ -47,10 +47,9 @@ else {
     if (data[4] < 255) device.getParameterByName("failureonlevel").value = data[4].toString();
 }
 if(data[25] & 16) {
-    //device.getParameterByName("fadeTime").value = (data[5] >> 4).toString();
-    //device.getParameterByName("fadeRate").value = (data[5] & 15).toString();
+    device.getParameterByName("fadeTime").value = (data[5] >> 4).toString();
+    device.getParameterByName("fadeRate").value = (data[5] & 15).toString();
 }
-//faderate
 if(data[25] & 64) errors += "Groups 0-7, ";
 else {
     device.getParameterByName("g0").value = (data[7] & 1) ?"1" : "0";
@@ -125,10 +124,9 @@ data.push(parseInt(device.getParameterByName("min").value, 10));
 data.push(parseInt(device.getParameterByName("max").value, 10));
 data.push((device.getParameterByName("poweron").value == "0") ? parseInt(device.getParameterByName("poweronlevel").value, 10) : 255);
 data.push((device.getParameterByName("failureon").value == "0") ? parseInt(device.getParameterByName("failureonlevel").value, 10) : 255);
-var fade = 0;
-//var fade = parseInt(device.getParameterByName("fadeTime").value);
-//fade = fade << 4;
-//fade |= parseInt(device.getParameterByName("fadeRate").value)
+var fade = parseInt(device.getParameterByName("fadeTime").value);
+fade = fade << 4;
+fade |= parseInt(device.getParameterByName("fadeRate").value)
 data.push(fade);
 data.push(0);//faderate
 var groups = parseInt(device.getParameterByName("g0").value, 10);
