@@ -913,7 +913,6 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logInfoP("Starting reading EVG settings");
     
     resultData[0] = 0x00;
-    DaliChannel* channel = channels[data[0]];
 
     uint8_t errorByte = 0;
     uint16_t errorByteScene = 0;

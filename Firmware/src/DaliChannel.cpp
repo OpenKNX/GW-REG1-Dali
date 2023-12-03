@@ -412,66 +412,85 @@ void DaliChannel::koHandleLock(GroupObject & ko)
 
 void DaliChannel::koHandleColor(GroupObject &ko)
 {
-    bool isRGB = ParamADR_colorType;
-    uint32_t value = ko.value(Dpt(232,600));
-    logDebugP("Got Color: %X", value);
-    uint8_t r, g, b;
+    uint8_t colorType = ParamADR_colorType;
 
-    if(!isRGB)
+    //if rgb or hsv
+    if(colorType < 2)
     {
-        //TODO HSV to RGB
-        ColorHelper::hsvToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
+        uint32_t value = ko.value(Dpt(232,600));
+        logDebugP("Got Color: %X", value);
+        uint8_t r, g, b;
+
+        if(colorType == 0)
+        {
+            //TODO HSV to RGB
+            ColorHelper::hsvToRGB((uint8_t)(value >> 16), (uint8_t)((value >> 8) & 0xFF), (uint8_t)(value & 0xFF), r, g, b);
+        } else {
+            r = value >> 16;
+            g = (value >> 8) & 0xFF;
+            b = value & 0xFF;
+        }
+
+        logDebugP("RGB: %i %i %i", r, g, b);
+        if(r == 255) r--;
+        if(g == 255) g--;
+        if(b == 255) b--;
+        logDebugP("Send: %i %i %i", r, g, b);
+        
+        uint8_t sendType = ParamADR_colorSpace;
+        switch(sendType)
+        {
+            //send as rgb
+            case 0:
+            {
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
+                sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                sendCmd(DaliCmd::SET_TEMP_RGB);
+                sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                sendCmd(DaliCmd::ACTIVATE);
+                break;
+            }
+
+            //send as xy
+            case 1:
+            {
+                uint16_t x;
+                uint16_t y;
+                ColorHelper::rgbToXY(r, g, b, x, y);
+
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (x >> 8) & 0xFF);
+                sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                sendCmd(DaliCmd::SET_COORDINATE_X);
+                
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
+                sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
+                sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                sendCmd(DaliCmd::SET_COORDINATE_Y);
+                
+                sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+                sendCmd(DaliCmd::ACTIVATE);
+                break;
+            }
+        }
+
+    //if tunable white
     } else {
-        r = value >> 16;
-        g = (value >> 8) & 0xFF;
-        b = value & 0xFF;
+        uint16_t kelvin = ko.value(Dpt(7,600));
+        logDebugP("Got Kelvin: %X K", kelvin);
+        uint16_t mirek = 1000000.0 / kelvin;
+        sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
+        sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
+        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+        sendCmd(DaliCmd::SET_TEMPERATURE_COLOUR);
+                
+        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+        sendCmd(DaliCmd::ACTIVATE);
     }
 
-    logDebugP("RGB: %i %i %i", r, g, b);
-    if(r == 255) r--;
-    if(g == 255) g--;
-    if(b == 255) b--;
-    logDebugP("Send: %i %i %i", r, g, b);
     
-    uint8_t sendType = ParamADR_colorSpace;
-    switch(sendType)
-    {
-        //send as rgb
-        case 0:
-        {
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::SET_TEMP_RGB);
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::ACTIVATE);
-            break;
-        }
-
-        //send as xy
-        case 1:
-        {
-            uint16_t x;
-            uint16_t y;
-            ColorHelper::rgbToXY(r, g, b, x, y);
-
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR, (x >> 8) & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::SET_COORDINATE_X);
-            
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::SET_COORDINATE_Y);
-            
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::ACTIVATE);
-            break;
-        }
-    }
-
     setDimmState(254, true, true); //TODO get real 
 }
 
