@@ -1165,7 +1165,7 @@
       "idf": "",
       "netlist": "REG1-App-Universal.net",
       "specctra_dsn": "",
-      "step": "REG1-App-Dali.step",
+      "step": "REG1-App-Dali_V00.90.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""
