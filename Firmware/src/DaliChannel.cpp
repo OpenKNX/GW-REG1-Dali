@@ -1,11 +1,8 @@
 #include "DaliChannel.h"
 #include "OpenKNX.h"
 
-DaliChannel::DaliChannel(uint8_t channelIndex, MessageQueue *queue, bool ig)
+DaliChannel::DaliChannel()
 {
-    _channelIndex = channelIndex;
-    _queue = queue;
-    _isGroup = ig;
 }
 
 DaliChannel::~DaliChannel()
@@ -36,6 +33,12 @@ const bool DaliChannel::isGroup()
     return _isGroup;
 }
 
+void DaliChannel::init(uint8_t channelIndex, MessageQueue *queue, bool ig)
+{
+    _channelIndex = channelIndex;
+    _queue = queue;
+    _isGroup = ig;
+}
 
 //will be called once
 //only if knx.configured == true

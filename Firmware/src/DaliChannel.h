@@ -12,7 +12,7 @@
 class DaliChannel : public OpenKNX::Channel
 {
 	public:
-        DaliChannel(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
+        DaliChannel();
         ~DaliChannel();
 
 		void loop() override;
@@ -22,6 +22,7 @@ class DaliChannel : public OpenKNX::Channel
 		const bool isConfigured();
 		const bool isGroup();
 
+		void init(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
 		void setOnValue(uint8_t value);
 		void setGroups(uint16_t groups);
 		void setGroupState(uint8_t group, bool state);

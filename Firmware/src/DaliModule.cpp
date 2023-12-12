@@ -27,24 +27,34 @@ void DaliModule::setup(bool conf)
 
     for(int i = 0; i < 64; i++)
     {
-        DaliChannel *ch = new DaliChannel(i, queue, false);
-        ch->setup();
-        channels[i] = ch;
+        channels[i].init(i, queue, false);
+        channels[i].setup();
     }
 
     
     for(int i = 0; i < 16; i++)
     {
-        DaliChannel *ch = new DaliChannel(i, queue, true);
-        ch->setup();
-        groups[i] = ch;
+        groups[i].init(i, queue, true);
+        groups[i].setup();
     }
 }
+
+bool __isr __time_critical_func(daliTimerInterruptCallback)(repeating_timer *t)
+{
+    DaliBus.timerISR();
+    return true;
+}
+
+daliReturnValue _lastDaliError = DALI_NO_ERROR;
 
 void DaliModule::setup1(bool conf)
 {
     dali = new DaliClass();
 	dali->begin(DALI_TX, DALI_RX);
+    alarm_pool_add_repeating_timer_us(openknx.timerInterrupt.alarmPool1(), -417, daliTimerInterruptCallback, NULL, &_timer);
+    DaliBus.errorCallback = [](daliReturnValue errorCode) {
+        _lastDaliError = errorCode;
+    };
 }
 
 void DaliModule::loop()
@@ -60,11 +70,11 @@ void DaliModule::loop()
 
     for(int i = 0; i < 64; i++)
     {
-        channels[i]->loop();
+        channels[i].loop();
     }
     for(int i = 0; i < 16; i++)
     {
-        groups[i]->loop();
+        groups[i].loop();
     }
 }
 
@@ -84,11 +94,11 @@ void DaliModule::loop1(bool configured)
 
     for(int i = 0; i < 64; i++)
     {
-        channels[i]->loop1();
+        channels[i].loop1();
     }
     for(int i = 0; i < 16; i++)
     {
-        groups[i]->loop1();
+        groups[i].loop1();
     }
 
     if(_lastChangedGroup != 255)
@@ -97,10 +107,10 @@ void DaliModule::loop1(bool configured)
         {
             _lastChangedGroup -= 16;
             for(int i = 0; i < 64; i++)
-                channels[i]->setGroupState(_lastChangedGroup, _lastChangedValue == 1);
+                channels[i].setGroupState(_lastChangedGroup, _lastChangedValue == 1);
         } else {
             for(int i = 0; i < 64; i++)
-                channels[i]->setGroupState(_lastChangedGroup, _lastChangedValue);
+                channels[i].setGroupState(_lastChangedGroup, _lastChangedValue);
         }
 
         _lastChangedGroup = 255;
@@ -109,16 +119,16 @@ void DaliModule::loop1(bool configured)
 
 void DaliModule::loopInitData()
 {
-    DaliChannel* channel = channels[_adrFound];
+    DaliChannel channel = channels[_adrFound];
     _adrFound++;
 
-    if(channel->isConfigured())
+    if(channel.isConfigured())
     {
         if(_adrFound == 0)
             sendArc(0xFF, 170, 1); //turn on all at 10%
 
         uint16_t groups = 0;
-        int16_t resp = getInfo(channel->channelIndex(), DaliCmd::QUERY_GROUPS_0_7);
+        int16_t resp = getInfo(channel.channelIndex(), DaliCmd::QUERY_GROUPS_0_7);
         if(resp < 0)
         {
             logErrorP("Dali Error %i: Code %i", _adrFound-1, resp);
@@ -126,16 +136,16 @@ void DaliModule::loopInitData()
         }
         groups = resp;
 
-        resp = getInfo(channel->channelIndex(), DaliCmd::QUERY_GROUPS_8_15);
+        resp = getInfo(channel.channelIndex(), DaliCmd::QUERY_GROUPS_8_15);
         if(resp < 0)
         {
             logErrorP("Dali Error %i: Code %i", _adrFound-1, resp);
             return;
         }
         groups |= resp << 8;
-        channel->setGroups(groups);
+        channel.setGroups(groups);
 
-        sendCmd(channel->channelIndex(), DaliCmd::OFF, channel->isGroup());
+        sendCmd(channel.channelIndex(), DaliCmd::OFF, channel.isGroup());
     }
 
     if(_adrFound > 63)
@@ -177,6 +187,32 @@ int16_t DaliModule::getInfo(byte address, DaliCmd command, uint8_t additional)
 
 void DaliModule::loopMessages()
 {
+    if(_lastDaliError != DALI_NO_ERROR)
+    {
+        switch(_lastDaliError)
+        {
+            case DALI_COLLISION:
+                logError("Dali", "Collision!");
+                break;
+            case DALI_PULLDOWN:
+                logError("Dali", "Pulldown");
+                break;
+            case DALI_CANT_BE_HIGH:
+                logError("Dali", "Cant be high");
+                break;
+            case DALI_INVALID_STARTBIT:
+                logError("Dali", "Invalid Startbit");
+                break;
+            case DALI_ERROR_TIMING:
+                logError("Dali", "Error Timing");
+                break;
+            default:
+                logError("Dali", "Unknown Error %i", _lastDaliError);
+                break;
+        }
+        _lastDaliError = DALI_NO_ERROR;
+    }
+
     Message *msg = queue->pop();
     if(msg == nullptr) return;
 
@@ -565,7 +601,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
-        channels[index]->processInputKo(ko);
+        channels[index].processInputKo(ko);
         return;
     }
 
@@ -573,7 +609,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     {
         int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
         int chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
-        groups[index]->processInputKo(ko);
+        groups[index].processInputKo(ko);
 
         if(chanIndex == GRP_Koswitch_state)
         {
@@ -641,9 +677,9 @@ void DaliModule::koHandleDayNight(GroupObject & ko)
     if(ParamAPP_daynight) value = !value;
 
     for(int i = 0; i < 64; i++)
-        channels[i]->isNight = value;
+        channels[i].isNight = value;
     for(int i = 0; i < 16; i++)
-        groups[i]->isNight = value;
+        groups[i].isNight = value;
 }
 
 void DaliModule::koHandleOnValue(GroupObject & ko)
@@ -652,9 +688,9 @@ void DaliModule::koHandleOnValue(GroupObject & ko)
     logDebugP("KO OnValue: %i", value);
 
     for(int i = 0; i < 64; i++)
-        channels[i]->setOnValue(value);
+        channels[i].setOnValue(value);
     for(int i = 0; i < 16; i++)
-        groups[i]->setOnValue(value);
+        groups[i].setOnValue(value);
 }
 
 void DaliModule::koHandleScene(GroupObject & ko)
@@ -867,8 +903,8 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
 {
     logInfoP("Starting setting up EVG");
 
-    DaliChannel* channel = channels[data[0]];
-    channel->setMinMax(data[1], data[2]);
+    DaliChannel channel = channels[data[0]];
+    channel.setMinMax(data[1], data[2]);
 
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[1] == 255) ? 255 : DaliHelper::percentToArc(data[1]));
     sendCmd(data[0], DaliCmd::DTR_AS_MIN);
@@ -887,7 +923,7 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
 
     uint16_t groups = data[7];
     groups |= data[8] << 8;
-    channel->setGroups(groups);
+    channel.setGroups(groups);
 
     for(int i = 0; i < 16; i++)
     {
