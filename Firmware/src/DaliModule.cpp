@@ -811,7 +811,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     logDebugP("Resp: %.2X", resp);
 
     uint8_t deviceType = resp;
-    if(resp == 255)
+    if(resp == 255) // means evg supports several devicetypes
     {
         while(true)
         {
@@ -830,10 +830,28 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
                 deviceType = resp;
         }
     }
-    
+
+
     resultData[0] = 0x00;
     resultData[1] = deviceType;
-    resultLength = 2;
+
+    //DeviceType Color
+    if(deviceType == 8)
+    {
+        sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 8);
+        resp = getInfo(data[0], DaliCmd::QUERY_COLOR_TYPE_FEATURES);
+        if(resp < 0)
+        {
+            logErrorP("Dali Error (CT): Code %i", resp);
+            resultData[0] = 0x02;
+            resultLength = 1;
+            return;
+        }
+        resultData[2] = resp;
+        resultLength = 3;
+    } else {
+        resultLength = 2;
+    }
 }
 
 void DaliModule::funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)

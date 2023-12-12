@@ -13,7 +13,7 @@ void setup()
 {
 	const uint8_t firmwareRevision = 1;
 	openknx.init(firmwareRevision);
-	openknxDaliModule.setCallback(daliCallback);
+	//openknxDaliModule.setCallback(daliCallback);
 	openknx.addModule(1, openknxDaliModule);
 	openknx.addModule(3, openknxFileTransferModule);
 	openknx.setup();
