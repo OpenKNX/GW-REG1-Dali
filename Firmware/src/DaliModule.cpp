@@ -55,6 +55,12 @@ void DaliModule::setup1(bool conf)
     DaliBus.errorCallback = [](daliReturnValue errorCode) {
         _lastDaliError = errorCode;
     };
+
+    uint8_t *data = new uint8_t[2];
+    uint8_t *resultData = new uint8_t[20];
+    data[1] = 1;
+    uint8_t resultLength = 0;
+    funcHandleScan(data, resultData, resultLength);
 }
 
 void DaliModule::loop()
@@ -157,7 +163,7 @@ void DaliModule::loopInitData()
     }
 }
 
-int16_t DaliModule::getInfo(byte address, DaliCmd command, uint8_t additional)
+int16_t DaliModule::getInfo(byte address, int command, uint8_t additional)
 {
     _daliStateLast = millis();
     uint8_t respId = sendMsg(MessageType::Cmd, address, command | additional, 0, true);
@@ -751,11 +757,11 @@ void DaliModule::koHandleScene(GroupObject & ko)
             if(isSave)
             {
                 sendCmd(addr, DaliCmd::ARC_TO_DTR, type);
-                uint8_t temp = static_cast<uint8_t>(DaliCmd::DTR_AS_SCENE);
+                uint8_t temp = DaliCmd::DTR_AS_SCENE;
                 temp |= scene;
                 sendCmd(addr, static_cast<DaliCmd>(temp), type);
             } else {
-                uint8_t temp = static_cast<uint8_t>(DaliCmd::GO_TO_SCENE);
+                uint8_t temp = DaliCmd::GO_TO_SCENE;
                 temp |= scene;
                 sendCmd(addr, static_cast<DaliCmd>(temp), type);
             }
@@ -839,7 +845,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     if(deviceType == 8)
     {
         sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 8);
-        resp = getInfo(data[0], DaliCmd::QUERY_COLOR_TYPE_FEATURES);
+        resp = getInfo(data[0], DaliCmdExtendedDT8::QUERY_COLOR_TYPE_FEATURES); //TODO make it better
         if(resp < 0)
         {
             logErrorP("Dali Error (CT): Code %i", resp);
@@ -1159,7 +1165,7 @@ uint8_t DaliModule::sendCmdSpecial(DaliSpecialCmd command, byte value, bool wait
     Message *msg = new Message();
     msg->id = queue->getNextId();
     msg->type = MessageType::SpecialCmd;
-    msg->para1 = static_cast<uint8_t>(command);
+    msg->para1 = command;
     msg->para2 = value;
     msg->addrtype = 0;
     msg->wait = wait;

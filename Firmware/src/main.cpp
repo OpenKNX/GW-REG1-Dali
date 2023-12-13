@@ -11,25 +11,28 @@ void daliCallback(uint8_t *data, uint8_t len)
 
 void setup()
 {
-	const uint8_t firmwareRevision = 1;
-	openknx.init(firmwareRevision);
-	//openknxDaliModule.setCallback(daliCallback);
-	openknx.addModule(1, openknxDaliModule);
-	openknx.addModule(3, openknxFileTransferModule);
-	openknx.setup();
+	// const uint8_t firmwareRevision = 1;
+	// openknx.init(firmwareRevision);
+	// //openknxDaliModule.setCallback(daliCallback);
+	// openknx.addModule(1, openknxDaliModule);
+	// openknx.addModule(3, openknxFileTransferModule);
+	// openknx.setup();
+
+	openknxDaliModule.setup(false);
 }
 
 void setup1()
 {
-	openknx.setup1();
+	//openknx.setup1();
+	openknxDaliModule.setup1(false);
 }
 
 void loop()
 {
-	openknx.loop();
+	//openknxDaliModule.loop();
 }
 
 void loop1()
 {
-	openknx.loop1();
+	openknxDaliModule.loop1(false);
 }

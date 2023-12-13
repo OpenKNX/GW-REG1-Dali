@@ -104,10 +104,10 @@ void DaliChannel::loop1()
     {
         if(_dimmDirection == DimmDirection::Up)
         {
-            sendCmd(8); //STEP_UP_AND_ON
+            sendCmd(DaliCmd::ON_AND_STEP_UP); //STEP_UP_AND_ON
             _lastStep++;
         } else if(_dimmDirection == DimmDirection::Down) {
-            sendCmd(7); //STEP_DOWN_AND_OFF
+            sendCmd(DaliCmd::STEP_DOWN_AND_OFF); //STEP_DOWN_AND_OFF
             _lastStep--;
         }
         
@@ -184,7 +184,7 @@ uint8_t DaliChannel::sendSpecialCmd(DaliSpecialCmd cmd, byte value)
     Message *msg = new Message();
     msg->id = _queue->getNextId();
     msg->type = MessageType::SpecialCmd;
-    msg->para1 = static_cast<uint8_t>(cmd);
+    msg->para1 = cmd;
     msg->para2 = value;
     msg->addrtype = _isGroup;
     return _queue->push(msg);
@@ -450,7 +450,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
                 sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
                 sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
                 sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-                sendCmd(DaliCmd::SET_TEMP_RGB);
+                sendCmd(DaliCmdExtendedDT8::SET_TEMP_RGB);
                 sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
                 sendCmd(DaliCmd::ACTIVATE);
                 break;
@@ -487,7 +487,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
         sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmd::SET_TEMPERATURE_COLOUR);
+        sendCmd(DaliCmdExtendedDT8::SET_TEMPERATURE_COLOUR);
                 
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
         sendCmd(DaliCmd::ACTIVATE);
