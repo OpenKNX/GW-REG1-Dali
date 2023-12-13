@@ -157,7 +157,7 @@ void DaliModule::loopInitData()
     }
 }
 
-int16_t DaliModule::getInfo(byte address, DaliCmd command, uint8_t additional)
+int16_t DaliModule::getInfo(byte address, int command, uint8_t additional)
 {
     _daliStateLast = millis();
     uint8_t respId = sendMsg(MessageType::Cmd, address, command | additional, 0, true);
@@ -839,7 +839,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     if(deviceType == 8)
     {
         sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 8);
-        resp = getInfo(data[0], DaliCmd::QUERY_COLOR_TYPE_FEATURES);
+        resp = getInfo(data[0], DaliCmdExtendedDT8::QUERY_COLOR_TYPE_FEATURES);
         if(resp < 0)
         {
             logErrorP("Dali Error (CT): Code %i", resp);
