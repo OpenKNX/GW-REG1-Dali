@@ -1,7 +1,12 @@
 #include <Arduino.h>
 #include "Dali.h"
-#include "RTTStream.h"
 #include "Ballast.hpp"
+
+#ifndef SERIAL_DEBUG
+#define SERIAL_DEBUG rtt
+#include "RTTStream.h"
+RTTStream rtt;
+#endif
 
 
 #define DALI_WAIT_RANDOMIZE 1000
@@ -55,7 +60,6 @@ bool *addresses;
 int _adrFound = 0;
 bool _adrAssign = false;
 
-RTTStream rtt;
 
 int16_t sendCmd(byte addr, byte value, byte type, bool wait = false)
 {
