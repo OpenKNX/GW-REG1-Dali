@@ -69,8 +69,8 @@ int16_t sendCmdSpecial(int command, byte value = 0, bool wait = false)
 
 void setup()
 {
-	rtt.begin(115200);
-	rtt.println("Setup Dali");
+	SERIAL_DEBUG.begin(115200);
+	SERIAL_DEBUG.println("Setup Dali");
 
 	Dali.begin(17,16);
 }
@@ -99,7 +99,7 @@ void loopAddressing()
             if(millis() - _adrTime > DALI_WAIT_RANDOMIZE)
             {
                 _adrState = AddressingState::Search;
-                rtt.println("RandomizeWait finished");
+                SERIAL_DEBUG.println("RandomizeWait finished");
             }
             break;
         }
@@ -140,8 +140,8 @@ void loopAddressing()
             } else if(response >= 0) {
                 if(_adrLow == _adrHigh)
                 {
-                    rtt.print("Found Ballast at ");
-					rtt.println(_adrLow);
+                    SERIAL_DEBUG.print("Found Ballast at ");
+					SERIAL_DEBUG.println(_adrLow);
                     if(_adrAssign)
                     {
                         uint8_t addr = 0;
@@ -149,8 +149,8 @@ void loopAddressing()
                             addr++;
                         }
                         addresses[addr] = true;
-                        rtt.print("Assinging Address ");
-						rtt.println(addr);
+                        SERIAL_DEBUG.print("Assinging Address ");
+						SERIAL_DEBUG.println(addr);
                         sendCmdSpecial(DaliClass::CMD_PROGRAMSHORT, _adrLow);
                         sendCmdSpecial(DaliClass::CMD_WITHDRAW);
                         ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
@@ -171,16 +171,16 @@ void loopAddressing()
                         _adrState = AddressingState::Found;
                     }
                 } else {
-                    //rtt.println("Range has ballast");
+                    //SERIAL_DEBUG.println("Range has ballast");
                     _adrHighLast = _adrHigh;
                     _adrHigh = (_adrLow + _adrHigh) / 2;
                     _adrNoRespCounter = 0;
                     _adrState = AddressingState::Search;
                 }
             } else {
-                rtt.print("Dali Error ");
-				rtt.print(response);
-				rtt.println(" aborting addressing");
+                SERIAL_DEBUG.print("Dali Error ");
+				SERIAL_DEBUG.print(response);
+				SERIAL_DEBUG.println(" aborting addressing");
                 _adrState = AddressingState::Finish;
             }
             break;
@@ -193,14 +193,14 @@ void loopAddressing()
             {
                 if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
                 {
-                    rtt.println("Found ballast not answering");
+                    SERIAL_DEBUG.println("Found ballast not answering");
                     _adrState = AddressingState::Finish;
                     ballasts[_adrFound].address = 255;
                     _adrFound++;
                 }
             } else if(response >= 0) {
-                rtt.print("Ballast has Short Address ");
-				rtt.println(response >> 1);
+                SERIAL_DEBUG.print("Ballast has Short Address ");
+				SERIAL_DEBUG.println(response >> 1);
 
                 ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
                 ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
@@ -215,9 +215,9 @@ void loopAddressing()
                 sendCmdSpecial(DaliClass::CMD_WITHDRAW);
                 _adrState = AddressingState::Search;
             } else {
-                rtt.print("Dali Error ");
-				rtt.print(response);
-				rtt.println(", aborting addressing");
+                SERIAL_DEBUG.print("Dali Error ");
+				SERIAL_DEBUG.print(response);
+				SERIAL_DEBUG.println(", aborting addressing");
                 _adrState = AddressingState::Finish;
             }
             break;
@@ -225,9 +225,9 @@ void loopAddressing()
 
         case AddressingState::Finish:
         {
-            rtt.print("Found ");
-			rtt.print(_adrFound);
-			rtt.println(" ballasts");
+            SERIAL_DEBUG.print("Found ");
+			SERIAL_DEBUG.print(_adrFound);
+			SERIAL_DEBUG.println(" ballasts");
             sendCmdSpecial(DaliClass::CMD_TERMINATE);
             _adrState = AddressingState::None;
             break;
@@ -240,7 +240,7 @@ void loopAddressing()
             if(resp == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
             {
                 _adrState = AddressingState::Withdraw_Others;
-                rtt.println("Adresse wird nicht verwendet");
+                SERIAL_DEBUG.println("Adresse wird nicht verwendet");
                 return;
             }
 
@@ -248,13 +248,13 @@ void loopAddressing()
 
             if(resp >= 0)
             {
-                rtt.println("Adresse wird bereits verwendet");
+                SERIAL_DEBUG.println("Adresse wird bereits verwendet");
                 _assState = AssigningState::Failed_Exists;
                 _adrState = AddressingState::None;
                 return;
             } else {
-                rtt.print("Bus Error ");
-				rtt.println(resp);
+                SERIAL_DEBUG.print("Bus Error ");
+				SERIAL_DEBUG.println(resp);
                 _assState = AssigningState::Failed_Bus;
                 _adrState = AddressingState::None;
                 return;
@@ -268,7 +268,7 @@ void loopAddressing()
             sendCmdSpecial(DaliClass::CMD_INITIALISE, 0);
             if(_adrHigh > 0)
             {
-                rtt.println("Verwerfe alle mit niedrigerer Long Address");
+                SERIAL_DEBUG.println("Verwerfe alle mit niedrigerer Long Address");
                 _adrHigh--;
                 byte high = _adrHigh >> 16;
                 byte middle = (_adrHigh >> 8) & 0xFF;
@@ -295,7 +295,7 @@ void loopAddressing()
         {
             if(millis() - _adrTime > DALI_WAIT_SEARCH)
             {
-                rtt.println("Gerät antwortet nicht");
+                SERIAL_DEBUG.println("Gerät antwortet nicht");
                 _assState = AssigningState::Failed_No_Answer;
                 _adrState = AddressingState::None;
                 return;
@@ -307,22 +307,22 @@ void loopAddressing()
 
             if(resp >= 0)
             {
-                rtt.println("Long Address exists");
-                rtt.print("CMD_PROGRAMSHORT to ");
-				rtt.println(_adrLow);
+                SERIAL_DEBUG.println("Long Address exists");
+                SERIAL_DEBUG.print("CMD_PROGRAMSHORT to ");
+				SERIAL_DEBUG.println(_adrLow);
                 sendCmdSpecial(DaliClass::CMD_PROGRAMSHORT, _adrLow);
                 _adrState = AddressingState::Confirm_Address;
                 _adrResp = sendCmdSpecial(DaliClass::CMD_QUERY_SHORT, 0, true);
                 _adrTime = millis();
-                rtt.println("Frage Short Address ab");
+                SERIAL_DEBUG.println("Frage Short Address ab");
                 return;
             } else if(resp == -1) {
-                rtt.println("Long Address dont exists");
+                SERIAL_DEBUG.println("Long Address dont exists");
                 _assState = AssigningState::Failed_Exists_Not;
                 _adrState = AddressingState::None;
             } else {
-                rtt.print("Bus Error ");
-				rtt.println(resp);
+                SERIAL_DEBUG.print("Bus Error ");
+				SERIAL_DEBUG.println(resp);
                 _assState = AssigningState::Failed_Bus;
                 _adrState = AddressingState::None;
             }
@@ -333,7 +333,7 @@ void loopAddressing()
         {
             if(millis() - _adrTime > DALI_WAIT_SEARCH)
             {
-                rtt.println("Gerät antwortet nicht");
+                SERIAL_DEBUG.println("Gerät antwortet nicht");
                 _assState = AssigningState::Failed_No_Answer;
                 _adrState = AddressingState::None;
                 return;
@@ -345,21 +345,21 @@ void loopAddressing()
 
             if(resp >= 0)
             {
-                rtt.print("Got resp ");
-				rtt.println(resp);
+                SERIAL_DEBUG.print("Got resp ");
+				SERIAL_DEBUG.println(resp);
                 if(resp == _adrLow)
                 {
-                    rtt.println("Adresse erfolgreich gesetzt");
+                    SERIAL_DEBUG.println("Adresse erfolgreich gesetzt");
                     _assState = AssigningState::Success;
                 } else {
-                    rtt.println("Adresse wurde nicht übernommen");
+                    SERIAL_DEBUG.println("Adresse wurde nicht übernommen");
                     _assState = AssigningState::Failed_Confirm;
                 }
                 _adrState = AddressingState::None;
                 return;
             } else {
-                rtt.print("Bus Error ");
-				rtt.println(resp);
+                SERIAL_DEBUG.print("Bus Error ");
+				SERIAL_DEBUG.println(resp);
                 _assState = AssigningState::Failed_Bus;
                 _adrState = AddressingState::None;
                 return;
@@ -393,9 +393,9 @@ void loopAddressing()
         {
             if(millis() - _adrTime > DALI_WAIT_SEARCH)
             {
-                rtt.print("Address ");
-				rtt.print(_adrLow);
-				rtt.println("dont exists");
+                SERIAL_DEBUG.print("Address ");
+				SERIAL_DEBUG.print(_adrLow);
+				SERIAL_DEBUG.println("dont exists");
                 _adrState = AddressingState::SearchAdr;
                 _adrLow++;
                 return;
@@ -407,21 +407,21 @@ void loopAddressing()
 
             if(resp >= 0)
             {
-                rtt.print("Address ");
-				rtt.print(_adrLow);
-				rtt.println("exists");
+                SERIAL_DEBUG.print("Address ");
+				SERIAL_DEBUG.print(_adrLow);
+				SERIAL_DEBUG.println("exists");
                 ballasts[_adrFound].address = _adrLow;
                 _adrState = AddressingState::SearchAdr;
                 _adrLow++;
             } else if(resp == -1) {
-                rtt.print("Address ");
-				rtt.print(_adrLow);
-				rtt.println(" dont exists");
+                SERIAL_DEBUG.print("Address ");
+				SERIAL_DEBUG.print(_adrLow);
+				SERIAL_DEBUG.println(" dont exists");
                 _adrState = AddressingState::SearchAdr;
                 _adrLow++;
             } else {
-                rtt.print("Bus Error ");
-				rtt.println(resp);
+                SERIAL_DEBUG.print("Bus Error ");
+				SERIAL_DEBUG.println(resp);
                 _assState = AssigningState::Failed_Bus;
                 _adrState = AddressingState::None;
             }
