@@ -593,6 +593,94 @@ bool DaliModule::getDaliBusState()
     return _daliBusState;
 }
 
+bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
+{
+    if(diagnoseKo) return false;
+
+	std::size_t pos = cmd.find(' ');
+	std::string command;
+	std::string arg;
+    bool hasArg = false;
+	if(pos != -1)
+	{
+		command = cmd.substr(0, pos);
+		arg = cmd.substr(pos+1, cmd.length() - pos - 1);
+        hasArg = true;
+	} else {
+		command = cmd;
+	}
+
+
+    if(command == "daliScan")
+    {
+        if(!hasArg || arg.length() != 2)
+        {
+            logErrorP("Argument is invalid!");
+            logIndentUp();
+            logErrorP("daliScan xy");
+            logErrorP("x = 0 => all EVGs");
+            logErrorP("    1 => only unaddressed");
+            logErrorP("y = 0 => don't randomize");
+            logErrorP("    1 => do randomize");
+            logIndentDown();
+            return true;
+        }
+        logInfoP("Starting Scan manually");
+        uint8_t resultLength = 254;
+        uint8_t* data = new uint8_t[4];
+        uint8_t* resultData = new uint8_t[4];
+        data[0] = arg.at(0) == '1';
+        data[1] = arg.at(1) == '1';
+
+        funcHandleScan(data, resultData, resultLength);
+        delete[] data;
+        delete[] resultData;
+        return true;
+    } 
+    if(command == "daliArc")
+    {
+
+        if(!hasArg || arg.length() != 6)
+        {
+            logErrorP("Argument is invalid! %i", arg.length());
+            logIndentUp();
+            logErrorP("daliArc XYYZZZ");
+            logErrorP("X = B => Broadcast");
+            logErrorP("    A => Short Address");
+            logErrorP("    G => Group");
+            logErrorP("Y = Address (00-63)");
+            logErrorP("    Group   (00-15)");
+            logErrorP("    Broadc. (00)");
+            logErrorP("Z = Percent Value (000-100)");
+            logIndentDown();
+            return true;
+        }
+
+        uint8_t value = std::stoi(arg.substr(3, 3));
+        if(arg.at(0) == 'B')
+        {
+            logInfoP("Sending Arc %i to Broadcast");
+            sendArc(0xFF, value, DaliAddressTypes::GROUP);
+        } else if(arg.at(0) == 'A')
+        {
+            uint8_t addr = std::stoi(arg.substr(1, 2));
+            logInfoP("Sending Arc %i to EVG %i", value, addr);
+            sendArc(addr, value, DaliAddressTypes::SHORT);
+        } else if(arg.at(0) == 'G')
+        {
+            uint8_t addr = std::stoi(arg.substr(1, 2));
+            logInfoP("Sending Arc %i to Group %i", value, addr);
+            sendArc(addr, value, DaliAddressTypes::GROUP);
+        } else {
+            logErrorP("Argument X is invalid!");
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 void DaliModule::processInputKo(GroupObject &ko)
 {
     if(_adrState != AddressingState::None) return;

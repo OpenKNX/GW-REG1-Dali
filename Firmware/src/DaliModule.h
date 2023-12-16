@@ -28,6 +28,7 @@ class DaliModule : public OpenKNX::Module
 		void loop1(bool configured) override;
 		void setup(bool conf) override;
 		void setup1(bool conf) override;
+		bool processCommand(const std::string cmd, bool diagnoseKo) override;
 		void processInputKo(GroupObject &ko) override;
 		void setCallback(EventHandlerReceivedDataFuncPtr callback);
 
