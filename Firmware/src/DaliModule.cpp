@@ -610,14 +610,13 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
 		command = cmd;
 	}
 
-
-    if(command == "daliScan")
+    if(command == "scan")
     {
         if(!hasArg || arg.length() != 2)
         {
             logErrorP("Argument is invalid!");
             logIndentUp();
-            logErrorP("daliScan xy");
+            logErrorP("scan xy");
             logErrorP("x = 0 => all EVGs");
             logErrorP("    1 => only unaddressed");
             logErrorP("y = 0 => don't randomize");
@@ -637,14 +636,13 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
         delete[] resultData;
         return true;
     } 
-    if(command == "daliArc")
+    if(command == "arc")
     {
-
         if(!hasArg || arg.length() != 6)
         {
             logErrorP("Argument is invalid! %i", arg.length());
             logIndentUp();
-            logErrorP("daliArc XYYZZZ");
+            logErrorP("arc XYYZZZ");
             logErrorP("X = B => Broadcast");
             logErrorP("    A => Short Address");
             logErrorP("    G => Group");
@@ -675,6 +673,32 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
             logErrorP("Argument X is invalid!");
         }
 
+        return true;
+    }
+    if(command == "set")
+    {
+        if(!hasArg || arg.length() != 8)
+        {
+            logErrorP("Argument is invalid! %i", arg.length());
+            logIndentUp();
+            logErrorP("set XXXXXX YY");
+            logErrorP("X = Long Address  (000000-FFFFFF)");
+            logErrorP("Y = Short Address (00-63)");
+            logIndentDown();
+            return true;
+        }
+
+        uint8_t resultLength = 254;
+        uint8_t* data = new uint8_t[4];
+        uint8_t* resultData = new uint8_t[4];
+        data[0] = std::stoi(arg.substr(7,2));
+        data[1] = std::stoi(arg.substr(0,2), nullptr, 16);
+        data[2] = std::stoi(arg.substr(2,2), nullptr, 16);
+        data[3] = std::stoi(arg.substr(4,2), nullptr, 16);
+
+        funcHandleAssign(data, resultData, resultLength);
+        delete[] data;
+        delete[] resultData;
         return true;
     }
 
