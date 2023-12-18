@@ -593,6 +593,13 @@ bool DaliModule::getDaliBusState()
     return _daliBusState;
 }
 
+void DaliModule::showHelp()
+{
+    openknx.console.printHelpLine("scan", "Scan for Dali EVGs");
+    openknx.console.printHelpLine("arc", "Set Value for EVG, Group or Broadcast");
+    openknx.console.printHelpLine("set", "Set EVG short address");
+}
+
 bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
 {
     if(diagnoseKo) return false;
