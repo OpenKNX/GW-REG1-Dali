@@ -127,6 +127,7 @@ class DaliModule : public OpenKNX::Module
 		void stateHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 		void stateHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 		void stateHandleScanAndAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 };
 
 extern DaliModule openknxDaliModule;

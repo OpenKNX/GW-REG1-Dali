@@ -1195,6 +1195,10 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
         case 4:
             stateHandleAssign(data, resultData, resultLength);
             return true;
+
+        case 7:
+            stateHandleFoundEVGs(data, resultData, resultLength);
+            return true;
     }
     return false;
 }
@@ -1230,24 +1234,33 @@ void DaliModule::stateHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &
 
 void DaliModule::stateHandleScanAndAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    resultData[0] = data[0] < _adrFound;
-    resultData[1] = (data[0] >= _adrFound) && _adrState == AddressingState::None;
-    if(data[0] < _adrFound)
-    {
-        resultData[2] = ballasts[data[0]].high;
-        resultData[3] = ballasts[data[0]].middle;
-        resultData[4] = ballasts[data[0]].low;
-        resultData[5] = ballasts[data[0]].address;
-        resultLength = 6;
-    } else {
-        resultLength = 2;
-    }
+    resultData[0] = _adrState == AddressingState::None;
+    resultData[1] = _adrFound;
+    resultLength = 2;
+}
 
-    if(resultData[1])
+void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
+{
+    if(!resultData[0] || data[0] == 254)
     {
         delete[] ballasts;
         delete[] addresses;
+        resultLength = 0;
+        return;
     }
+
+    resultData[0] = data[0] < _adrFound;
+    if(data[0] < _adrFound)
+    {
+        resultData[1] = ballasts[data[0]].high;
+        resultData[2] = ballasts[data[0]].middle;
+        resultData[3] = ballasts[data[0]].low;
+        resultData[4] = ballasts[data[0]].address;
+        resultLength = 5;
+    } else {
+        resultLength = 1;
+    }
+
 }
 
 uint8_t DaliModule::sendArc(byte addr, byte value, byte type)
