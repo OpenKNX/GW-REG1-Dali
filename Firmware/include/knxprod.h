@@ -9,9 +9,9 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x00
+#define MAIN_ApplicationVersion 0x25
 #define MAIN_OrderNumber "GW-REG1-Dali.01"
-#define MAIN_ParameterSize 1089
+#define MAIN_ParameterSize 1153
 #define MAIN_MaxKoNumber 1269
 
 
@@ -42,7 +42,7 @@
 #define ADR_ParamBlockOffset 65
 #define ADR_ParamBlockSize 14
 #define GRP_ParamBlockOffset 961
-#define GRP_ParamBlockSize 8
+#define GRP_ParamBlockSize 12
 #define SCE_KoOffset 6
 #define SCE_KoBlockSize 0
 #define ADR_KoOffset 22
@@ -323,6 +323,33 @@
 #define ParamGRP_locknegateIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 0), 7)
 // Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
 #define ParamGRP_locknegate knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 0), 7)
+#define GRP_colorType		0x0004
+#define GRP_colorType_Shift	4
+#define GRP_colorType_Mask	0x0003
+// Offset: 4, BitOffset: 2, Size: 2 Bit, Text: Farbe ansteuern per
+#define ParamGRP_colorTypeIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 4)) >> GRP_colorType_Shift) & GRP_colorType_Mask))
+// Offset: 4, BitOffset: 2, Size: 2 Bit, Text: Farbe ansteuern per
+#define ParamGRP_colorType ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 4)) >> GRP_colorType_Shift) & GRP_colorType_Mask))
+#define GRP_colorSpace		0x0003
+// Offset: 3, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
+#define ParamGRP_colorSpaceIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 3), 7)
+// Offset: 3, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
+#define ParamGRP_colorSpace knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 3), 7)
+#define GRP_tempMin		0x0008
+// Offset: 8, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ParamGRP_tempMinIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 8)))))
+// Offset: 8, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ParamGRP_tempMin ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 8)))))
+#define GRP_tempMax		0x000A
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ParamGRP_tempMaxIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 10)))))
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ParamGRP_tempMax ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 10)))))
+#define GRP_hcl		0x0004
+// Offset: 4, BitOffset: 4, Size: 1 Bit, Text: HCL aktivieren
+#define ParamGRP_hclIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 4), 4)
+// Offset: 4, BitOffset: 4, Size: 1 Bit, Text: HCL aktivieren
+#define ParamGRP_hcl knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 4), 4)
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 0)
