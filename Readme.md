@@ -1,6 +1,14 @@
 # KNX Dali GW
 This Firmware is for use with [REG1 Base](https://github.com/OpenKNX/OpenKNX/wiki/REG1-Base) with the dali application pcb.  
 
+## Cloning this Repo
+Open a PowerShell and run this script:
+```
+iex (iwr "https://raw.githubusercontent.com/OpenKNX/GW-REG1-Dali/master/Firmware/scripts/New-Clone.ps1").Content
+```
+
+It will clone this repo and run Restore-First.ps1
+
 ## Supported DT
 |DeviceType|Description|Supported|
 |---|---|---|
