@@ -21,6 +21,11 @@ if(-Not (Test-Path -Path platformio.ini)) {
 }
 $projectDir = Get-Location
 
+if(-Not (Test-Path -Path .pio/))
+{
+    New-Item -Path $projectDir -Name ".pio" -ItemType "directory"
+}
+
 if(Test-Path -Path $projectDir/.pio/platformio.base.ini) {
     Write-Host "Lösche 'platformio.rp2040.ini'"
     Remove-Item $projectDir/.pio/platformio.base.ini
