@@ -1,7 +1,19 @@
 # we assume, we start this script in projects "restore" directory
-if(-Not (Test-Path -Path platformio.ini)) {
-    Set-Location ..
+if(Test-Path -Path platformio.ini)
+{
+
+} else {
+    if(Test-Path -Path ../platformio.ini)
+    {
+        Set-Location ..
+    } else {
+        if(Test-Path -Path GW-REG1-Dali/Firmware/platformio.ini)
+        {
+            Set-Location GW-REG1-Dali/Firmware/
+        }
+    }
 }
+
 if(-Not (Test-Path -Path platformio.ini)) {
     Write-Host "Skript aus falschem Pfad ausgeführt..."
     timeout /T 20
