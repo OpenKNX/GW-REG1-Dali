@@ -688,7 +688,7 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
         {
             logErrorP("Argument is invalid! %i", arg.length());
             logIndentUp();
-            logErrorP("set XXXXXX YY");
+            logErrorP("set XXXXXXYY");
             logErrorP("X = Long Address  (000000-FFFFFF)");
             logErrorP("Y = Short Address (00-63)");
             logIndentDown();
