@@ -1,2 +1,8 @@
-[ ] Partielles Programmieren
-[ ] Treppenlicht manuell ausschaltbar machen
+- [ ] Partielles Programmieren
+- [ ] Treppenlicht manuell ausschaltbar machen
+- [ ] Dali LED bei signalen auf dem DaliBus
+- [ ] Error LED bei Problemen mit einem EVG
+- [ ] Automatischer scan setzt keine Adressen automatisch
+- [ ] Funktion von Gruppen mit gleichen Funktionen wie Einzeladressen ausstatten
+- [ ] Farbe für Szenen einstellbar machen
+- [ ] HCL für TW einführen
