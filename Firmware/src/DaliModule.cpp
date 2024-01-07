@@ -17,6 +17,11 @@ void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
     dali->setCallback(callback);
 }
 
+void DaliModule::setActivityCallback(EventHandlerActivityFuncPtr callback)
+{
+    dali->setActivityCallback(callback);
+}
+
 //will be called once
 //only if knx.configured == true
 void DaliModule::setup(bool conf)
