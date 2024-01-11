@@ -31,7 +31,7 @@ foreach ($subproject in $subprojects) {
         Write-Host ""
         Write-Host "Subproject $($attr[2])" -ForegroundColor Yellow
 
-        if(-Not (Test-Path -Path $attr[2]/)) {
+        if(-Not (Test-Path -Path $attr[2])) {
             git clone $attr[3]
             if (!$?) {
                 Write-Host "  FAIL: clone" -ForegroundColor Red
