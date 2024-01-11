@@ -1,16 +1,11 @@
 # KNX Dali GW
-This Firmware is for use with [REG1 Base](https://github.com/OpenKNX/OpenKNX/wiki/REG1-Base) with the dali application pcb.  
+Diese Firmware läuft auf der Hardware [REG1 Base](https://github.com/OpenKNX/OpenKNX/wiki/REG1-Base) mit der Dali Applications PCB.  
 
-## Cloning this Repo
-Open a PowerShell and run this script:
-```
-iex (iwr "https://raw.githubusercontent.com/OpenKNX/GW-REG1-Dali/master/Firmware/scripts/New-Clone.ps1").Content
-```
+## Firmware
+Für das Erstellen der Firmware und der knxprod schau dir bitte die [Wiki](https://github.com/OpenKNX/GW-REG1-Dali/wiki/) an.  
 
-It will clone this repo and run Restore-First.ps1
-
-## Supported DT
-|DeviceType|Description|Supported|
+## Unterstützte DeviceTypes
+|DeviceType|Beschreibung|Unterstützt|
 |---|---|---|
 |DT0|Leuchtstofflampen|ja*|
 |DT1|Notbeleuchtung|ja*|
