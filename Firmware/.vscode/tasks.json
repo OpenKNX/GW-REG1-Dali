@@ -10,6 +10,17 @@
             ],
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Restore-Project",
+            "type": "shell",
+            "command": "scripts/Restore-Project.ps1",
+            "args": [
+                "-wait",
+                "$false"
+            ],
+            "group": "build",
+            "problemMatcher": []
         }
 	]
 }

@@ -1,4 +1,5 @@
 $repo = "GW-REG1-Dali"
+$oldDir = Get-Location
 
 Write-Host "Klone das Repo $repo" -ForegroundColor Yellow
 
@@ -10,4 +11,5 @@ Set-Location $repo\Firmware\
 .\scripts\Restore-Project.ps1 -wait $False
 
 Write-Host "Fertig" -ForegroundColor Yellow
+Set-Location $oldDir
 timeout /T 20
