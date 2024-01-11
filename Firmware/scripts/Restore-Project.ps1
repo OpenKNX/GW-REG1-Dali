@@ -52,10 +52,10 @@ foreach ($subproject in $subprojects) {
         }
 
         if($checkoutHash -eq $True) {
-            Write-Host "Checkout $attr[0]" -ForegroundColor Yellow
+            Write-Host "Checkout Hash $($attr[0])" -ForegroundColor Yellow
             git checkout $attr[0]
         } else {
-            Write-Host "Checkout $attr[1]" -ForegroundColor Yellow
+            Write-Host "Checkout Branch $(attr[1])" -ForegroundColor Yellow
             git checkout $attr[1]
         }
         if (!$?) {
