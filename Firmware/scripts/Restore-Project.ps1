@@ -1,4 +1,4 @@
-param ([Parameter(Mandatory)][bool]$checkoutHash=$False,[bool]$wait=$True)
+param ([Parameter(Mandatory)][Switch]$checkoutHash=$false,[bool]$wait=$True)
 
 # we assume, we start this script in projects "restore" directory
 $oldDir = Get-Location
@@ -49,7 +49,7 @@ foreach ($subproject in $subprojects) {
             exit 1
         }
 
-        if($checkoutHash -eq $True) {
+        if($checkoutHash) {
             Write-Host "Checkout Hash $($attr[0])" -ForegroundColor Yellow
             git checkout $attr[0]
         } else {
@@ -61,11 +61,13 @@ foreach ($subproject in $subprojects) {
             Set-Location $oldDir
             exit 1
         }
-        git pull --ff-only
-        if (!$?) {
-            Write-Host "  FAIL: pull --ff-only" -ForegroundColor Red
-            Set-Location $oldDir
-            exit 1
+        if(-Not $checkoutHash) {
+            git pull --ff-only
+            if (!$?) {
+                Write-Host "  FAIL: pull --ff-only" -ForegroundColor Red
+                Set-Location $oldDir
+                exit 1
+            }
         }
         Set-Location $projectDir/lib/
     }
