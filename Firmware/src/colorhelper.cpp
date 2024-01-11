@@ -30,7 +30,9 @@ void ColorHelper::hsvToRGB(uint8_t in_h, uint8_t in_s, uint8_t in_v, uint8_t& r,
     float s = in_s / 255.0;
     float v = in_v / 255.0;
 
-    double rt, gt, bt;
+    double rt = 0;
+    double gt = 0;
+    double bt = 0;
 
     int i = int(h * 6);
     double f = h * 6 - i;

@@ -26,6 +26,6 @@ if($env -eq $null)
 }
 
 if ($IsMacOS -or $IsLinux) { ~/.platformio/penv/bin/pio run -e $env }
-else { ~/.platformio/penv/Scripts/pio.exe run -e $env } 
+else { ~/.platformio/penv/Scripts/pio.exe run -t upload -e $env } 
 
 timeout /T 20
