@@ -1,4 +1,4 @@
-param ([bool]$checkoutHash=$False,[bool]$wait=$true)
+param ([Parameter(Mandatory)][bool]$checkoutHash=$False,[bool]$wait=$True)
 
 # we assume, we start this script in projects "restore" directory
 $oldDir = Get-Location
@@ -51,7 +51,7 @@ foreach ($subproject in $subprojects) {
             exit 1
         }
 
-        if($checkoutHash -eq $TRUE) {
+        if($checkoutHash -eq $True) {
             Write-Host "Checkout $attr[0]" -ForegroundColor Yellow
             git checkout $attr[0]
         } else {
