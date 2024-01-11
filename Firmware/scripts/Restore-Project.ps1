@@ -22,9 +22,9 @@ if(-Not (Test-Path -Path lib/))
 {
     New-Item -Path $projectDir -Name "lib" -ItemType "directory"
 }
-Set-Location lib/
 
 $subprojects = Get-Content dependencies.txt
+Set-Location lib/
 foreach ($subproject in $subprojects) {
     $attr = $subproject.Split()
     if ($attr[0] -ne "-------") {
