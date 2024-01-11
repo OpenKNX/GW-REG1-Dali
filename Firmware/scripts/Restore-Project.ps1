@@ -1,4 +1,4 @@
-param ([Parameter(Mandatory)][Switch]$checkoutHash=$false,[bool]$wait=$True)
+param ([Switch]$checkoutHash=$false,[bool]$wait=$True)
 
 # we assume, we start this script in projects "restore" directory
 $oldDir = Get-Location
