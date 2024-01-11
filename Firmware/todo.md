@@ -1,8 +1,10 @@
 - [ ] Partielles Programmieren
-- [ ] Treppenlicht manuell ausschaltbar machen
+- [ ] Treppenlicht manuell ausschalten
 - [ ] Dali LED bei signalen auf dem DaliBus
 - [ ] Error LED bei Problemen mit einem EVG
-- [ ] Automatischer scan setzt keine Adressen automatisch
-- [ ] Funktion von Gruppen mit gleichen Funktionen wie Einzeladressen ausstatten
-- [ ] Farbe für Szenen einstellbar machen
-- [ ] HCL für TW einführen
+- [ ] Automatisch Scan, setzen aller unadressierten EVGs
+- [ ] Gruppensteuerung mit gleicher funktionalität wie Einzelsteuerung
+- [ ] Farbeinstellungen bei Szenen
+- [ ] Tunable White per relativ dimmen
+- [ ] HCL für TW
+- [ ] Function Button kann mit verschiedenen Aktionen belegt werden

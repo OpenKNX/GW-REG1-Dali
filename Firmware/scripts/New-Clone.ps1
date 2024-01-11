@@ -1,9 +1,13 @@
-Write-Host "Klone das Repo GW-REG1-Dali" -ForegroundColor Yellow
+$repo = "GW-REG1-Dali"
 
-git clone https://github.com/OpenKnx/GW-REG1-Dali
+Write-Host "Klone das Repo $repo" -ForegroundColor Yellow
 
-Write-Host "Führe das Skript 'Restore-First.ps1' aus" -ForegroundColor Yellow
+git clone https://github.com/OpenKnx/$repo
 
-.\GW-REG1-Dali\Firmware\scripts\Restore-First.ps1
+Write-Host "Führe das Skript 'Restore-Project.ps1' aus" -ForegroundColor Yellow
+
+Set-Location $repo\Firmware\
+.\scripts\Restore-Project.ps1 -wait $False
 
 Write-Host "Fertig" -ForegroundColor Yellow
+timeout /T 20

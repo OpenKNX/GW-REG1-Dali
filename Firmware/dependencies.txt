@@ -1,0 +1,5 @@
+------- Built with -------
+7215f47 devel lib/knx https://github.com/OpenKNX/knx.git
+19f6f21 v1 lib/OFM-FileTransferModule https://github.com/OpenKNX/OFM-FileTransferModule.git
+cd0f144 v1 lib/OGM-Common https://github.com/OpenKNX/OGM-Common.git
+d1bb208 dev lib/arduino-dali https://github.com/thewhobox/arduino-dali
