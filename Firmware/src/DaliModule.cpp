@@ -889,9 +889,9 @@ void DaliModule::koHandleScene(GroupObject & ko)
 
 bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    if(objectIndex != 164) return false;
+    if(objectIndex != 160 || propertyId != 1) return false;
 
-    switch(propertyId)
+    switch(data[0])
     {
         case 2:
             funcHandleType(data, resultData, resultLength);
@@ -924,7 +924,7 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
 
 void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    int16_t resp = getInfo(data[0], DaliCmd::QUERY_DEVICE_TYPE);
+    int16_t resp = getInfo(data[1], DaliCmd::QUERY_DEVICE_TYPE);
     if(resp < 0)
     {
         logErrorP("Dali Error (DT): Code %i", resp);
@@ -939,7 +939,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     {
         while(true)
         {
-            resp = getInfo(data[0], DaliCmd::QUERY_NEXT_DEVTYPE);
+            resp = getInfo(data[1], DaliCmd::QUERY_NEXT_DEVTYPE);
             if(resp < 0)
             {
                 logErrorP("Dali Error (NDT): Code %i", resp);
@@ -963,7 +963,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     if(deviceType == 8)
     {
         sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 8);
-        resp = getInfo(data[0], DaliCmdExtendedDT8::QUERY_COLOR_TYPE_FEATURES);
+        resp = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_TYPE_FEATURES);
         if(resp < 0)
         {
             logErrorP("Dali Error (CT): Code %i", resp);
@@ -989,10 +989,10 @@ void DaliModule::funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &res
     _adrFound = 0;
     _adrAssign = false;
     
-    sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[0] ? 255 : 0);
-    sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[0] ? 255 : 0);
+    sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[1] ? 255 : 0);
+    sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[1] ? 255 : 0);
 
-    if(data[1] == 1)
+    if(data[2] == 1)
     {
         logInfoP("Do Randomize");
         sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
@@ -1013,17 +1013,17 @@ void DaliModule::funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &res
 void DaliModule::funcHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     logInfoP("Starting assigning address");
-    _adrResp = sendCmd(data[0], DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
+    _adrResp = sendCmd(data[1], DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
     _adrTime = millis();
     _adrState = AddressingState::Query_Wait;
     _assState = AssigningState::Working;
 
-    _adrHigh = data[1] << 16;
-    _adrHigh |= data[2] << 8;
-    _adrHigh |= data[3];
+    _adrHigh = data[2] << 16;
+    _adrHigh |= data[3] << 8;
+    _adrHigh |= data[4];
     logInfoP("Long  Addr %X", _adrHigh);
-    logInfoP("Short Addr %i", data[0]);
-    _adrLow = (data[0] << 1) | 1;
+    logInfoP("Short Addr %i", data[1]);
+    _adrLow = (data[1] << 1) | 1;
     
     resultLength = 0;
 }
@@ -1045,42 +1045,42 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
 {
     logInfoP("Starting setting up EVG");
 
-    DaliChannel channel = channels[data[0]];
-    channel.setMinMax(data[1], data[2]);
+    DaliChannel channel = channels[data[1]];
+    channel.setMinMax(data[2], data[3]);
 
-    sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[1] == 255) ? 255 : DaliHelper::percentToArc(data[1]));
-    sendCmd(data[0], DaliCmd::DTR_AS_MIN);
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[2] == 255) ? 255 : DaliHelper::percentToArc(data[2]));
-    sendCmd(data[0], DaliCmd::DTR_AS_MAX);
+    sendCmd(data[1], DaliCmd::DTR_AS_MIN);
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[3] == 255) ? 255 : DaliHelper::percentToArc(data[3]));
-    sendCmd(data[0], DaliCmd::DTR_AS_POWER_ON);
+    sendCmd(data[1], DaliCmd::DTR_AS_MAX);
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[4] == 255) ? 255 : DaliHelper::percentToArc(data[4]));
-    sendCmd(data[0], DaliCmd::DTR_AS_FAIL);
-    sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[5] >> 4) & 0xF);
-    sendCmd(data[0], DaliCmd::DTR_AS_FADE_TIME);
-    sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[5] & 0xF);
-    sendCmd(data[0], DaliCmd::DTR_AS_FADE_RATE);
+    sendCmd(data[1], DaliCmd::DTR_AS_POWER_ON);
+    sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[5] == 255) ? 255 : DaliHelper::percentToArc(data[5]));
+    sendCmd(data[1], DaliCmd::DTR_AS_FAIL);
+    sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[6] >> 4) & 0xF);
+    sendCmd(data[1], DaliCmd::DTR_AS_FADE_TIME);
+    sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[6] & 0xF);
+    sendCmd(data[1], DaliCmd::DTR_AS_FADE_RATE);
 
     //1byte free
 
-    uint16_t groups = data[7];
-    groups |= data[8] << 8;
+    uint16_t groups = data[8];
+    groups |= data[9] << 8;
     channel.setGroups(groups);
 
     for(int i = 0; i < 16; i++)
     {
         if((groups >> i) & 0x1)
         {
-            sendMsg(MessageType::Cmd, data[0], DaliCmd::ADD_TO_GROUP | i);
+            sendMsg(MessageType::Cmd, data[1], DaliCmd::ADD_TO_GROUP | i);
         } else {
-            sendMsg(MessageType::Cmd, data[0], DaliCmd::REMOVE_FROM_GROUP | i);
+            sendMsg(MessageType::Cmd, data[1], DaliCmd::REMOVE_FROM_GROUP | i);
         }
     }
 
     for(int i = 0; i < 16; i++)
     {
-        sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[i + 9] == 255) ? 255 : DaliHelper::percentToArc(data[i + 9]));
-        sendMsg(MessageType::Cmd, data[0], DaliCmd::DTR_AS_SCENE | i);
+        sendCmdSpecial(DaliSpecialCmd::SET_DTR, (data[i + 10] == 255) ? 255 : DaliHelper::percentToArc(data[i + 10]));
+        sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
     }
     resultLength = 1;
     resultData[0] = 0x00;
@@ -1095,7 +1095,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     uint8_t errorByte = 0;
     uint16_t errorByteScene = 0;
 
-    int16_t resp = getInfo(data[0], DaliCmd::QUERY_MIN_LEVEL);
+    int16_t resp = getInfo(data[1], DaliCmd::QUERY_MIN_LEVEL);
     if(resp < 0)
     {
         logErrorP("Dali Error (MIN): Code %i", resp);
@@ -1105,7 +1105,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("MIN: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
     resultData[1] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
 
-    resp = getInfo(data[0], DaliCmd::QUERY_MAX_LEVEL);
+    resp = getInfo(data[1], DaliCmd::QUERY_MAX_LEVEL);
     if(resp < 0)
     {
         logErrorP("Dali Error (MAX): Code %i", resp);
@@ -1115,7 +1115,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("MAX: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
     resultData[2] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
 
-    resp = getInfo(data[0], DaliCmd::QUERY_POWER_ON_LEVEL);
+    resp = getInfo(data[1], DaliCmd::QUERY_POWER_ON_LEVEL);
     if(resp < 0)
     {
         logErrorP("Dali Error (POWER): Code %i", resp);
@@ -1125,7 +1125,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("POWER: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
     resultData[3] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
 
-    resp = getInfo(data[0], DaliCmd::QUERY_FAIL_LEVEL);
+    resp = getInfo(data[1], DaliCmd::QUERY_FAIL_LEVEL);
     if(resp < 0)
     {
         logErrorP("Dali Error (FAILURE): Code %i", resp);
@@ -1135,7 +1135,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("FAILURE: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
     resultData[4] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
     
-    resp = getInfo(data[0], DaliCmd::QUERY_FADE_SPEEDS);
+    resp = getInfo(data[1], DaliCmd::QUERY_FADE_SPEEDS);
     if(resp < 0)
     {
         logErrorP("Dali Error (FAID): Code %i", resp);
@@ -1147,7 +1147,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     
     //1byte free
 
-    resp = getInfo(data[0], DaliCmd::QUERY_GROUPS_0_7);
+    resp = getInfo(data[1], DaliCmd::QUERY_GROUPS_0_7);
     if(resp < 0)
     {
         logErrorP("Dali Error (GROUP1): Code %i", resp);
@@ -1157,7 +1157,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     logDebugP("GROUPS0-7: %.2X", resp);
     resultData[7] = resp;
     
-    resp = getInfo(data[0], DaliCmd::QUERY_GROUPS_8_15);
+    resp = getInfo(data[1], DaliCmd::QUERY_GROUPS_8_15);
     if(resp < 0)
     {
         logErrorP("Dali Error (GROUP2): Code %i", resp);
@@ -1169,7 +1169,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     
     for(int i = 0; i < 16; i++)
     {
-        resp = getInfo(data[0], DaliCmd::QUERY_SCENE_LEVEL, i);
+        resp = getInfo(data[1], DaliCmd::QUERY_SCENE_LEVEL, i);
         if(resp < 0)
         {
             logErrorP("Dali Error (SCENE%i): Code %i", i, resp);
@@ -1188,9 +1188,9 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    if(objectIndex != 164) return false;
+    if(objectIndex != 160 || propertyId != 1) return false;
 
-    switch(propertyId)
+    switch(data[0])
     {
         case 3:
         case 5:
@@ -1210,8 +1210,8 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
 
 void DaliModule::stateHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    int16_t resp = queue->getResponse(data[0]);
-    logInfoP("Check Response %i = %i", data[0], resp);
+    int16_t resp = queue->getResponse(data[1]);
+    logInfoP("Check Response %i = %i", data[1], resp);
 
     if(resp == -255)
     {
@@ -1246,7 +1246,7 @@ void DaliModule::stateHandleScanAndAddress(uint8_t *data, uint8_t *resultData, u
 
 void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    if(!resultData[0] || data[0] == 254)
+    if(!resultData[0] || data[1] == 254)
     {
         delete[] ballasts;
         delete[] addresses;
@@ -1257,10 +1257,10 @@ void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_
     resultData[0] = data[0] < _adrFound;
     if(data[0] < _adrFound)
     {
-        resultData[1] = ballasts[data[0]].high;
-        resultData[2] = ballasts[data[0]].middle;
-        resultData[3] = ballasts[data[0]].low;
-        resultData[4] = ballasts[data[0]].address;
+        resultData[1] = ballasts[data[1]].high;
+        resultData[2] = ballasts[data[1]].middle;
+        resultData[3] = ballasts[data[1]].low;
+        resultData[4] = ballasts[data[1]].address;
         resultLength = 5;
     } else {
         resultLength = 1;
