@@ -52,6 +52,7 @@ class DaliModule : public OpenKNX::Module
 			SearchWait,
 			Found,
 			Finish,
+			Finish_Assign,
 			//addressing auto
 			SearchAdr,
 			SearchAdrWait,

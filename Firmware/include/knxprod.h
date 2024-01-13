@@ -9,7 +9,7 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x25
+#define MAIN_ApplicationVersion 0x29
 #define MAIN_OrderNumber "GW-REG1-Dali.01"
 #define MAIN_ParameterSize 1153
 #define MAIN_MaxKoNumber 1269

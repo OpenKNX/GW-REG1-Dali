@@ -256,7 +256,9 @@ void DaliChannel::koHandleSwitch(GroupObject &ko)
             if(state)
             {
                 logDebugP("ist bereits an");
-                if(ParamADR_nachtriggern)
+                
+                bool retrigger = _isGroup ? ParamGRP_manuoff : ParamADR_manuoff;
+                if(retrigger)
                 {
                     logDebugP("wurde nachgetriggert");
                     startTime = millis();
@@ -276,7 +278,7 @@ void DaliChannel::koHandleSwitch(GroupObject &ko)
         }
         else
         {
-            bool manuOff = ParamADR_manuoff;
+            bool manuOff = _isGroup ? ParamGRP_manuoff : ParamADR_manuoff;
             if(!manuOff)
             {
                 logErrorP("no manuel off");
