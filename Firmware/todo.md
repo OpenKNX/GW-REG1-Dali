@@ -6,5 +6,6 @@
 - [ ] Gruppensteuerung mit gleicher funktionalität wie Einzelsteuerung
 - [ ] Farbeinstellungen bei Szenen
 - [ ] Tunable White per relativ dimmen
+- [ ] RGB einzeln relativ dimmen
 - [ ] HCL für TW
 - [ ] Function Button kann mit verschiedenen Aktionen belegt werden
