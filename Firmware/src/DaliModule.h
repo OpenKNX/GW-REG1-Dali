@@ -106,7 +106,7 @@ class DaliModule : public OpenKNX::Module
 		DaliClass *dali;
 		DaliChannel channels[64];
 		DaliChannel groups[16];
-		MessageQueue *queue;
+		MessageQueue queue;
 		struct repeating_timer _timer;
 
 		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);

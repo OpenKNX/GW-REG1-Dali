@@ -26,8 +26,6 @@ void DaliModule::setActivityCallback(EventHandlerActivityFuncPtr callback)
 //only if knx.configured == true
 void DaliModule::setup(bool conf)
 {
-    queue = new MessageQueue();
-
     if(!conf) return;
 
     for(int i = 0; i < 64; i++)
@@ -167,11 +165,11 @@ int16_t DaliModule::getInfo(byte address, int command, uint8_t additional)
     _daliStateLast = millis();
     uint8_t respId = sendMsg(MessageType::Cmd, address, command | additional, 0, true);
     bool gotResponse = false;
-    int16_t resp = queue->getResponse(respId);
+    int16_t resp = queue.getResponse(respId);
     
     while(!gotResponse)
     {
-        resp = queue->getResponse(respId);
+        resp = queue.getResponse(respId);
 
         if(resp == -1)
         {
@@ -218,7 +216,7 @@ void DaliModule::loopMessages()
         _lastDaliError = DALI_NO_ERROR;
     }
 
-    Message *msg = queue->pop();
+    Message *msg = queue.pop();
     if(msg == nullptr) return;
 
     switch(msg->type)
@@ -227,7 +225,7 @@ void DaliModule::loopMessages()
         {
             int16_t resp = dali->sendArcWait(msg->para1, msg->para2, msg->addrtype);
             if(msg->wait)
-                queue->setResponse(msg->id, resp);
+                queue.setResponse(msg->id, resp);
             break;
         }
 
@@ -235,7 +233,7 @@ void DaliModule::loopMessages()
         {
             int16_t resp = dali->sendCmdWait(msg->para1, static_cast<DaliCmd>(msg->para2), msg->addrtype);
             if(msg->wait)
-                queue->setResponse(msg->id, resp);
+                queue.setResponse(msg->id, resp);
             break;
         }
 
@@ -243,7 +241,7 @@ void DaliModule::loopMessages()
         {
             int16_t resp = dali->sendSpecialCmdWait(msg->para1, msg->para2);
             if(msg->wait)
-                queue->setResponse(msg->id, resp);
+                queue.setResponse(msg->id, resp);
             break;
         }
     }
@@ -287,7 +285,7 @@ void DaliModule::loopAddressing()
 
         case AddressingState::SearchWait:
         {
-            int16_t response = queue->getResponse(_adrResp);
+            int16_t response = queue.getResponse(_adrResp);
             
             if(response == -200 || response == -1)
             {
@@ -343,7 +341,7 @@ void DaliModule::loopAddressing()
 
         case AddressingState::Found:
         {
-            int16_t response = queue->getResponse(_adrResp);
+            int16_t response = queue.getResponse(_adrResp);
             if(response == -200 || response == -1)
             {
                 if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
@@ -397,7 +395,7 @@ void DaliModule::loopAddressing()
 
         case AddressingState::Query_Wait:
         {
-            int16_t resp = queue->getResponse(_adrResp);
+            int16_t resp = queue.getResponse(_adrResp);
 
             if(resp == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
             {
@@ -462,7 +460,7 @@ void DaliModule::loopAddressing()
                 return;
             }
 
-            int16_t resp = queue->getResponse(_adrResp);
+            int16_t resp = queue.getResponse(_adrResp);
 
             if(resp == -200) return;
 
@@ -497,7 +495,7 @@ void DaliModule::loopAddressing()
                 return;
             }
 
-            int16_t resp = queue->getResponse(_adrResp);
+            int16_t resp = queue.getResponse(_adrResp);
 
             if(resp == -200) return;
 
@@ -558,7 +556,7 @@ void DaliModule::loopAddressing()
                 return;
             }
 
-            int16_t resp = queue->getResponse(_adrResp);
+            int16_t resp = queue.getResponse(_adrResp);
 
             if(resp == -200) return;
 
@@ -1246,7 +1244,7 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
 
 void DaliModule::stateHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    int16_t resp = queue->getResponse(data[1]);
+    int16_t resp = queue.getResponse(data[1]);
     logInfoP("Check Response %i = %i", data[1], resp);
 
     if(resp == -255)
@@ -1314,48 +1312,48 @@ void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_
 uint8_t DaliModule::sendArc(byte addr, byte value, byte type)
 {
     Message *msg = new Message();
-    msg->id = queue->getNextId();
+    msg->id = queue.getNextId();
     msg->type = MessageType::Arc;
     msg->para1 = addr;
     msg->para2 = DaliHelper::percentToArc(value);
     msg->addrtype = type;
-    return queue->push(msg);
+    return queue.push(msg);
 }
 
 uint8_t DaliModule::sendCmd(byte addr, DaliCmd value, byte type, bool wait)
 {
     Message *msg = new Message();
-    msg->id = queue->getNextId();
+    msg->id = queue.getNextId();
     msg->type = MessageType::Cmd;
     msg->para1 = addr;
     msg->para2 = value;
     msg->addrtype = type;
     msg->wait = wait;
-    return queue->push(msg);
+    return queue.push(msg);
 }
 
 uint8_t DaliModule::sendCmdSpecial(DaliSpecialCmd command, byte value, bool wait)
 {
     Message *msg = new Message();
-    msg->id = queue->getNextId();
+    msg->id = queue.getNextId();
     msg->type = MessageType::SpecialCmd;
     msg->para1 = static_cast<uint8_t>(command);
     msg->para2 = value;
     msg->addrtype = 0;
     msg->wait = wait;
-    return queue->push(msg);
+    return queue.push(msg);
 }
 
 uint8_t DaliModule::sendMsg(MessageType t, byte p1, byte p2, byte type, bool wait)
 {
     Message *msg = new Message();
-    msg->id = queue->getNextId();
+    msg->id = queue.getNextId();
     msg->type = t;
     msg->para1 = p1;
     msg->para2 = p2;
     msg->addrtype = type;
     msg->wait = wait;
-    return queue->push(msg);
+    return queue.push(msg);
 }
 
 DaliModule openknxDaliModule;
