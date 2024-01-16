@@ -33,7 +33,7 @@ const bool DaliChannel::isGroup()
     return _isGroup;
 }
 
-void DaliChannel::init(uint8_t channelIndex, MessageQueue &queue, bool ig)
+void DaliChannel::init(uint8_t channelIndex, MessageQueue *queue, bool ig)
 {
     _channelIndex = channelIndex;
     _queue = queue;
@@ -128,7 +128,7 @@ void DaliChannel::loop1()
     {
         if(_errorResp != 300)
         {
-            int8_t resp = _queue.getResponse(_errorResp);
+            int8_t resp = _queue->getResponse(_errorResp);
             if(resp == -200) return;
             _errorResp = 300;
             if(resp == -1) resp = 1;
@@ -159,34 +159,34 @@ uint16_t DaliChannel::calcKoNumber(int asap)
 uint8_t DaliChannel::sendArc(byte v)
 {
     Message *msg = new Message();
-    msg->id = _queue.getNextId();
+    msg->id = _queue->getNextId();
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
     msg->para2 = DaliHelper::percentToArc(v);
     msg->addrtype = _isGroup;
-    return _queue.push(msg);
+    return _queue->push(msg);
 }
 
 uint8_t DaliChannel::sendCmd(byte cmd)
 {
     Message *msg = new Message();
-    msg->id = _queue.getNextId();
+    msg->id = _queue->getNextId();
     msg->type = MessageType::Cmd;
     msg->para1 = _channelIndex;
     msg->para2 = cmd;
     msg->addrtype = _isGroup;
-    return _queue.push(msg);
+    return _queue->push(msg);
 }
 
 uint8_t DaliChannel::sendSpecialCmd(DaliSpecialCmd cmd, byte value)
 {
     Message *msg = new Message();
-    msg->id = _queue.getNextId();
+    msg->id = _queue->getNextId();
     msg->type = MessageType::SpecialCmd;
     msg->para1 = static_cast<uint8_t>(cmd);
     msg->para2 = value;
     msg->addrtype = _isGroup;
-    return _queue.push(msg);
+    return _queue->push(msg);
 }
 
 void DaliChannel::processInputKo(GroupObject &ko)
@@ -267,12 +267,12 @@ void DaliChannel::processInputKo(GroupObject &ko)
             
         //Farbe Blau Dimmen relativ
         case ADR_Kocolor_blue_relative:
-            koHandleColorRel(ko, 1);
+            koHandleColorRel(ko, 2);
             break;
 
         //Farbe Blau Dimmen absolut
         case ADR_Kocolor_blue_absolute:
-            koHandleColorAbs(ko, 1);
+            koHandleColorAbs(ko, 2);
             break;
 
         //Farbe Blau Status
@@ -320,10 +320,8 @@ void DaliChannel::koHandleColorAbs(GroupObject &ko, uint8_t index)
         return;
     }
 
-    uint8_t value = ko.value(Dpt(5,0));
-    value = value * 2.55;
-    currentColor[index] = value;
-
+    currentColor[index] = ko.value(Dpt(5,4));
+    currentDimmType = DimmType::Color;
     updateCurrentDimmValue(true);
     sendColor(true);
 }
@@ -527,11 +525,13 @@ void DaliChannel::koHandleColor(GroupObject &ko)
         currentColor[1] = (value >> 8) & 0xFF;
         currentColor[2] = value & 0xFF;
 
+        logInfoP("R=%i G=%i B=%i", currentColor[0], currentColor[1], currentColor[2]);
+
         //TODO send only if changed
         knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_rgb_state)).value(value, Dpt(232, 600)); //TODO fix GRP_Kocolor_rgb_state
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_red_state)).value(currentColor[0], Dpt(5, 1)); //TODO fix GRP_Kocolor_
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_green_state)).value(currentColor[1], Dpt(5, 1)); //TODO fix GRP_Kocolor_
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 1)); //TODO fix GRP_Kocolor_
+        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_red_state)).value(currentColor[0], Dpt(5, 4)); //TODO fix GRP_Kocolor_
+        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_green_state)).value(currentColor[1], Dpt(5, 4)); //TODO fix GRP_Kocolor_
+        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 4)); //TODO fix GRP_Kocolor_
 
         sendColor(true);
     //if tunable white

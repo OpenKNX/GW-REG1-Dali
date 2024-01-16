@@ -19,6 +19,7 @@ uint8_t MessageQueue::push(Message *msg)
     tail->next = msg;
     tail = msg;
     isLocked = false;
+    
     return msg->id;
 }
 
@@ -28,7 +29,6 @@ Message* MessageQueue::pop()
 
     if(head == nullptr) return nullptr;
     isLocked = true;
-
     Message *item = head;
     
     if(item->next == nullptr)

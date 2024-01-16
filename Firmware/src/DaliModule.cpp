@@ -30,14 +30,14 @@ void DaliModule::setup(bool conf)
 
     for(int i = 0; i < 64; i++)
     {
-        channels[i].init(i, queue, false);
+        channels[i].init(i, &queue, false);
         channels[i].setup();
     }
 
     
     for(int i = 0; i < 16; i++)
     {
-        groups[i].init(i, queue, true);
+        groups[i].init(i, &queue, true);
         groups[i].setup();
     }
 }
@@ -223,6 +223,7 @@ void DaliModule::loopMessages()
     {
         case MessageType::Arc:
         {
+            logInfoP("sending Arc");
             int16_t resp = dali->sendArcWait(msg->para1, msg->para2, msg->addrtype);
             if(msg->wait)
                 queue.setResponse(msg->id, resp);
