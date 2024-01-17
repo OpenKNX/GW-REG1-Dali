@@ -95,6 +95,9 @@ void DaliModule::loop1(bool configured)
 
     if(!configured) return;
 
+    loopGroupState();
+    loopError();
+
     for(int i = 0; i < 64; i++)
     {
         channels[i].loop1();
@@ -104,20 +107,7 @@ void DaliModule::loop1(bool configured)
         groups[i].loop1();
     }
 
-    if(_lastChangedGroup != 255)
-    {
-        if(_lastChangedGroup > 15)
-        {
-            _lastChangedGroup -= 16;
-            for(int i = 0; i < 64; i++)
-                channels[i].setGroupState(_lastChangedGroup, _lastChangedValue == 1);
-        } else {
-            for(int i = 0; i < 64; i++)
-                channels[i].setGroupState(_lastChangedGroup, _lastChangedValue);
-        }
-
-        _lastChangedGroup = 255;
-    }
+    
 }
 
 void DaliModule::loopInitData()
@@ -158,6 +148,42 @@ void DaliModule::loopInitData()
         _daliStateLast = 1;
         logInfoP("Finished init");
     }
+}
+
+
+void DaliModule::loopGroupState()
+{
+    if(_lastChangedGroup != 255)
+    {
+        if(_lastChangedGroup > 15)
+        {
+            _lastChangedGroup -= 16;
+            for(int i = 0; i < 64; i++)
+                channels[i].setGroupState(_lastChangedGroup, _lastChangedValue == 1);
+        } else {
+            for(int i = 0; i < 64; i++)
+                channels[i].setGroupState(_lastChangedGroup, _lastChangedValue);
+        }
+
+        _lastChangedGroup = 255;
+    }
+}
+
+void DaliModule::loopError()
+{
+    bool error = false;
+    for(int i = 0; i < 64; i++)
+    {
+        if(channels[i].hasError())
+        {
+            error = true;
+            break;
+        }
+    }
+    if(error)
+        openknx.info2Led.on();
+    else
+        openknx.info2Led.off();
 }
 
 int16_t DaliModule::getInfo(byte address, int command, uint8_t additional)

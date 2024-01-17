@@ -34,6 +34,11 @@ const bool DaliChannel::isGroup()
     return _isGroup;
 }
 
+bool DaliChannel::hasError()
+{
+    return _errorState;
+}
+
 void DaliChannel::init(uint8_t channelIndex, bool ig)
 {
     _channelIndex = channelIndex;
@@ -136,6 +141,7 @@ void DaliChannel::loop1()
 
             resp = resp & 0b11;
             bool val = knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(Dpt(1,0));
+            _errorState = val != 0;
             if(val != resp)
                 knx.getGroupObject(calcKoNumber(ADR_Koerror)).value((val != 0), DPT_Switch);
         }

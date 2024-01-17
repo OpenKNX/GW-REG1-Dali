@@ -21,6 +21,7 @@ class DaliChannel : public OpenKNX::Channel
 		void processInputKo(GroupObject &ko) override;
 		const bool isConfigured();
 		const bool isGroup();
+		bool hasError();
 
 		void init(uint8_t channelIndex, bool isGroup);
 		void setOnValue(uint8_t value);
@@ -69,6 +70,7 @@ class DaliChannel : public OpenKNX::Channel
 		bool _isConfigured = false;
 		//EVG Fehler auslesen
 		bool _getError = false;
+		bool _errorState = false;
 		uint16_t _errorResp = 300;
 		unsigned long _lastError = 0;
 		//Aktueller Status

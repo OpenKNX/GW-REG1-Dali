@@ -81,6 +81,8 @@ class DaliModule : public OpenKNX::Module
 		void loopMessages();
 		void loopBusState();
 		void loopInitData();
+		void loopGroupState();
+		void loopError();
 		int16_t getInfo(byte address, int command, uint8_t additional = 0);
 	
 		uint32_t _adrLow = 0;
