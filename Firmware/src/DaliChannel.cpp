@@ -1,8 +1,9 @@
 #include "DaliChannel.h"
 #include "OpenKNX.h"
 
-DaliChannel::DaliChannel()
+DaliChannel::DaliChannel(MessageQueue &queue) : _queue(queue)
 {
+    
 }
 
 DaliChannel::~DaliChannel()
@@ -33,10 +34,9 @@ const bool DaliChannel::isGroup()
     return _isGroup;
 }
 
-void DaliChannel::init(uint8_t channelIndex, MessageQueue *queue, bool ig)
+void DaliChannel::init(uint8_t channelIndex, bool ig)
 {
     _channelIndex = channelIndex;
-    _queue = queue;
     _isGroup = ig;
 }
 
@@ -128,7 +128,7 @@ void DaliChannel::loop1()
     {
         if(_errorResp != 300)
         {
-            int8_t resp = _queue->getResponse(_errorResp);
+            int8_t resp = _queue.getResponse(_errorResp);
             if(resp == -200) return;
             _errorResp = 300;
             if(resp == -1) resp = 1;
@@ -159,34 +159,34 @@ uint16_t DaliChannel::calcKoNumber(int asap)
 uint8_t DaliChannel::sendArc(byte v)
 {
     Message *msg = new Message();
-    msg->id = _queue->getNextId();
+    msg->id = _queue.getNextId();
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
     msg->para2 = DaliHelper::percentToArc(v);
     msg->addrtype = _isGroup;
-    return _queue->push(msg);
+    return _queue.push(msg);
 }
 
 uint8_t DaliChannel::sendCmd(byte cmd)
 {
     Message *msg = new Message();
-    msg->id = _queue->getNextId();
+    msg->id = _queue.getNextId();
     msg->type = MessageType::Cmd;
     msg->para1 = _channelIndex;
     msg->para2 = cmd;
     msg->addrtype = _isGroup;
-    return _queue->push(msg);
+    return _queue.push(msg);
 }
 
 uint8_t DaliChannel::sendSpecialCmd(DaliSpecialCmd cmd, byte value)
 {
     Message *msg = new Message();
-    msg->id = _queue->getNextId();
+    msg->id = _queue.getNextId();
     msg->type = MessageType::SpecialCmd;
     msg->para1 = static_cast<uint8_t>(cmd);
     msg->para2 = value;
     msg->addrtype = _isGroup;
-    return _queue->push(msg);
+    return _queue.push(msg);
 }
 
 void DaliChannel::processInputKo(GroupObject &ko)

@@ -12,7 +12,7 @@
 class DaliChannel : public OpenKNX::Channel
 {
 	public:
-        DaliChannel();
+        DaliChannel(MessageQueue &queue);
         ~DaliChannel();
 
 		void loop() override;
@@ -22,7 +22,7 @@ class DaliChannel : public OpenKNX::Channel
 		const bool isConfigured();
 		const bool isGroup();
 
-		void init(uint8_t channelIndex, MessageQueue *queue, bool isGroup);
+		void init(uint8_t channelIndex, bool isGroup);
 		void setOnValue(uint8_t value);
 		void setGroups(uint16_t groups);
 		void setGroupState(uint8_t group, bool state);
@@ -50,7 +50,7 @@ class DaliChannel : public OpenKNX::Channel
 			Color
 		};
 
-		MessageQueue *_queue;
+		MessageQueue &_queue;
 
 		//relatives Dimmen
 		DimmDirection _dimmDirection = DimmDirection::None;

@@ -104,8 +104,8 @@ class DaliModule : public OpenKNX::Module
 		bool _daliBusStateToSet = true;
 		unsigned long _daliStateLast = 1;
 		DaliClass *dali;
-		DaliChannel channels[64];
-		DaliChannel groups[16];
+		DaliChannel channels[64] {queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue};
+		DaliChannel groups[16] {queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue};
 		MessageQueue queue;
 		struct repeating_timer _timer;
 

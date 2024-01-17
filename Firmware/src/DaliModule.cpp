@@ -30,14 +30,14 @@ void DaliModule::setup(bool conf)
 
     for(int i = 0; i < 64; i++)
     {
-        channels[i].init(i, &queue, false);
+        channels[i].init(i, false);
         channels[i].setup();
     }
 
     
     for(int i = 0; i < 16; i++)
     {
-        groups[i].init(i, &queue, true);
+        groups[i].init(i, true);
         groups[i].setup();
     }
 }
