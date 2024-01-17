@@ -96,7 +96,9 @@ void DaliModule::loop1(bool configured)
     if(!configured) return;
 
     loopGroupState();
+#ifdef INFO2_LED_PIN
     loopError();
+#endif
 
     for(int i = 0; i < 64; i++)
     {
@@ -106,8 +108,6 @@ void DaliModule::loop1(bool configured)
     {
         groups[i].loop1();
     }
-
-    
 }
 
 void DaliModule::loopInitData()
@@ -150,7 +150,6 @@ void DaliModule::loopInitData()
     }
 }
 
-
 void DaliModule::loopGroupState()
 {
     if(_lastChangedGroup != 255)
@@ -169,6 +168,7 @@ void DaliModule::loopGroupState()
     }
 }
 
+#ifdef INFO2_LED_PIN
 void DaliModule::loopError()
 {
     bool error = false;
@@ -185,6 +185,7 @@ void DaliModule::loopError()
     else
         openknx.info2Led.off();
 }
+#endif
 
 int16_t DaliModule::getInfo(byte address, int command, uint8_t additional)
 {
