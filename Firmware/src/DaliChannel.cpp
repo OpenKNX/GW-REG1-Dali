@@ -366,7 +366,7 @@ void DaliChannel::koHandleSwitch(GroupObject &ko)
     if (_isStaircase)
         handleSwitchStaircase(ko);
     else
-        handleSwitchNormal
+        handleSwitchNormal(ko);
 }
 
 void DaliChannel::handleSwitchNormal(GroupObject &ko)
