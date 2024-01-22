@@ -1,3 +1,7 @@
+![Branches](https://badgen.net/github/open-issues/OpenKNX/GW-REG1-Dali)
+![Branches](https://badgen.net/github/branches/OpenKNX/GW-REG1-Dali)
+[![CodeFactor](https://www.codefactor.io/repository/github/openknx/gw-reg1-dali/badge)](https://www.codefactor.io/repository/github/openknx/gw-reg1-dali)
+
 # KNX Dali GW
 Diese Firmware läuft auf der Hardware [REG1 Base](https://github.com/OpenKNX/OpenKNX/wiki/REG1-Base) mit der Dali Applications PCB.  
 
