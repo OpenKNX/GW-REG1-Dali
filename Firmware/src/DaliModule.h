@@ -23,7 +23,6 @@ typedef void (*EventHandlerChangedGroupFuncPtr)(uint8_t index, uint8_t value);
 class DaliModule : public OpenKNX::Module
 {
 	public:
-
 		void loop() override;
 		void loop1(bool configured) override;
 		void setup(bool conf) override;

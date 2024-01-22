@@ -607,7 +607,6 @@ void DaliModule::loopAddressing()
             }
             break;
         }
-
     }
 }
 
@@ -1334,7 +1333,6 @@ void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_
     } else {
         resultLength = 1;
     }
-
 }
 
 uint8_t DaliModule::sendArc(byte addr, byte value, byte type)

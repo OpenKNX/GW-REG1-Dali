@@ -94,6 +94,9 @@ class DaliChannel : public OpenKNX::Channel
 		uint16_t _groups = 0;
 
 
+		void loopError();
+		void loopDimming();
+		void loopStaircase();
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
 		uint8_t sendCmd(byte cmd);
@@ -110,4 +113,7 @@ class DaliChannel : public OpenKNX::Channel
 		void koHandleColor(GroupObject &ko);
 		void koHandleColorRel(GroupObject &ko, uint8_t index);
 		void koHandleColorAbs(GroupObject &ko, uint8_t index);
+
+		void handleSwitchNormal(GroupObject &ko);
+		void handleSwitchStaircase(GroupObject &ko);
 };
