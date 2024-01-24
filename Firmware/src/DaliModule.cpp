@@ -895,7 +895,7 @@ void DaliModule::koHandleScene(GroupObject & ko)
             switch(dest)
             {
                 //Address
-                case 1:
+                case PT_scenetype_address:
                 {
                     addr = ParamSCE_addressIndex(i);
                     logDebugP("KO Scene%i: Addr=%i", i, addr);
@@ -904,7 +904,7 @@ void DaliModule::koHandleScene(GroupObject & ko)
                 }
 
                 //Group
-                case 2:
+                case PT_scenetype_group:
                 {
                     addr = ParamSCE_groupIndex(i);
                     logDebugP("KO Scene%i: Grou=%i", i, addr);
@@ -913,7 +913,7 @@ void DaliModule::koHandleScene(GroupObject & ko)
                 }
 
                 //Broadcast
-                case 3:
+                case PT_scenetype_broadcast:
                 {
                     addr = 0xFF;
                     logDebugP("KO Scene%i: Broadcast", i);
@@ -1010,7 +1010,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     resultData[1] = deviceType;
 
     //DeviceType Color
-    if(deviceType == 8)
+    if(deviceType == PT_deviceType_DT8)
     {
         sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 8);
         resp = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_TYPE_FEATURES);

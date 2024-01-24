@@ -1,9 +1,9 @@
 - [X] Partielles Programmieren
 - [X] Treppenlicht manuell ausschalten
 - [X] Dali LED bei signalen auf dem DaliBus
-- [X] Error LED bei Problemen mit einem EVG
+- [ ] Error LED bei Problemen mit einem EVG
 - [X] Automatisch Scan, setzen aller unadressierten EVGs
-- [ ] Gruppensteuerung mit gleicher funktionalität wie Einzelsteuerung
+- [X] Gruppensteuerung mit gleicher funktionalität wie Einzelsteuerung (z.B. Farbe)
 - [ ] Farbeinstellungen bei Szenen
 - [ ] Tunable White per relativ dimmen
 - [X] RGB einzeln relativ dimmen
