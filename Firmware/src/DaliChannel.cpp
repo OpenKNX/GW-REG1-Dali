@@ -45,7 +45,7 @@ void DaliChannel::setup()
 {
     if (_isGroup)
     {
-        _isConfigured = ParamGRP_deviceType != 0;
+        _isConfigured = ParamGRP_deviceType != PT_deviceType_Deaktiviert;
         if (!_isConfigured)
         {
             logDebugP("Nicht konfiguriert");
@@ -62,7 +62,7 @@ void DaliChannel::setup()
     }
     else
     {
-        _isConfigured = ParamADR_deviceType != 15;
+        _isConfigured = ParamADR_deviceType != PT_deviceType_Deaktiviert;
         if (!_isConfigured)
         {
             logDebugP("Nicht konfiguriert");
@@ -262,15 +262,12 @@ void DaliChannel::processInputKo(GroupObject &ko)
         koHandleLock(ko);
         break;
 
-        // Error
-        // case 6
-
     case ADR_Kocolor:
         koHandleColor(ko);
         break;
 
     // Farbe Status
-    // case 8
+    // case 7
 
     // Farbe Rot Dimmen relativ
     case ADR_Kocolor_red_relative:
@@ -283,7 +280,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         break;
 
     // Farbe Rot Status
-    // case 11
+    // case 10
 
     // Farbe Grün Dimmen relativ
     case ADR_Kocolor_green_relative:
@@ -296,7 +293,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
         break;
 
     // Farbe Grün Status
-    // case 14
+    // case 13
 
     // Farbe Blau Dimmen relativ
     case ADR_Kocolor_blue_relative:
@@ -308,8 +305,11 @@ void DaliChannel::processInputKo(GroupObject &ko)
         koHandleColorAbs(ko, 2);
         break;
 
-        // Farbe Blau Status
-        // case 17
+    // Farbe Blau Status
+    // case 16
+
+    // Error
+    // case 17
     }
 }
 
@@ -526,12 +526,12 @@ void DaliChannel::koHandleLock(GroupObject &ko)
     switch (behave)
     {
     // nothing
-    case 0:
+    case PT_lock_no:
         logDebugP("Nichts");
         return;
 
     // Ausschalten
-    case 1:
+    case PT_lock_off:
     {
         logDebugP("Ein");
         behavevalue = isNight ? _onNight : _onDay;
@@ -539,7 +539,7 @@ void DaliChannel::koHandleLock(GroupObject &ko)
     }
 
     // Einschalten
-    case 2:
+    case PT_lock_on:
     {
         logDebugP("Aus");
         behavevalue = 0;
@@ -547,7 +547,7 @@ void DaliChannel::koHandleLock(GroupObject &ko)
     }
 
     // Fester Wert
-    case 3:
+    case PT_lock_value:
     {
         logDebugP("Wert");
         break;
@@ -569,42 +569,78 @@ void DaliChannel::koHandleColor(GroupObject &ko)
 
     uint8_t colorType = _isGroup ? ParamGRP_colorType : ParamADR_colorType;
 
-    // if rgb or hsv
-    if (colorType < 2)
+    switch(colorType)
     {
-        uint32_t value = ko.value(Dpt(232, 600));
-        logDebugP("Got Color: %X", value);
+        //HSV
+        case PT_colorType_HSV:
+        {
+            uint32_t value = ko.value(Dpt(232, 600));
+            logDebugP("Got Color: %X", value);
 
-        currentColor[0] = (value >> 16) & 0xFF;
-        currentColor[1] = (value >> 8) & 0xFF;
-        currentColor[2] = value & 0xFF;
+            currentColor[0] = (value >> 16) & 0xFF;
+            currentColor[1] = (value >> 8) & 0xFF;
+            currentColor[2] = value & 0xFF;
 
-        logInfoP("R=%i G=%i B=%i", currentColor[0], currentColor[1], currentColor[2]);
+            sendKoState(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
+            sendKoState(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
+            sendKoState(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
+            sendKoState(ADR_Kodimm_state, currentColor[2], Dpt(5, 4), true);
 
-        // TODO send only if changed
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_rgb_state)).value(value, Dpt(232, 600));         // TODO fix GRP_Kocolor_rgb_state
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_red_state)).value(currentColor[0], Dpt(5, 4));   // TODO fix GRP_Kocolor_
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_green_state)).value(currentColor[1], Dpt(5, 4)); // TODO fix GRP_Kocolor_
-        knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 4));  // TODO fix GRP_Kocolor_
+            sendColor(true);
+            break;
+        }
 
-        sendColor(true);
-        // if tunable white
-    }
-    else
-    {
-        uint16_t kelvin = ko.value(Dpt(7, 600));
-        logDebugP("Got Kelvin: %X K", kelvin);
-        uint16_t mirek = 1000000.0 / kelvin;
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::SET_TEMPERATURE_COLOUR);
+        //RGB
+        case PT_colorType_RGB:
+        {
+            uint32_t value = ko.value(Dpt(232, 600));
+            logDebugP("Got Color: %X", value);
 
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmd::ACTIVATE);
+            currentColor[0] = (value >> 16) & 0xFF;
+            currentColor[1] = (value >> 8) & 0xFF;
+            currentColor[2] = value & 0xFF;
+
+            sendKoState(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
+            sendKoState(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
+            sendKoState(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
+            sendKoState(ADR_Kocolor_blue_state, currentColor[2], Dpt(5, 4), true);
+
+            sendColor(true);
+            break;
+        }
+
+        //TW
+        case PT_colorType_TW:
+        {
+            uint16_t kelvin = ko.value(Dpt(7, 600));
+            logDebugP("Got Kelvin: %X K", kelvin);
+            uint16_t mirek = 1000000.0 / kelvin;
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
+            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmdExtendedDT8::SET_TEMPERATURE_COLOUR);
+
+            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+            sendCmd(DaliCmd::ACTIVATE);
+
+            sendKoState(_isGroup ? 0 : ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600), true);
+            break;
+        }
     }
 
     setDimmState(254, true, true); // TODO get real
+}
+
+void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type, bool isLastCommand)
+{
+    if(!isLastCommand)
+    {
+        //TODO check if change was sent within StatusInterval
+    }
+
+    GroupObject &ko = knx.getGroupObject(calcKoNumber(koNr));
+    if(ko.value(type) != value)
+        ko.value(value, type);
 }
 
 void DaliChannel::sendColor(bool isLastCommand)
@@ -612,7 +648,7 @@ void DaliChannel::sendColor(bool isLastCommand)
     // TODO senden nur alle 100? ms
     uint8_t r, g, b;
     uint8_t colorType = _isGroup ? ParamGRP_colorType : ParamADR_colorType;
-    if (colorType == 0)
+    if (colorType == PT_colorType_HSV)
     {
         ColorHelper::hsvToRGB(currentColor[0], currentColor[1], currentColor[2], r, g, b);
     }
@@ -624,19 +660,16 @@ void DaliChannel::sendColor(bool isLastCommand)
     }
 
     logDebugP("RGB: %i %i %i", r, g, b);
-    if (r == 255)
-        r--;
-    if (g == 255)
-        g--;
-    if (b == 255)
-        b--;
+    if (r == 255) r--;
+    if (g == 255) g--;
+    if (b == 255) b--;
     logDebugP("Send: %i %i %i", r, g, b);
 
     uint8_t sendType = _isGroup ? ParamGRP_colorSpace : ParamADR_colorSpace;
     switch (sendType)
     {
     // send as rgb
-    case 0:
+    case PT_colorSpace_rgb:
     {
         sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
         sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
@@ -649,7 +682,7 @@ void DaliChannel::sendColor(bool isLastCommand)
     }
 
     // send as xy
-    case 1:
+    case PT_colorSpace_xy:
     {
         uint16_t x;
         uint16_t y;
@@ -714,11 +747,11 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
 
     uint8_t perc = DaliHelper::arcToPercent(value);
 
-    uint8_t currentState = knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Kodimm_state : ADR_Kodimm_state)).value(Dpt(5, 1));
+    uint8_t currentState = knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(Dpt(5, 1));
     logDebugP("SetDimmState %i/%i (%i)", perc, value, currentState);
     if (perc == currentState)
         return;
-    knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Kodimm_state : ADR_Kodimm_state)).value(perc, Dpt(5, 1));
+    knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
 }
 
 void DaliChannel::updateCurrentDimmValue(bool isLastCommand)

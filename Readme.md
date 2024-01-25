@@ -3,7 +3,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/openknx/gw-reg1-dali/badge)](https://www.codefactor.io/repository/github/openknx/gw-reg1-dali)
 
 # KNX Dali GW
-Diese Firmware läuft auf der Hardware [REG1 Base](https://github.com/OpenKNX/OpenKNX/wiki/REG1-Base) mit der Dali Applications PCB.  
+Diese Firmware läuft auf der Hardware [REG1-Dali](https://github.com/OpenKNX/OpenKNX/wiki/REG1-Dali).  
 
 ## Firmware
 Für das Erstellen der Firmware und der knxprod schau dir bitte die [Wiki](https://github.com/OpenKNX/GW-REG1-Dali/wiki/) an.  
