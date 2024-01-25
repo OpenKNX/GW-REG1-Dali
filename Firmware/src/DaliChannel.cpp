@@ -581,10 +581,10 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             currentColor[1] = (value >> 8) & 0xFF;
             currentColor[2] = value & 0xFF;
 
-            sendKoState(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
-            sendKoState(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
-            sendKoState(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
-            sendKoState(ADR_Kodimm_state, currentColor[2], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
+            sendKoStateOnChange(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kodimm_state, currentColor[2], Dpt(5, 4), true);
 
             sendColor(true);
             break;
@@ -600,10 +600,10 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             currentColor[1] = (value >> 8) & 0xFF;
             currentColor[2] = value & 0xFF;
 
-            sendKoState(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
-            sendKoState(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
-            sendKoState(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
-            sendKoState(ADR_Kocolor_blue_state, currentColor[2], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
+            sendKoStateOnChange(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_blue_state, currentColor[2], Dpt(5, 4), true);
 
             sendColor(true);
             break;
@@ -623,7 +623,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
             sendCmd(DaliCmd::ACTIVATE);
 
-            sendKoState(_isGroup ? 0 : ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600), true);
+            sendKoStateOnChange(_isGroup ? 0 : ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600), true);
             break;
         }
     }
@@ -639,7 +639,8 @@ void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, cons
     }
 
     GroupObject &ko = knx.getGroupObject(calcKoNumber(koNr));
-    if(ko.value(type) != value)
+    //TODO warte auf den PR von Cornelius
+    //if(ko.value(type) != value)
         ko.value(value, type);
 }
 

@@ -106,7 +106,7 @@ class DaliChannel : public OpenKNX::Channel
 		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);
 		void updateCurrentDimmValue(bool isLastCommand);
 		void sendColor(bool isLastCommand);
-		void sendKoState(uint16_t koNr, const KNXValue &value, const Dpt &type, bool isLastCommand);
+		void sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type, bool isLastCommand);
 		
 		void koHandleSwitch(GroupObject &ko);
 		void koHandleDimmRel(GroupObject &ko);
