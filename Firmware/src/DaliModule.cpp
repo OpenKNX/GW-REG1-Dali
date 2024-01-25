@@ -613,6 +613,12 @@ void DaliModule::loopAddressing()
 void DaliModule::loopBusState()
 {
     bool state = !digitalRead(DALI_RX);
+#ifdef OKNXHW_REG1_BASE_V1
+    if(state)
+        openknx.info1Led.on();
+    else
+        openknx.info1Led.off();
+#endif
     if(state != _daliBusStateToSet)
     {
         _daliBusStateToSet = state;
@@ -628,6 +634,7 @@ void DaliModule::loopBusState()
                 logInfoP("Dali Busspg. vorhanden");
             else
                 logInfoP("Dali Busspg. nicht vorhanden");
+                
         }
     }
 }

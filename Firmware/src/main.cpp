@@ -23,7 +23,11 @@ void setup()
 	openknx.addModule(3, openknxFileTransferModule);
 	openknx.setup();
 
+#ifdef OKNXHW_REG1_BASE_V1
+	openknx.info3Led.activity(daliActivity, false);
+#else
 	openknx.info1Led.activity(daliActivity, false);
+#endif
 }
 
 void setup1()

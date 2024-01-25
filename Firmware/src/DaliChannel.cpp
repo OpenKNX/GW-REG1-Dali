@@ -78,7 +78,7 @@ void DaliChannel::setup()
         _onNight = ParamADR_onNight;
         _getError = ParamADR_error;
     }
-    logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is", _min, _max, _onDay, _onNight, interval);
+    logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is | Error %i", _min, _max, _onDay, _onNight, interval, _getError);
 }
 
 void DaliChannel::loop()
@@ -148,26 +148,33 @@ void DaliChannel::loopError()
     {
         if (_errorResp != 300)
         {
-            int8_t resp = _queue.getResponse(_errorResp);
+            int16_t resp = _queue.getResponse(_errorResp);
             if (resp == -200)
                 return;
             _errorResp = 300;
             if (resp == -1)
                 resp = 1;
+                logErrorP("EVG hat Anwtort %i %i", resp, _errorResp);
             if (resp < 0)
                 return;
 
             resp = resp & 0b11;
-            bool val = knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(Dpt(1, 0));
+            bool val = knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(Dpt(1, 1));
             _errorState = val != 0;
             if (val != resp)
                 knx.getGroupObject(calcKoNumber(ADR_Koerror)).value((val != 0), DPT_Switch);
+
+            if(_errorState)
+            {
+                logErrorP("EVG hat ein Fehler");
+            }
         }
 
         if (millis() - _lastError > 60000)
         {
             _errorResp = sendCmd(144); // QUERY_STATUS
             _lastError = millis();
+            logDebugP("EVG abfragen");
         }
     }
 }

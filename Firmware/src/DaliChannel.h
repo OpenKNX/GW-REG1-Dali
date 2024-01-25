@@ -72,7 +72,7 @@ class DaliChannel : public OpenKNX::Channel
 		bool _getError = false;
 		bool _errorState = false;
 		uint16_t _errorResp = 300;
-		unsigned long _lastError = 0;
+		unsigned long _lastError = 40000;
 		//Aktueller Status
 		bool currentState = false;
 		//Aktuelle Helligkeit
