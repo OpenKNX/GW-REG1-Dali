@@ -9,3 +9,4 @@
 - [X] RGB einzeln relativ dimmen
 - [ ] HCL für TW
 - [ ] Function Button kann mit verschiedenen Aktionen belegt werden
+- [ ] Status einzelner EVGs abfragen per ETS einstellen
