@@ -16,6 +16,6 @@ class MessageQueue
         Message *head;
         Message *tail;
         uint8_t currentId = 0;
-		int16_t *responses = new int16_t[256];
+		int16_t responses[256];
         bool isLocked = false;
 };
