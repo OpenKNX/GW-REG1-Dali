@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "Firmware"
+			"path": "."
 		},
 		{
 			"path": "Firmware/lib/arduino-dali"
