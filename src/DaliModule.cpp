@@ -42,22 +42,31 @@ void DaliModule::setup(bool conf)
     }
 
 #ifdef FUNC1_BUTTON_PIN
-    openknx.func1Button.onShortClick(() => {
-        uint8_t sett = ParamAPP_funcBtn;
-        handleFunc(sett);
-    });
-    openknx.func1Button.onLongClick(() => {
-        uint8_t sett = ParamAPP_funcBtnLong;
-        handleFunc(sett);
-    });
-    openknx.func1Button.onDoubleClick(() => {
-        uint8_t sett = ParamAPP_funcBtnDbl;
-        handleFunc(sett);
-    });
+    openknx.func1Button.onShortClick([] { openknxDaliModule.handleFuncShort(); });
+    openknx.func1Button.onLongClick([] { openknxDaliModule.handleFuncLong(); });
+    openknx.func1Button.onDoubleClick([] { openknxDaliModule.handleFuncDouble(); });
 #endif
 }
 
 #ifdef FUNC1_BUTTON_PIN
+void DaliModule::handleFuncShort()
+{
+    uint8_t sett = ParamAPP_funcBtn;
+    handleFunc(sett);
+}
+
+void DaliModule::handleFuncLong()
+{
+    uint8_t sett = ParamAPP_funcBtnLong;
+    handleFunc(sett);
+}
+
+void DaliModule::handleFuncDouble()
+{
+    uint8_t sett = ParamAPP_funcBtnDbl;
+    handleFunc(sett);
+}
+
 void DaliModule::handleFunc(uint8_t setting)
 {
     switch(setting)

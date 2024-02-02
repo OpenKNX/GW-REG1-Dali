@@ -37,6 +37,11 @@ class DaliModule : public OpenKNX::Module
 		const std::string version() override;
 
 		bool getDaliBusState();
+#ifdef FUNC1_BUTTON_PIN
+		void handleFuncShort();
+		void handleFuncLong();
+		void handleFuncDouble();
+#endif
 
 		bool processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
 		bool processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
@@ -85,7 +90,7 @@ class DaliModule : public OpenKNX::Module
 		void loopError();
 #endif
 #ifdef FUNC1_BUTTON_PIN
-		void handleFuncShort(uint8_t setting);
+		void handleFunc(uint8_t setting);
 		bool _currentToggleState = false;
 #endif
 		bool _currentLockState = false;
