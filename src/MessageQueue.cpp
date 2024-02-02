@@ -45,8 +45,10 @@ Message* MessageQueue::pop()
 
 uint8_t MessageQueue::getNextId()
 {
+    currentId++;
+    if(currentId == 0) currentId++;
     responses[currentId] = -200;
-    return currentId++;
+    return currentId;
 }
 
 void MessageQueue::setResponse(uint8_t id, int16_t value)

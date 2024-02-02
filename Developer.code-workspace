@@ -4,16 +4,16 @@
 			"path": "."
 		},
 		{
-			"path": "Firmware/lib/arduino-dali"
+			"path": "lib/arduino-dali"
 		},
 		{
-			"path": "Firmware/lib/knx"
+			"path": "lib/knx"
 		},
 		{
-			"path": "Firmware/lib/OFM-FileTransferModule"
+			"path": "lib/OFM-FileTransferModule"
 		},
 		{
-			"path": "Firmware/lib/OGM-Common"
+			"path": "lib/OGM-Common"
 		}
 	],
 	"settings": {

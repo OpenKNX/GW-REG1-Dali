@@ -40,7 +40,6 @@ class DaliChannel : public OpenKNX::Channel
 		// void readFlash(const uint8_t* data, const uint16_t size) override;
 		// uint16_t flashSize() override;
 
-
 	private:
 		enum class DimmDirection {
 			Down,
@@ -87,6 +86,11 @@ class DaliChannel : public OpenKNX::Channel
 		DimmType currentDimmType;
 		unsigned long lastCurrentDimmUpdate = 0;
 
+		//Aktueller Status abfragen
+		uint8_t _queryId = 0;
+		uint16_t _queryInterval = 0;
+		unsigned long _lastValueQuery = 0;
+
 		//Einschalten mit letztem Wert
 		uint8_t _lastDayValue = 100;
 		uint8_t _lastNightValue = 10;
@@ -94,10 +98,10 @@ class DaliChannel : public OpenKNX::Channel
 		//Gruppenzugehörigkeit
 		uint16_t _groups = 0;
 
-
 		void loopError();
 		void loopDimming();
 		void loopStaircase();
+		void loopQueryLevel();
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
 		uint8_t sendCmd(byte cmd);

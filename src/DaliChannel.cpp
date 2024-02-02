@@ -77,8 +77,9 @@ void DaliChannel::setup()
         _onDay = ParamADR_onDay;
         _onNight = ParamADR_onNight;
         _getError = ParamADR_error;
+        _queryInterval = ParamADR_queryTime;
     }
-    logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is | Error %i", _min, _max, _onDay, _onNight, interval, _getError);
+    logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is | Error %i | Query %i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval);
 }
 
 void DaliChannel::loop()
@@ -93,6 +94,7 @@ void DaliChannel::loop1()
     loopStaircase();
     loopDimming();
     loopError();
+    loopQueryLevel();
 }
 
 void DaliChannel::loopStaircase()
@@ -151,10 +153,10 @@ void DaliChannel::loopError()
             int16_t resp = _queue.getResponse(_errorResp);
             if (resp == -200)
                 return;
-            _errorResp = 300;
             if (resp == -1)
                 resp = 1;
                 logErrorP("EVG hat Anwtort %i %i", resp, _errorResp);
+            _errorResp = 300;
             if (resp < 0)
                 return;
 
@@ -174,8 +176,32 @@ void DaliChannel::loopError()
         {
             _errorResp = sendCmd(144); // QUERY_STATUS
             _lastError = millis();
-            logDebugP("EVG abfragen");
+            logDebugP("EVG abfragen %i", _errorResp);
         }
+    }
+}
+
+void DaliChannel::loopQueryLevel()
+{
+    if(_queryInterval == 0) return;
+
+    if((millis() - _lastValueQuery) > (_queryInterval*1000))
+    {
+        logDebugP("Query actual level");
+        _lastValueQuery = millis();
+        if(_lastValueQuery == 0) _lastValueQuery++;
+
+        _queryId = sendCmd(DaliCmd::QUERY_ACTUAL_LEVEL);
+        return;
+    }
+    if(_queryId != 0)
+    {
+        int16_t resp = _queue.getResponse(_queryId);
+        if(resp == 200) return;
+        _queryId = 0;
+        if(resp < 0) return;
+        logDebugP("Got new actual level %i-%i", DaliHelper::arcToPercent(resp), resp);
+        setDimmState(resp, false, true);
     }
 }
 
