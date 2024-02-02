@@ -31,7 +31,6 @@ class DaliModule : public OpenKNX::Module
 		void processInputKo(GroupObject &ko) override;
 		void showHelp() override;
 		void setCallback(EventHandlerReceivedDataFuncPtr callback);
-		void setActivityCallback(EventHandlerActivityFuncPtr callback);
 
 		const std::string name() override;
 		const std::string version() override;
@@ -45,7 +44,7 @@ class DaliModule : public OpenKNX::Module
 
 		bool processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
 		bool processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
-
+		
 	private:
 		enum class AddressingState {
 			None,
@@ -108,6 +107,7 @@ class DaliModule : public OpenKNX::Module
 		bool *addresses;
 		int _adrFound = 0;
 		bool _adrAssign = false;
+		uint8_t _lastBusState = 2;
 
 		uint8_t _lastChangedGroup = 255;
 		uint8_t _lastChangedValue = 0;

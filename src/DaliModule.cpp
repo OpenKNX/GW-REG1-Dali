@@ -1,5 +1,7 @@
 #include "DaliModule.h"
 
+unsigned long daliActivity = 0;
+
 const std::string DaliModule::name()
 {
     return "Dali";
@@ -15,11 +17,6 @@ const std::string DaliModule::version()
 void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
 {
     dali->setCallback(callback);
-}
-
-void DaliModule::setActivityCallback(EventHandlerActivityFuncPtr callback)
-{
-    dali->setActivityCallback(callback);
 }
 
 //will be called once
@@ -113,6 +110,9 @@ void DaliModule::setup1(bool conf)
     DaliBus.errorCallback = [](daliReturnValue errorCode) {
         _lastDaliError = errorCode;
     };
+    dali->setActivityCallback([] {
+        daliActivity = millis();
+    });
 }
 
 void DaliModule::loop()
@@ -669,10 +669,15 @@ void DaliModule::loopBusState()
 {
     bool state = !digitalRead(DALI_RX);
 #ifdef OKNXHW_REG1_BASE_V1
-    if(state)
-        openknx.info1Led.on();
-    else
-        openknx.info1Led.off();
+    if(_lastBusState != state)
+    {
+        _lastBusState = state;
+
+        if(state)
+            openknx.info3Led.activity(daliActivity, true);
+        else
+            openknx.info3Led.off();
+    }
 #endif
     if(state != _daliBusStateToSet)
     {
