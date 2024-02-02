@@ -84,6 +84,11 @@ class DaliModule : public OpenKNX::Module
 #ifdef INFO2_LED_PIN
 		void loopError();
 #endif
+#ifdef FUNC1_BUTTON_PIN
+		void handleFuncShort(uint8_t setting);
+		bool _currentToggleState = false;
+#endif
+		bool _currentLockState = false;
 		int16_t getInfo(byte address, int command, uint8_t additional = 0);
 	
 		uint32_t _adrLow = 0;

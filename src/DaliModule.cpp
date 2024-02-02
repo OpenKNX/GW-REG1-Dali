@@ -40,7 +40,53 @@ void DaliModule::setup(bool conf)
         groups[i].init(i, true);
         groups[i].setup();
     }
+
+#ifdef FUNC1_BUTTON_PIN
+    openknx.func1Button.onShortClick(() => {
+        uint8_t sett = ParamAPP_funcBtn;
+        handleFunc(sett);
+    });
+    openknx.func1Button.onLongClick(() => {
+        uint8_t sett = ParamAPP_funcBtnLong;
+        handleFunc(sett);
+    });
+    openknx.func1Button.onDoubleClick(() => {
+        uint8_t sett = ParamAPP_funcBtnDbl;
+        handleFunc(sett);
+    });
+#endif
 }
+
+#ifdef FUNC1_BUTTON_PIN
+void DaliModule::handleFunc(uint8_t setting)
+{
+    switch(setting)
+    {
+        case PT_clickAction_on:
+            sendCmd(0xFF, DaliCmd::RECALL_MAX, 1);
+            break;
+        case PT_clickAction_off:
+            sendCmd(0xFF, DaliCmd::OFF, 1);
+            break;
+        case PT_clickAction_toggle:
+            _currentToggleState = !_currentToggleState;
+            sendCmd(0xFF, _currentToggleState ? DaliCmd::RECALL_MAX : DaliCmd::OFF, 1);
+            break;
+        case PT_clickAction_lock:
+            logDebugP("Locking Device");
+            _currentLockState = true;
+            break;
+        case PT_clickAction_unlock:
+            logDebugP("Unlocking Device");
+            _currentLockState = false;
+            break;
+        case PT_clickAction_lock_toggle:
+            _currentLockState = !_currentLockState;
+            logDebugP("Toggle Lock Device %i", _currentLockState);
+            break;
+    }
+}
+#endif
 
 bool __isr __time_critical_func(daliTimerInterruptCallback)(repeating_timer *t)
 {
@@ -776,7 +822,7 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
 
 void DaliModule::processInputKo(GroupObject &ko)
 {
-    if(_adrState != AddressingState::None) return;
+    if(_adrState != AddressingState::None || _currentLockState) return;
 
     int koNum = ko.asap();
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)

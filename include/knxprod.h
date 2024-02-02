@@ -93,18 +93,40 @@
 #define PT_fadeRate_5_6 13
 #define PT_fadeRate_4_0 14
 #define PT_fadeRate_2_8 15
+#define PT_clickAction_none 0
+#define PT_clickAction_on 1
+#define PT_clickAction_off 2
+#define PT_clickAction_toggle 3
+#define PT_clickAction_lock 4
+#define PT_clickAction_unlock 5
+#define PT_clickAction_lock_toggle 6
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
 #define MAIN_ApplicationVersion 0x00
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1281
+#define MAIN_ParameterSize 1282
 #define MAIN_MaxKoNumber 1445
 
 
 #define APP_daynight		0x0000
 // Offset: 0, Size: 1 Bit, Text: Tag/Nacht Objekt
 #define ParamAPP_daynight knx.paramBit(0, 0)
+#define APP_funcBtn		0x0000
+#define APP_funcBtn_Shift	4
+#define APP_funcBtn_Mask	0x0007
+// Offset: 0, BitOffset: 1, Size: 3 Bit, Text: Func Aktion Klick
+#define ParamAPP_funcBtn ((uint)((knx.paramByte(0) >> APP_funcBtn_Shift) & APP_funcBtn_Mask))
+#define APP_funcBtnDbl		0x0000
+#define APP_funcBtnDbl_Shift	1
+#define APP_funcBtnDbl_Mask	0x0007
+// Offset: 0, BitOffset: 4, Size: 3 Bit, Text: Func Aktion Doppelklick
+#define ParamAPP_funcBtnDbl ((uint)((knx.paramByte(0) >> APP_funcBtnDbl_Shift) & APP_funcBtnDbl_Mask))
+#define APP_funcBtnLong		0x0001
+#define APP_funcBtnLong_Shift	5
+#define APP_funcBtnLong_Mask	0x0007
+// Offset: 1, Size: 3 Bit, Text: Func Aktion Langer Klick
+#define ParamAPP_funcBtnLong ((uint)((knx.paramByte(1) >> APP_funcBtnLong_Shift) & APP_funcBtnLong_Mask))
 //!< Number: 1, Text: Broadcast, Function: Schalten
 #define APP_Kobroadcast_switch 1
 #define KoAPP_broadcast_switch knx.getGroupObject(1)
@@ -124,11 +146,11 @@
 //---------------------Modules----------------------------
 
 //-----Module specific starts
-#define SCE_ParamBlockOffset 1
+#define SCE_ParamBlockOffset 2
 #define SCE_ParamBlockSize 4
-#define ADR_ParamBlockOffset 65
+#define ADR_ParamBlockOffset 66
 #define ADR_ParamBlockSize 16
-#define GRP_ParamBlockOffset 1089
+#define GRP_ParamBlockOffset 1090
 #define GRP_ParamBlockSize 12
 #define SCE_KoOffset 6
 #define SCE_KoBlockSize 0
