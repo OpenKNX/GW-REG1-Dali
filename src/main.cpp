@@ -12,7 +12,7 @@ void daliCallback(uint8_t *data, uint8_t len)
 
 void setup()
 {
-	const uint8_t firmwareRevision = 1;
+	const uint8_t firmwareRevision = 0;
 	openknx.init(firmwareRevision);
 	//openknxDaliModule.setCallback(daliCallback);
 	openknx.addModule(1, openknxDaliModule);
