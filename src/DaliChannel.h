@@ -104,7 +104,7 @@ class DaliChannel : public OpenKNX::Channel
 		void loopQueryLevel();
 		uint16_t calcKoNumber(int asap);
 		uint8_t sendArc(byte value);
-		uint8_t sendCmd(byte cmd);
+		uint8_t sendCmd(byte cmd, bool wait = false);
 		uint8_t sendSpecialCmd(DaliSpecialCmd cmd, byte value);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
 		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);

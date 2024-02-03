@@ -174,7 +174,7 @@ void DaliChannel::loopError()
 
         if (millis() - _lastError > 60000)
         {
-            _errorResp = sendCmd(144); // QUERY_STATUS
+            _errorResp = sendCmd(DaliCmd::QUERY_STATUS, true);
             _lastError = millis();
             logDebugP("EVG abfragen %i", _errorResp);
         }
@@ -185,19 +185,27 @@ void DaliChannel::loopQueryLevel()
 {
     if(_queryInterval == 0) return;
 
-    if((millis() - _lastValueQuery) > (_queryInterval*1000))
+    if(_queryId == 0 && (millis() - _lastValueQuery) > (_queryInterval*1000))
     {
         logDebugP("Query actual level");
         _lastValueQuery = millis();
         if(_lastValueQuery == 0) _lastValueQuery++;
 
-        _queryId = sendCmd(DaliCmd::QUERY_ACTUAL_LEVEL);
+        _queryId = sendCmd(DaliCmd::QUERY_ACTUAL_LEVEL, true);
+        logDebugP("id: %i", _queryId);
         return;
     }
     if(_queryId != 0)
     {
         int16_t resp = _queue.getResponse(_queryId);
-        if(resp == 200) return;
+        if(millis() - _lastValueQuery > 500)
+        {
+            logErrorP("Got no answer %i", _queryId);
+            _queryId = 0;
+            return;
+        }
+        if(resp == -200) return;
+        logDebugP("answer: %i", resp);
         _queryId = 0;
         if(resp < 0) return;
         logDebugP("Got new actual level %i-%i", DaliHelper::arcToPercent(resp), resp);
@@ -224,7 +232,7 @@ uint8_t DaliChannel::sendArc(byte v)
     return _queue.push(msg);
 }
 
-uint8_t DaliChannel::sendCmd(byte cmd)
+uint8_t DaliChannel::sendCmd(byte cmd, bool wait)
 {
     Message *msg = new Message();
     msg->id = _queue.getNextId();
@@ -232,6 +240,7 @@ uint8_t DaliChannel::sendCmd(byte cmd)
     msg->para1 = _channelIndex;
     msg->para2 = cmd;
     msg->addrtype = _isGroup;
+    msg->wait = wait;
     return _queue.push(msg);
 }
 
