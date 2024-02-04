@@ -60,12 +60,15 @@ void DaliModule::handleFunc(uint8_t setting)
     switch(setting)
     {
         case PT_clickAction_on:
+            logDebugP("Broadcast on");
             sendCmd(0xFF, DaliCmd::RECALL_MAX, 1);
             break;
         case PT_clickAction_off:
+            logDebugP("Broadcast off");
             sendCmd(0xFF, DaliCmd::OFF, 1);
             break;
         case PT_clickAction_toggle:
+            logDebugP("Broadcast toggle");
             _currentToggleState = !_currentToggleState;
             sendCmd(0xFF, _currentToggleState ? DaliCmd::RECALL_MAX : DaliCmd::OFF, 1);
             break;
