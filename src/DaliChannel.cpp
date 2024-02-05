@@ -120,25 +120,25 @@ void DaliChannel::loopDimming()
             if (currentDimmType == DimmType::Brigthness)
                 sendCmd(DaliCmd::ON_AND_STEP_UP);
             *currentDimmValue++;
+            if (*currentDimmValue == 254)
+            {
+                logDebugP("Dimm Stop at 254");
+                _dimmDirection = DimmDirection::None;
+            }
         }
         else if (_dimmDirection == DimmDirection::Down)
         {
             if (currentDimmType == DimmType::Brigthness)
                 sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
             *currentDimmValue--;
-        }
 
-        if (*currentDimmValue == 0)
-        {
-            logDebugP("Dimm Stop at 0");
-            _dimmDirection = DimmDirection::None;
+            if (*currentDimmValue == 0)
+            {
+                logDebugP("Dimm Stop at 0");
+                _dimmDirection = DimmDirection::None;
+            }
         }
-        else if (*currentDimmValue == 254)
-        {
-            logDebugP("Dimm Stop at 254");
-            _dimmDirection = DimmDirection::None;
-        }
-
+        
         updateCurrentDimmValue(false);
         _dimmLast = millis();
     }
@@ -361,10 +361,10 @@ void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
 
     if (_dimmStep == 0)
     {
+        logDebugP("Dimm Stop");
         _dimmDirection = DimmDirection::None;
         _dimmLast = 0;
         updateCurrentDimmValue(true);
-        logDebugP("Dimm Stop");
         return;
     }
 
@@ -373,11 +373,11 @@ void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
     if (_dimmDirection == DimmDirection::Up)
     {
-        logDebugP("Dimm Up Start %i", currentStep);
+        logDebugP("Dimm Up Start %i/%i", currentStep, *currentDimmValue);
     }
     else if (_dimmDirection == DimmDirection::Down)
     {
-        logDebugP("Dimm Down Start %i", currentStep);
+        logDebugP("Dimm Down Start %i/%i", currentStep, *currentDimmValue);
     }
 }
 
@@ -490,10 +490,10 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
 
     if (_dimmStep == 0)
     {
+        logDebugP("Dimm Stop");
         _dimmDirection = DimmDirection::None;
         _dimmLast = 0;
         updateCurrentDimmValue(true);
-        logDebugP("Dimm Stop");
         return;
     }
 
@@ -502,11 +502,11 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
     if (_dimmDirection == DimmDirection::Up)
     {
-        logDebugP("Dimm Up Start %i", currentStep);
+        logDebugP("Dimm Up Start %i/%i", currentStep, *currentDimmValue);
     }
     else if (_dimmDirection == DimmDirection::Down)
     {
-        logDebugP("Dimm Down Start %i", currentStep);
+        logDebugP("Dimm Down Start %i/%i", currentStep, *currentDimmValue);
     }
 }
 
@@ -801,6 +801,7 @@ void DaliChannel::updateCurrentDimmValue(bool isLastCommand)
         {
         case DimmType::Brigthness:
         {
+            logDebugP("current dimm val %i", *currentDimmValue);
             setDimmState(*currentDimmValue, true, false);
             break;
         }
