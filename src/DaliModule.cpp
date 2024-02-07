@@ -932,7 +932,7 @@ void DaliModule::koHandleScene(GroupObject & ko)
 {
     uint8_t gotNumber = ko.value(DPT_SceneNumber);
     logDebugP("KO Scene: %i", gotNumber);
-    for(int i = 0; i < 16; i++)
+    for(int i = 0; i < SCE_CountNumber; i++)
     {
         uint8_t dest = ParamSCE_typeIndex(i);
         logDebugP("KO Scene%i: Dest=%i", i, dest);

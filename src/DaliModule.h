@@ -18,6 +18,8 @@
 #define DALI_WAIT_SEARCH 300
 #endif
 
+#define SCE_CountNumber 64
+
 typedef void (*EventHandlerChangedGroupFuncPtr)(uint8_t index, uint8_t value);
 
 class DaliModule : public OpenKNX::Module
