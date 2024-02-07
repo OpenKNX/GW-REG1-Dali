@@ -421,7 +421,7 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
         sendArc(onValue);
-        setDimmState(DaliHelper::percentToArc(onValue));
+        setDimmState(DaliHelper::percentToArc(onValue), true);
     }
     else
     {
@@ -658,7 +658,37 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
             sendCmd(DaliCmd::ACTIVATE);
 
-            sendKoStateOnChange(_isGroup ? 0 : ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600), true);
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600), true);
+            break;
+        }
+
+        //xyY
+        case PT_colorType_XYY:
+        {
+            uint8_t* data = ko.valueRef();
+            /*
+                <UnsignedInteger Id="DPST-242-600_F-1" Width="16" Name="x-axis" Unit="None" />
+                <UnsignedInteger Id="DPST-242-600_F-2" Width="16" Name="y-axis" Unit="None" />
+                <UnsignedInteger Id="DPST-242-600_F-3" Width="8" Name="brightness" Unit="%" />
+                <Reserved Width="6" />
+                <Bit Id="DPST-242-600_F-10" Cleared="invalid" Set="valid" Name="Validity xy" />
+                <Bit Id="DPST-242-600_F-11" Cleared="invalid" Set="valid" Name="Validity brightness" />
+            */
+            uint16_t x = data[0] << 8 | data[1];
+            uint16_t y = data[2] << 8 | data[3];
+            uint8_t b = data[4];
+            if(ParamADR_xyIgnore)
+                b = 255;
+
+            ColorHelper::xyyToRGB(x, y, b, currentColor[0], currentColor[1], currentColor[2]);
+
+            uint32_t value = currentColor[0] << 16 | currentColor[1] << 8 | currentColor[2];
+            logDebugP("Got Color: %X", value);
+
+            sendColor(true);
+            
+            //TODO implement in Stack
+            //sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(242, 600), true);
             break;
         }
     }
@@ -811,10 +841,10 @@ void DaliChannel::updateCurrentDimmValue(bool isLastCommand)
             uint32_t value = currentColor[2];
             value |= currentColor[1] << 8;
             value |= currentColor[0] << 16;
-            knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_rgb_state)).value(value, Dpt(232, 600));         // TODO fix GRP_Kocolor_rgb_state
-            knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_red_state)).value(currentColor[0], Dpt(5, 1));   // TODO fix GRP_Kocolor_
-            knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_green_state)).value(currentColor[1], Dpt(5, 1)); // TODO fix GRP_Kocolor_
-            knx.getGroupObject(calcKoNumber(_isGroup ? 0 : ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 1));  // TODO fix GRP_Kocolor_
+            knx.getGroupObject(calcKoNumber(ADR_Kocolor_rgb_state)).value(value, Dpt(232, 600));
+            knx.getGroupObject(calcKoNumber(ADR_Kocolor_red_state)).value(currentColor[0], Dpt(5, 1));
+            knx.getGroupObject(calcKoNumber(ADR_Kocolor_green_state)).value(currentColor[1], Dpt(5, 1));
+            knx.getGroupObject(calcKoNumber(ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 1));
             break;
         }
         }

@@ -39,6 +39,7 @@
 #define PT_colorType_HSV 0
 #define PT_colorType_RGB 1
 #define PT_colorType_TW 2
+#define PT_colorType_XYY 3
 #define PT_colorSpace_rgb 0
 #define PT_colorSpace_xy 1
 #define PT_fadeTimes_no 0
@@ -103,7 +104,7 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x01
+#define MAIN_ApplicationVersion 0x02
 #define MAIN_OrderNumber "REG1-Dali"
 #define MAIN_ParameterSize 1282
 #define MAIN_MaxKoNumber 1445
@@ -287,6 +288,11 @@
 #define ParamADR_queryTimeIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 14)))))
 // Offset: 14, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamADR_queryTime ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 14)))))
+#define ADR_xyIgnore		0x0005
+// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren?
+#define ParamADR_xyIgnoreIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 5), 7)
+// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren?
+#define ParamADR_xyIgnore knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 5), 7)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)

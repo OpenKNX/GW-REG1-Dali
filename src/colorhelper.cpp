@@ -76,9 +76,40 @@ void ColorHelper::kelvinToRGB(uint16_t kelvin, uint8_t& r, uint8_t& g, uint8_t& 
 	}
 }
 
+void ColorHelper::xyyToRGB(uint16_t ix, uint16_t iy, uint8_t iz, uint8_t& r, uint8_t& g, uint8_t& b)
+{
+    float _x = getFloat(ix);
+    float _y = getFloat(iy);
+
+    //let z = 1.0 - x - y;
+	//return this.colorFromXYZ((Y / y) * x, Y, (Y / y) * z);
+
+    float y = iz / 255.0f;
+    float x = _x * (y / _y);
+    float z = ((1.0 - _x - _y) * y) / _y;
+
+    float rt = x * 3.2404f + y * -1.5371f + z * -0.4985f;
+    float gt = x * -0.9693f + y * 1.8760f + z * 0.0416f;
+    float bt = x * 0.0556f + y * -0.2040f + z * 1.05723f;
+
+    rt = adjust(rt);
+    gt = adjust(gt);
+    bt = adjust(bt);
+
+    r = max(min(rt, 255.0f), 0);
+    g = max(min(gt, 255.0f), 0);
+    b = max(min(bt, 255.0f), 0);
+}
+
 uint16_t ColorHelper::getBytes(float input)
 {
 	return max(min(round(input * 65536), 65534), 0);
+}
+
+float ColorHelper::getFloat(uint16_t input)
+{
+    float output = input / 65536.0f;
+	return max(min(output, 0.0), 1.0);
 }
 
 double ColorHelper::hue2rgb(double p, double q, double t)
@@ -89,4 +120,12 @@ double ColorHelper::hue2rgb(double p, double q, double t)
 	if (t < 1 / 2.0) return q;
 	if (t < 2 / 3.0) return p + (q - p) * (2 / 3.0 - t) * 6;
 	return p;
+}
+
+float ColorHelper::adjust(float input)
+{
+  if (input > 0.0031308) {
+    return (1.055f * pow(input, (1.0f / 2.4f)) - 0.055f) * 255.0;
+  }
+  return 12.92f * input;
 }
