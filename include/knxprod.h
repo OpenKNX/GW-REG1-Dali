@@ -106,8 +106,8 @@
 #define MAIN_ApplicationNumber 0x01
 #define MAIN_ApplicationVersion 0x02
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1282
-#define MAIN_MaxKoNumber 1445
+#define MAIN_ParameterSize 1474
+#define MAIN_MaxKoNumber 1493
 
 
 #define APP_daynight		0x0000
@@ -149,15 +149,15 @@
 //-----Module specific starts
 #define SCE_ParamBlockOffset 2
 #define SCE_ParamBlockSize 4
-#define ADR_ParamBlockOffset 66
+#define ADR_ParamBlockOffset 258
 #define ADR_ParamBlockSize 16
-#define GRP_ParamBlockOffset 1090
+#define GRP_ParamBlockOffset 1282
 #define GRP_ParamBlockSize 12
 #define SCE_KoOffset 6
 #define SCE_KoBlockSize 0
-#define ADR_KoOffset 22
+#define ADR_KoOffset 70
 #define ADR_KoBlockSize 18
-#define GRP_KoOffset 1174
+#define GRP_KoOffset 1222
 #define GRP_KoBlockSize 17
 
 //-----Module: adresse
