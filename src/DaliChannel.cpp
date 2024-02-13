@@ -45,12 +45,9 @@ void DaliChannel::setup()
 {
     if (_isGroup)
     {
-        _isConfigured = ParamGRP_deviceType != PT_deviceType_Deaktiviert;
+        _isConfigured = ParamGRP_deviceType != PT_groupType_none;
         if (!_isConfigured)
-        {
-            logDebugP("Nicht konfiguriert");
             return;
-        }
 
         _isStaircase = ParamGRP_type;
         _min = 0;
@@ -64,10 +61,7 @@ void DaliChannel::setup()
     {
         _isConfigured = ParamADR_deviceType != PT_deviceType_Deaktiviert;
         if (!_isConfigured)
-        {
-            logDebugP("Nicht konfiguriert");
             return;
-        }
 
         _isStaircase = ParamADR_type;
         _min = ParamADR_min;
@@ -117,29 +111,29 @@ void DaliChannel::loopDimming()
     {
         if(millis() - _dimmLast > DimmInterval)
         {
-            logDebugP("Dimm Pointer %i/%i", currentDimmValue, &currentStep);
-            
             if (_dimmDirection == DimmDirection::Up)
             {
                 if (currentDimmType == DimmType::Brigthness)
                     sendCmd(DaliCmd::ON_AND_STEP_UP);
-                *currentDimmValue++;
+                *currentDimmValue = *currentDimmValue + 1;
                 if (*currentDimmValue == 254)
                 {
                     logDebugP("Dimm Stop at 254");
                     _dimmDirection = DimmDirection::None;
+                    updateCurrentDimmValue();
                 }
             }
             else if (_dimmDirection == DimmDirection::Down)
             {
                 if (currentDimmType == DimmType::Brigthness)
                     sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
-                *currentDimmValue--;
+                *currentDimmValue = *currentDimmValue - 1;
 
                 if (*currentDimmValue == 0)
                 {
                     logDebugP("Dimm Stop at 0");
                     _dimmDirection = DimmDirection::None;
+                    updateCurrentDimmValue();
                 }
             }
             
@@ -816,10 +810,10 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
         currentStep = value;
     }
 
-    uint8_t perc = DaliHelper::arcToPercent(value);
+    float perc = DaliHelper::arcToPercentFloat(value);
 
     uint8_t currentState = knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(Dpt(5, 1));
-    logDebugP("SetDimmState %i/%i (%i)", perc, value, currentState);
+    logDebugP("SetDimmState %.1f/%i (%i)", perc, value, currentState);
     if (perc == currentState)
         return;
     knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));

@@ -7,7 +7,7 @@
 #include "DaliCommands.h"
 #include "DaliHelper.h"
 
-#define DimmInterval 200
+#define DimmInterval 100
 #define DimmStatusInterval 500
 
 class DaliChannel : public OpenKNX::Channel

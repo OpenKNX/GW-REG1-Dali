@@ -19,7 +19,18 @@ uint8_t DaliHelper::arcToPercent(uint8_t value)
     }
     //Todo also include _max
     double arc = pow(10, ((value-1) / (253/3.0)) - 1);
-    return roundToInt(arc);;
+    return roundToInt(arc);
+}
+
+float DaliHelper::arcToPercentFloat(uint8_t value)
+{
+    if(value == 0)
+    {
+        return 0;
+    }
+    //Todo also include _max
+    float arc = pow(10, ((value-1) / (253/3.0)) - 1);
+    return arc;
 }
 
 uint8_t DaliHelper::roundToInt(double input)
