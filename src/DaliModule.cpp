@@ -688,7 +688,6 @@ void DaliModule::loopBusState()
                 logInfoP("Dali Busspg. vorhanden");
             else
                 logInfoP("Dali Busspg. nicht vorhanden");
-                
         }
     }
 }
@@ -749,7 +748,6 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
 
 void DaliModule::cmdHandleScan(bool hasArg, std::string arg)
 {
-    
     if(!hasArg || arg.length() != 2)
     {
         logErrorP("Argument is invalid!");
