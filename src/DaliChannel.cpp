@@ -113,34 +113,44 @@ void DaliChannel::loopStaircase()
 
 void DaliChannel::loopDimming()
 {
-    if (_dimmDirection != DimmDirection::None && millis() - _dimmLast > DimmInterval)
+    if (_dimmDirection != DimmDirection::None)
     {
-        if (_dimmDirection == DimmDirection::Up)
+        if(millis() - _dimmLast > DimmInterval)
         {
-            if (currentDimmType == DimmType::Brigthness)
-                sendCmd(DaliCmd::ON_AND_STEP_UP);
-            *currentDimmValue++;
-            if (*currentDimmValue == 254)
+            logDebugP("Dimm Pointer %i/%i", currentDimmValue, &currentStep);
+            
+            if (_dimmDirection == DimmDirection::Up)
             {
-                logDebugP("Dimm Stop at 254");
-                _dimmDirection = DimmDirection::None;
+                if (currentDimmType == DimmType::Brigthness)
+                    sendCmd(DaliCmd::ON_AND_STEP_UP);
+                *currentDimmValue++;
+                if (*currentDimmValue == 254)
+                {
+                    logDebugP("Dimm Stop at 254");
+                    _dimmDirection = DimmDirection::None;
+                }
             }
-        }
-        else if (_dimmDirection == DimmDirection::Down)
-        {
-            if (currentDimmType == DimmType::Brigthness)
-                sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
-            *currentDimmValue--;
+            else if (_dimmDirection == DimmDirection::Down)
+            {
+                if (currentDimmType == DimmType::Brigthness)
+                    sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
+                *currentDimmValue--;
 
-            if (*currentDimmValue == 0)
-            {
-                logDebugP("Dimm Stop at 0");
-                _dimmDirection = DimmDirection::None;
+                if (*currentDimmValue == 0)
+                {
+                    logDebugP("Dimm Stop at 0");
+                    _dimmDirection = DimmDirection::None;
+                }
             }
+            
+            _dimmLast = millis();
         }
-        
-        updateCurrentDimmValue(false);
-        _dimmLast = millis();
+
+        if(millis() - _dimmLastStatus > DimmStatusInterval)
+        {
+            _dimmLastStatus = millis();
+            updateCurrentDimmValue();
+        }
     }
 }
 
@@ -350,7 +360,7 @@ void DaliChannel::processInputKo(GroupObject &ko)
 
 void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
 {
-    logDebugP("Farbe absolut %i", index);
+    logDebugP("Farbe relativ %i", index);
     if (currentIsLocked)
     {
         logErrorP("is locked");
@@ -364,12 +374,13 @@ void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
         logDebugP("Dimm Stop");
         _dimmDirection = DimmDirection::None;
         _dimmLast = 0;
-        updateCurrentDimmValue(true);
+        updateCurrentDimmValue();
         return;
     }
 
     currentDimmValue = &currentStep;
     currentDimmType = DimmType::Color;
+    _dimmLastStatus = millis();
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
     if (_dimmDirection == DimmDirection::Up)
     {
@@ -391,9 +402,8 @@ void DaliChannel::koHandleColorAbs(GroupObject &ko, uint8_t index)
     }
 
     currentColor[index] = ko.value(Dpt(5, 4));
-    currentDimmType = DimmType::Color;
-    updateCurrentDimmValue(true);
-    sendColor(true);
+    updateCurrentDimmValue();
+    sendColor();
 }
 
 void DaliChannel::koHandleSwitch(GroupObject &ko)
@@ -436,7 +446,6 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
 {
     if (ko.value(DPT_Switch))
     {
-
         if (currentState)
         {
             logDebugP("ist bereits an");
@@ -493,12 +502,14 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
         logDebugP("Dimm Stop");
         _dimmDirection = DimmDirection::None;
         _dimmLast = 0;
-        updateCurrentDimmValue(true);
+        updateCurrentDimmValue();
         return;
     }
 
     currentDimmValue = &currentStep;
+    logDebugP("Dimm Pointer %i/%i", currentDimmValue, &currentStep);
     currentDimmType = DimmType::Brigthness;
+    _dimmLastStatus = millis();
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
     if (_dimmDirection == DimmDirection::Up)
     {
@@ -616,12 +627,12 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             currentColor[1] = (value >> 8) & 0xFF;
             currentColor[2] = value & 0xFF;
 
-            sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
-            sendKoStateOnChange(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
-            sendKoStateOnChange(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
-            sendKoStateOnChange(ADR_Kodimm_state, currentColor[2], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(232, 600));
+            sendKoStateOnChange(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4));
+            sendKoStateOnChange(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4));
+            sendKoStateOnChange(ADR_Kodimm_state, currentColor[2], Dpt(5, 4));
 
-            sendColor(true);
+            sendColor();
             break;
         }
 
@@ -635,12 +646,12 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             currentColor[1] = (value >> 8) & 0xFF;
             currentColor[2] = value & 0xFF;
 
-            sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(232, 600), true);
-            sendKoStateOnChange(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4), true);
-            sendKoStateOnChange(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4), true);
-            sendKoStateOnChange(ADR_Kocolor_blue_state, currentColor[2], Dpt(5, 4), true);
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(232, 600));
+            sendKoStateOnChange(ADR_Kocolor_red_state, currentColor[0], Dpt(5, 4));
+            sendKoStateOnChange(ADR_Kocolor_green_state, currentColor[1], Dpt(5, 4));
+            sendKoStateOnChange(ADR_Kocolor_blue_state, currentColor[2], Dpt(5, 4));
 
-            sendColor(true);
+            sendColor();
             break;
         }
 
@@ -658,7 +669,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
             sendCmd(DaliCmd::ACTIVATE);
 
-            sendKoStateOnChange(ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600), true);
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600));
             break;
         }
 
@@ -685,7 +696,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             uint32_t value = currentColor[0] << 16 | currentColor[1] << 8 | currentColor[2];
             logDebugP("Got Color: %X", value);
 
-            sendColor(true);
+            sendColor();
             
             //TODO implement in Stack
             //sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(242, 600), true);
@@ -696,20 +707,14 @@ void DaliChannel::koHandleColor(GroupObject &ko)
     setDimmState(254, true, true); // TODO get real
 }
 
-void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type, bool isLastCommand)
+void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type)
 {
-    if(!isLastCommand)
-    {
-        //TODO check if change was sent within StatusInterval
-    }
-
     GroupObject &ko = knx.getGroupObject(calcKoNumber(koNr));
-    //TODO warte auf den PR von Cornelius
-    //if(ko.value(type) != value)
-        ko.value(value, type);
+    if(ko.valueNoSendCompare(value, type))
+        ko.objectWritten();
 }
 
-void DaliChannel::sendColor(bool isLastCommand)
+void DaliChannel::sendColor()
 {
     // TODO senden nur alle 100? ms
     uint8_t r, g, b;
@@ -820,15 +825,13 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
     knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
 }
 
-void DaliChannel::updateCurrentDimmValue(bool isLastCommand)
+void DaliChannel::updateCurrentDimmValue()
 {
     if (currentDimmType == DimmType::Color)
-        sendColor(isLastCommand);
+        sendColor();
 
-    if (isLastCommand || millis() - lastCurrentDimmUpdate > 1000)
+    switch (currentDimmType)
     {
-        switch (currentDimmType)
-        {
         case DimmType::Brigthness:
         {
             logDebugP("current dimm val %i", *currentDimmValue);
@@ -847,8 +850,6 @@ void DaliChannel::updateCurrentDimmValue(bool isLastCommand)
             knx.getGroupObject(calcKoNumber(ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 1));
             break;
         }
-        }
-        lastCurrentDimmUpdate = millis();
     }
 }
 

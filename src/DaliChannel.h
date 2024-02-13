@@ -7,8 +7,8 @@
 #include "DaliCommands.h"
 #include "DaliHelper.h"
 
-#define DimmInterval 100
-#define StatusInterval 500
+#define DimmInterval 200
+#define DimmStatusInterval 500
 
 class DaliChannel : public OpenKNX::Channel
 {
@@ -57,6 +57,9 @@ class DaliChannel : public OpenKNX::Channel
 		DimmDirection _dimmDirection = DimmDirection::None;
 		uint8_t _dimmStep = 0;
 		unsigned long _dimmLast = 0;
+		unsigned long _dimmLastStatus = 0;
+		uint8_t *currentDimmValue;
+		DimmType currentDimmType;
 		//Treppenlicht
 		unsigned long startTime = 0;
 		uint interval = 0;
@@ -81,10 +84,6 @@ class DaliChannel : public OpenKNX::Channel
 		bool currentIsLocked = false;
 		//Aktuelle Farbe
 		uint8_t currentColor[3];
-		//Aktuell zu dimmender Wert
-		uint8_t *currentDimmValue;
-		DimmType currentDimmType;
-		unsigned long lastCurrentDimmUpdate = 0;
 
 		//Aktueller Status abfragen
 		uint8_t _queryId = 0;
@@ -108,9 +107,9 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t sendSpecialCmd(DaliSpecialCmd cmd, byte value);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
 		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);
-		void updateCurrentDimmValue(bool isLastCommand);
-		void sendColor(bool isLastCommand);
-		void sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type, bool isLastCommand);
+		void updateCurrentDimmValue();
+		void sendColor();
+		void sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type);
 		
 		void koHandleSwitch(GroupObject &ko);
 		void koHandleDimmRel(GroupObject &ko);

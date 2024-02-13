@@ -725,107 +725,127 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
 
     if(command == "scan")
     {
-        if(!hasArg || arg.length() != 2)
-        {
-            logErrorP("Argument is invalid!");
-            logIndentUp();
-            logErrorP("scan xy");
-            logErrorP("x = 0 => all EVGs");
-            logErrorP("    1 => only unaddressed");
-            logErrorP("y = 0 => don't randomize");
-            logErrorP("    1 => do randomize");
-            logIndentDown();
-            return true;
-        }
-        logInfoP("Starting Scan manually");
-        uint8_t resultLength = 254;
-        uint8_t* data = new uint8_t[4];
-        uint8_t* resultData = new uint8_t[4];
-        data[1] = arg.at(0) == '1';
-        data[2] = arg.at(1) == '1';
-
-        funcHandleScan(data, resultData, resultLength);
-        delete[] data;
-        delete[] resultData;
+        cmdHandleScan(hasArg, arg);
         return true;
     } 
     if(command == "arc")
     {
-        if(!hasArg || arg.length() != 6)
-        {
-            logErrorP("Argument is invalid! %i", arg.length());
-            logIndentUp();
-            logErrorP("arc XYYZZZ");
-            logErrorP("X = B => Broadcast");
-            logErrorP("    A => Short Address");
-            logErrorP("    G => Group");
-            logErrorP("Y = Address (00-63)");
-            logErrorP("    Group   (00-15)");
-            logErrorP("    Broadc. (00)");
-            logErrorP("Z = Percent Value (000-100)");
-            logIndentDown();
-            return true;
-        }
-
-        uint8_t value = std::stoi(arg.substr(3, 3));
-        if(arg.at(0) == 'B')
-        {
-            logInfoP("Sending Arc %i to Broadcast");
-            sendArc(0xFF, value, DaliAddressTypes::GROUP);
-        } else if(arg.at(0) == 'A')
-        {
-            uint8_t addr = std::stoi(arg.substr(1, 2));
-            logInfoP("Sending Arc %i to EVG %i", value, addr);
-            sendArc(addr, value, DaliAddressTypes::SHORT);
-        } else if(arg.at(0) == 'G')
-        {
-            uint8_t addr = std::stoi(arg.substr(1, 2));
-            logInfoP("Sending Arc %i to Group %i", value, addr);
-            sendArc(addr, value, DaliAddressTypes::GROUP);
-        } else {
-            logErrorP("Argument X is invalid!");
-        }
-
+        cmdHandleArc(hasArg, arg);
         return true;
     }
     if(command == "set")
     {
-        if(!hasArg || arg.length() != 8)
-        {
-            logErrorP("Argument is invalid! %i", arg.length());
-            logIndentUp();
-            logErrorP("set XXXXXXYY");
-            logErrorP("X = Long Address  (000000-ffffff)");
-            logErrorP("Y = Short Address (00-63; 99=unadressiert)");
-            logIndentDown();
-            return true;
-        }
-
-        uint8_t resultLength = 254;
-        uint8_t* data = new uint8_t[4];
-        uint8_t* resultData = new uint8_t[4];
-        data[1] = std::stoi(arg.substr(6,2));
-        data[2] = std::stoi(arg.substr(0,2), nullptr, 16);
-        data[3] = std::stoi(arg.substr(2,2), nullptr, 16);
-        data[4] = std::stoi(arg.substr(4,2), nullptr, 16);
-
-        funcHandleAssign(data, resultData, resultLength);
-        delete[] data;
-        delete[] resultData;
+        cmdHandleSet(hasArg, arg);
         return true;
     }
     if(command == "auto")
     {
-        uint8_t resultLength = 254;
-        uint8_t* data = new uint8_t[4];
-        uint8_t* resultData = new uint8_t[4];
-        funcHandleAddress(data, resultData, resultLength);
-        delete[] data;
-        delete[] resultData;
+        cmdHandleAuto(hasArg, arg);
         return true;
     }
 
     return false;
+}
+
+void DaliModule::cmdHandleScan(bool hasArg, std::string arg)
+{
+    
+    if(!hasArg || arg.length() != 2)
+    {
+        logErrorP("Argument is invalid!");
+        logIndentUp();
+        logErrorP("scan xy");
+        logErrorP("x = 0 => all EVGs");
+        logErrorP("    1 => only unaddressed");
+        logErrorP("y = 0 => don't randomize");
+        logErrorP("    1 => do randomize");
+        logIndentDown();
+        return;
+    }
+    logInfoP("Starting Scan manually");
+    uint8_t resultLength = 254;
+    uint8_t* data = new uint8_t[4];
+    uint8_t* resultData = new uint8_t[4];
+    data[1] = arg.at(0) == '1';
+    data[2] = arg.at(1) == '1';
+
+    funcHandleScan(data, resultData, resultLength);
+    delete[] data;
+    delete[] resultData;
+}
+
+void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
+{
+    if(!hasArg || arg.length() != 6)
+    {
+        logErrorP("Argument is invalid! %i", arg.length());
+        logIndentUp();
+        logErrorP("arc XYYZZZ");
+        logErrorP("X = B => Broadcast");
+        logErrorP("    A => Short Address");
+        logErrorP("    G => Group");
+        logErrorP("Y = Address (00-63)");
+        logErrorP("    Group   (00-15)");
+        logErrorP("    Broadc. (00)");
+        logErrorP("Z = Percent Value (000-100)");
+        logIndentDown();
+        return;
+    }
+
+    uint8_t value = std::stoi(arg.substr(3, 3));
+    if(arg.at(0) == 'B')
+    {
+        logInfoP("Sending Arc %i to Broadcast");
+        sendArc(0xFF, value, DaliAddressTypes::GROUP);
+    } else if(arg.at(0) == 'A')
+    {
+        uint8_t addr = std::stoi(arg.substr(1, 2));
+        logInfoP("Sending Arc %i to EVG %i", value, addr);
+        sendArc(addr, value, DaliAddressTypes::SHORT);
+    } else if(arg.at(0) == 'G')
+    {
+        uint8_t addr = std::stoi(arg.substr(1, 2));
+        logInfoP("Sending Arc %i to Group %i", value, addr);
+        sendArc(addr, value, DaliAddressTypes::GROUP);
+    } else {
+        logErrorP("Argument X is invalid!");
+    }
+}
+
+void DaliModule::cmdHandleSet(bool hasArg, std::string arg)
+{
+    if(!hasArg || arg.length() != 8)
+    {
+        logErrorP("Argument is invalid! %i", arg.length());
+        logIndentUp();
+        logErrorP("set XXXXXXYY");
+        logErrorP("X = Long Address  (000000-ffffff)");
+        logErrorP("Y = Short Address (00-63; 99=unadressiert)");
+        logIndentDown();
+        return;
+    }
+
+    uint8_t resultLength = 254;
+    uint8_t* data = new uint8_t[4];
+    uint8_t* resultData = new uint8_t[4];
+    data[1] = std::stoi(arg.substr(6,2));
+    data[2] = std::stoi(arg.substr(0,2), nullptr, 16);
+    data[3] = std::stoi(arg.substr(2,2), nullptr, 16);
+    data[4] = std::stoi(arg.substr(4,2), nullptr, 16);
+
+    funcHandleAssign(data, resultData, resultLength);
+    delete[] data;
+    delete[] resultData;
+}
+
+void DaliModule::cmdHandleAuto(bool hasArg, std::string arg)
+{
+    uint8_t resultLength = 254;
+    uint8_t* data = new uint8_t[4];
+    uint8_t* resultData = new uint8_t[4];
+    funcHandleAddress(data, resultData, resultLength);
+    delete[] data;
+    delete[] resultData;
 }
 
 void DaliModule::processInputKo(GroupObject &ko)
