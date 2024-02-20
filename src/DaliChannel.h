@@ -83,7 +83,7 @@ class DaliChannel : public OpenKNX::Channel
 		//Aktueller Sperrstatus
 		bool currentIsLocked = false;
 		//Aktuelle Farbe
-		uint8_t currentColor[3];
+		uint8_t currentColor[4];
 
 		//Aktueller Status abfragen
 		uint8_t _queryId = 0;

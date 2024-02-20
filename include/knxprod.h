@@ -40,8 +40,8 @@
 #define PT_colorType_RGB 1
 #define PT_colorType_TW 2
 #define PT_colorType_XYY 3
-#define PT_colorSpace_rgb 0
-#define PT_colorSpace_xy 1
+#define PT_colorSpace_rgb 1
+#define PT_colorSpace_xy 0
 #define PT_fadeTimes_no 0
 #define PT_fadeTimes_0_7 1
 #define PT_fadeTimes_1_0 2
@@ -104,7 +104,7 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x02
+#define MAIN_ApplicationVersion 0x03
 #define MAIN_OrderNumber "REG1-Dali"
 #define MAIN_ParameterSize 1474
 #define MAIN_MaxKoNumber 1493
@@ -289,9 +289,9 @@
 // Offset: 14, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamADR_queryTime ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 14)))))
 #define ADR_xyIgnore		0x0005
-// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren?
+// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
 #define ParamADR_xyIgnoreIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 5), 7)
-// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren?
+// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
 #define ParamADR_xyIgnore knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 5), 7)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
@@ -470,6 +470,11 @@
 #define ParamGRP_hclIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 4), 4)
 // Offset: 4, BitOffset: 4, Size: 1 Bit, Text: HCL aktivieren
 #define ParamGRP_hcl knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 4), 4)
+#define GRP_xyIgnore		0x0004
+// Offset: 4, BitOffset: 5, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
+#define ParamGRP_xyIgnoreIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 4), 5)
+// Offset: 4, BitOffset: 5, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
+#define ParamGRP_xyIgnore knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 4), 5)
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 0)

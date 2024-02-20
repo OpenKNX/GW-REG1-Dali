@@ -682,13 +682,20 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             uint16_t x = data[0] << 8 | data[1];
             uint16_t y = data[2] << 8 | data[3];
             uint8_t b = data[4];
-            if(ParamADR_xyIgnore)
-                b = 255;
+            bool xyIgnore = _isGroup ? ParamGRP_xyIgnore : ParamADR_xyIgnore;
+            if(xyIgnore)
+            {
+                pushWord(x, currentColor);
+                pushWord(y, currentColor + 2);
+                
+                logDebugP("Got Color: %.4f %.4f", x / 65535.0, y / 65535.0);
+            } else {
+                ColorHelper::xyyToRGB(x, y, b, currentColor[0], currentColor[1], currentColor[2]);
 
-            ColorHelper::xyyToRGB(x, y, b, currentColor[0], currentColor[1], currentColor[2]);
+                uint32_t value = currentColor[0] << 16 | currentColor[1] << 8 | currentColor[2];
+                logDebugP("Got Color: %X", value);
+            }
 
-            uint32_t value = currentColor[0] << 16 | currentColor[1] << 8 | currentColor[2];
-            logDebugP("Got Color: %X", value);
 
             sendColor();
             
@@ -751,7 +758,15 @@ void DaliChannel::sendColor()
     {
         uint16_t x;
         uint16_t y;
-        ColorHelper::rgbToXY(r, g, b, x, y);
+        
+        bool xyIgnore = _isGroup ? ParamGRP_xyIgnore : ParamADR_xyIgnore;
+        if(xyIgnore)
+        {
+            popWord(x, currentColor);
+            popWord(y, currentColor + 2);
+        } else {
+            ColorHelper::rgbToXY(r, g, b, x, y);
+        }
 
         sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (x >> 8) & 0xFF);
