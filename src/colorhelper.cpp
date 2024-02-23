@@ -96,20 +96,20 @@ void ColorHelper::xyyToRGB(uint16_t ix, uint16_t iy, uint8_t iz, uint8_t& r, uin
     gt = adjust(gt);
     bt = adjust(bt);
 
-    r = max(min(rt, 255.0f), 0);
-    g = max(min(gt, 255.0f), 0);
-    b = max(min(bt, 255.0f), 0);
+    r = max(min(rt, 255.0f), 0.0f);
+    g = max(min(gt, 255.0f), 0.0f);
+    b = max(min(bt, 255.0f), 0.0f);
 }
 
 uint16_t ColorHelper::getBytes(float input)
 {
-	return max(min(round(input * 65536), 65534), 0);
+	return max(min(round(input * 65536), 65534.0f), 0.0f);
 }
 
 float ColorHelper::getFloat(uint16_t input)
 {
     float output = input / 65536.0f;
-	return max(min(output, 0.0), 1.0);
+	return max(min(output, 0.0f), 1.0f);
 }
 
 double ColorHelper::hue2rgb(double p, double q, double t)

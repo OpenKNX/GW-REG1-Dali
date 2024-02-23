@@ -88,11 +88,13 @@ void DaliModule::handleFunc(uint8_t setting)
 }
 #endif
 
+#ifdef DALI_NO_TIMER
 bool __isr __time_critical_func(daliTimerInterruptCallback)(repeating_timer *t)
 {
     DaliBus.timerISR();
     return true;
 }
+#endif
 
 daliReturnValue _lastDaliError = DALI_NO_ERROR;
 
@@ -100,10 +102,12 @@ void DaliModule::setup1(bool conf)
 {
     dali = new DaliClass();
 	dali->begin(DALI_TX, DALI_RX);
+    #ifdef DALI_NO_TIMER
     alarm_pool_add_repeating_timer_us(openknx.timerInterrupt.alarmPool1(), -417, daliTimerInterruptCallback, NULL, &_timer);
     DaliBus.errorCallback = [](daliReturnValue errorCode) {
         _lastDaliError = errorCode;
     };
+    #endif
     dali->setActivityCallback([] {
         daliActivity = millis();
     });
@@ -662,7 +666,7 @@ void DaliModule::loopAddressing()
 void DaliModule::loopBusState()
 {
     bool state = !digitalRead(DALI_RX);
-#ifdef OKNXHW_REG1_BASE_V1
+#ifdef INFO3_LED_PIN
     if(_lastBusState != state)
     {
         _lastBusState = state;

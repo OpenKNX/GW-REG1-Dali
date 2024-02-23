@@ -117,7 +117,9 @@ class DaliModule : public OpenKNX::Module
 		DaliChannel channels[64] {queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue};
 		DaliChannel groups[16] {queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue};
 		MessageQueue queue;
+		#ifdef DALI_NO_TIMER
 		struct repeating_timer _timer;
+		#endif
 
 		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);
 		uint8_t sendCmd(byte addr, DaliCmd value, byte type = 0, bool wait = false);
