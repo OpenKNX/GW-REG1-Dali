@@ -57,6 +57,7 @@ void DaliModule::setup(bool conf)
 #ifdef FUNC1_BUTTON_PIN
 void DaliModule::handleFunc(uint8_t setting)
 {
+    logDebugP("Func Button pressed");
     switch(setting)
     {
         case PT_clickAction_on:
@@ -103,11 +104,12 @@ void DaliModule::setup1(bool conf)
     dali = new DaliClass();
 	dali->begin(DALI_TX, DALI_RX);
     #ifdef DALI_NO_TIMER
-    alarm_pool_add_repeating_timer_us(openknx.timerInterrupt.alarmPool1(), -417, daliTimerInterruptCallback, NULL, &_timer);
+    alarm_pool_t *_alarmPool1 = alarm_pool_create(2, 16);
+    alarm_pool_add_repeating_timer_us(_alarmPool1, -417, daliTimerInterruptCallback, NULL, &_timer);
+    #endif
     DaliBus.errorCallback = [](daliReturnValue errorCode) {
         _lastDaliError = errorCode;
     };
-    #endif
     dali->setActivityCallback([] {
         daliActivity = millis();
     });
@@ -852,12 +854,15 @@ void DaliModule::cmdHandleAuto(bool hasArg, std::string arg)
 
 void DaliModule::processInputKo(GroupObject &ko)
 {
+    logDebugP("Received Ko");
     if(_adrState != AddressingState::None || _currentLockState) return;
 
     int koNum = ko.asap();
+    logDebugP("Got ko %i", koNum);
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
+        logDebugP("For Channel %i", index);
         channels[index].processInputKo(ko);
         return;
     }
@@ -866,6 +871,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     {
         int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
         int chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
+        logDebugP("For Group %i", index);
         groups[index].processInputKo(ko);
 
         if(chanIndex == GRP_Koswitch_state)
