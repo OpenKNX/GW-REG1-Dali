@@ -137,6 +137,7 @@ class DaliModule : public OpenKNX::Module
 		void funcHandleAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 		void funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 		void funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
+		void funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 
 		void cmdHandleScan(bool hasArg, std::string arg);
 		void cmdHandleArc(bool hasArg, std::string arg);

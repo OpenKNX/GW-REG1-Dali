@@ -658,7 +658,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
             sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
             sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
             sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmdExtendedDT8::SET_TEMPERATURE_COLOUR);
+            sendCmd(DaliCmdExtendedDT8::SET_TEMP_KELVIN);
 
             sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
             sendCmd(DaliCmd::ACTIVATE);
