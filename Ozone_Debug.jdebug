@@ -24,7 +24,7 @@ void OnProjectLoad (void) {
   //
   Project.AddPathSubstitute ("C:/Users/mikeg/source/repos/GW-REG1-Dali", "$(ProjectDir)");
   Project.AddPathSubstitute ("c:/users/mikeg/source/repos/gw-reg1-dali", "$(ProjectDir)");
-  Project.AddPathSubstitute ("C:\Users\mikeg\.platformio\.cache\tmp\pkg-installing-sjri7j1u\rp2040-3.6.2\pico-sdk", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/home/earle/Arduino/hardware/pico/rp2040/","C:\Users\mikeg\.platformio\packages\framework-arduinopico\");
 
   Project.SetDevice ("RP2040_M0_0");
   Project.SetHostIF ("USB", "");

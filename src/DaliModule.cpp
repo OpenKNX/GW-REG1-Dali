@@ -1059,6 +1059,10 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         case 12:
             funcHandleSetScene(data, resultData, resultLength);
             return true;
+
+        case 13:
+            funcHandleGetScene(data, resultData, resultLength);
+            return true;
     }
 
 
@@ -1315,26 +1319,12 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
     }
     logDebugP("GROUPS8-15: %.2X", resp);
     resultData[8] = resp;
-    
-    // for(int i = 0; i < 16; i++)
-    // {
-    //     resp = getInfo(data[1], DaliCmd::QUERY_SCENE_LEVEL, i);
-    //     if(resp < 0)
-    //     {
-    //         logErrorP("Dali Error (SCENE%i): Code %i", i, resp);
-    //         errorByteScene |= (uint16_t)pow(2, i);
-    //         resp = 0xFF;
-    //     }
-    //     logDebugP("SCENE %i: %.2X / %.2X", i, resp, DaliHelper::arcToPercent(resp));
-    //     resultData[i+9] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
-    // }
 
     resultData[9] = errorByte;
     resultData[10] = errorByteScene & 0xFF;
     resultData[11] = (errorByteScene >> 8) & 0xFF;
     resultLength = 12;
 }
-
 
 void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
@@ -1370,6 +1360,34 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
     } else {
         sendMsg(MessageType::Cmd, data[1], DaliCmd::REMOVE_FROM_SCENE | i);
     }
+}
+
+void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
+{
+    // for(int i = 0; i < 16; i++)
+    // {
+    //     resp = getInfo(data[1], DaliCmd::QUERY_SCENE_LEVEL, i);
+    //     if(resp < 0)
+    //     {
+    //         logErrorP("Dali Error (SCENE%i): Code %i", i, resp);
+    //         errorByteScene |= (uint16_t)pow(2, i);
+    //         resp = 0xFF;
+    //     }
+    //     logDebugP("SCENE %i: %.2X / %.2X", i, resp, DaliHelper::arcToPercent(resp));
+    //     resultData[i+9] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+    // }
+
+    if(data[2] == PT_deviceType_DT8)
+    {
+        //colorType is TunableWhite
+        if(data[3] == PT_colorType_TW)
+        {
+            
+        } else { //it is RGB
+            
+        }
+    }
+
 }
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
