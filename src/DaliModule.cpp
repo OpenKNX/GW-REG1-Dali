@@ -38,20 +38,30 @@ void DaliModule::setup(bool conf)
         groups[i].setup();
     }
 
+    if(!conf) return;
+
+    logDebugP("setting buttons");
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=] { 
+        logDebugP("single");
         uint8_t sett = ParamAPP_funcBtn;
+        logDebugP("single2");
         handleFunc(sett);
     });
     openknx.func1Button.onLongClick([=] { 
+        logDebugP("long");
         uint8_t sett = ParamAPP_funcBtnLong;
+        logDebugP("long2");
         handleFunc(sett);
     });
     openknx.func1Button.onDoubleClick([=] { 
+        logDebugP("double");
         uint8_t sett = ParamAPP_funcBtnDbl;
+        logDebugP("double2");
         handleFunc(sett);
     });
 #endif
+    logDebugP("buttons set");
 }
 
 #ifdef FUNC1_BUTTON_PIN
@@ -69,8 +79,8 @@ void DaliModule::handleFunc(uint8_t setting)
             sendCmd(0xFF, DaliCmd::OFF, 1);
             break;
         case PT_clickAction_toggle:
-            logDebugP("Broadcast toggle");
             _currentToggleState = !_currentToggleState;
+            logDebugP("Broadcast toggle %i", _currentToggleState);
             sendCmd(0xFF, _currentToggleState ? DaliCmd::RECALL_MAX : DaliCmd::OFF, 1);
             break;
         case PT_clickAction_lock:
@@ -135,6 +145,8 @@ void DaliModule::loop()
         groups[i].loop();
     }
 }
+
+unsigned long last = 0;
 
 void DaliModule::loop1(bool configured)
 {
@@ -1329,36 +1341,36 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
 void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     //scene is enabled
-    if(data[4])
+    if(data[3])
     {
         //deviceType is Color
-        if(data[2] == PT_deviceType_DT8)
+        if(data[4] == PT_deviceType_DT8)
         {
             //colorType is TunableWhite
-            if(data[3] == PT_colorType_TW)
+            if(data[5] == PT_colorType_TW)
             {
                 uint16_t kelvin;
-                popWord(kelvin, data + 6);
+                popWord(kelvin, data + 7);
                 uint16_t mirek = 1000000.0 / kelvin;
-                sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
-                sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
+                sendCmdSpecial(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
+                sendCmdSpecial(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
                 sendCmd(data[1], DaliCmdExtendedDT8::SET_TEMP_KELVIN);
             } else { //it is RGB
-                sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[6]); 
-                sendCmdSpecial(DaliSpecialCmd::SET_DTR1, data[7]);
-                sendCmdSpecial(DaliSpecialCmd::SET_DTR2, data[8]);
+                sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[7]); 
+                sendCmdSpecial(DaliSpecialCmd::SET_DTR1, data[8]);
+                sendCmdSpecial(DaliSpecialCmd::SET_DTR2, data[9]);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
                 sendCmd(data[1], DaliCmdExtendedDT8::SET_TEMP_RGB);
             }
         }
 
         //set dimm value
-        sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[5]);
-        sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
+        sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[4]);
+        sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | data[2]);
         //     sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
     } else {
-        sendMsg(MessageType::Cmd, data[1], DaliCmd::REMOVE_FROM_SCENE | i);
+        sendMsg(MessageType::Cmd, data[1], DaliCmd::REMOVE_FROM_SCENE | data[2]);
     }
 }
 
@@ -1489,7 +1501,7 @@ uint8_t DaliModule::sendArc(byte addr, byte value, byte type)
     return queue.push(msg);
 }
 
-uint8_t DaliModule::sendCmd(byte addr, DaliCmd value, byte type, bool wait)
+uint8_t DaliModule::sendCmd(byte addr, byte value, byte type, bool wait)
 {
     Message *msg = new Message();
     msg->id = queue.getNextId();

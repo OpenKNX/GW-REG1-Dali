@@ -104,7 +104,7 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x02
+#define MAIN_ApplicationVersion 0x04
 #define MAIN_OrderNumber "REG1-Dali"
 #define MAIN_ParameterSize 1474
 #define MAIN_MaxKoNumber 1493
@@ -198,11 +198,11 @@
 // Offset: 0, BitOffset: 6, Size: 1 Bit, Text: Nachtriggern erlauben
 #define ParamADR_nachtriggern knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 0), 6)
 #define ADR_stairtime		0x0003
-#define ADR_stairtime_Shift	5
-#define ADR_stairtime_Mask	0x07FF
-// Offset: 3, Size: 11 Bit, Text: Nachlaufzeit
+#define ADR_stairtime_Shift	2
+#define ADR_stairtime_Mask	0x3FFF
+// Offset: 3, Size: 14 Bit, Text: Nachlaufzeit
 #define ParamADR_stairtimeIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 3)) >> ADR_stairtime_Shift) & ADR_stairtime_Mask))
-// Offset: 3, Size: 11 Bit, Text: Nachlaufzeit
+// Offset: 3, Size: 14 Bit, Text: Nachlaufzeit
 #define ParamADR_stairtime ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 3)) >> ADR_stairtime_Shift) & ADR_stairtime_Mask))
 #define ADR_manuoff		0x0000
 // Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Manuelles ausschalten
@@ -385,11 +385,11 @@
 // Offset: 0, BitOffset: 3, Size: 1 Bit, Text: Nachtriggern erlauben
 #define ParamGRP_nachtriggern knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 0), 3)
 #define GRP_stairtime		0x0001
-#define GRP_stairtime_Shift	5
-#define GRP_stairtime_Mask	0x07FF
-// Offset: 1, Size: 11 Bit, Text: Nachlaufzeit
+#define GRP_stairtime_Shift	2
+#define GRP_stairtime_Mask	0x3FFF
+// Offset: 1, Size: 14 Bit, Text: Nachlaufzeit
 #define ParamGRP_stairtimeIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 1)) >> GRP_stairtime_Shift) & GRP_stairtime_Mask))
-// Offset: 1, Size: 11 Bit, Text: Nachlaufzeit
+// Offset: 1, Size: 14 Bit, Text: Nachlaufzeit
 #define ParamGRP_stairtime ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 1)) >> GRP_stairtime_Shift) & GRP_stairtime_Mask))
 #define GRP_manuoff		0x0000
 // Offset: 0, BitOffset: 4, Size: 1 Bit, Text: Manuelles ausschalten

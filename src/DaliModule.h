@@ -122,7 +122,7 @@ class DaliModule : public OpenKNX::Module
 		#endif
 
 		uint8_t sendMsg(MessageType t, byte addr, byte v, byte type = 0, bool wait = false);
-		uint8_t sendCmd(byte addr, DaliCmd value, byte type = 0, bool wait = false);
+		uint8_t sendCmd(byte addr, byte value, byte type = 0, bool wait = false);
 		uint8_t sendCmdSpecial(DaliSpecialCmd command, byte value = 0, bool wait = false);
 		uint8_t sendArc(byte addr, byte value, byte type);
 		void koHandleSwitch(GroupObject & ko);

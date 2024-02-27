@@ -12,6 +12,7 @@ void daliCallback(uint8_t *data, uint8_t len)
 	logHexInfo("Dali In", data, len);
 }
 
+bool setup0ready = false;
 bool setup1ready = false;
 
 void setup()
@@ -25,21 +26,25 @@ void setup()
 #endif
 	openknx.setup();
 
+	setup0ready = true;
+
 	while(!setup1ready)
 		delay(1);
-}
-
-void setup1()
-{
-	//openknx.setup1();
-	openknxDaliModule.setup1(knx.configured());
-
-	setup1ready = true;
 }
 
 void loop()
 {
 	openknx.loop();
+}
+
+void setup1()
+{
+	while(!setup0ready)
+		delay(1);
+
+	openknxDaliModule.setup1(knx.configured());
+
+	setup1ready = true;
 }
 
 void loop1()
