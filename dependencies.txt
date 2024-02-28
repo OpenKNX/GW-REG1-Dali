@@ -2,4 +2,4 @@
 9d7c8ac v1dev knx https://github.com/OpenKNX/knx.git
 0ba2086 v1 OFM-FileTransferModule https://github.com/OpenKNX/OFM-FileTransferModule.git
 84a1e7b v1 OGM-Common https://github.com/OpenKNX/OGM-Common.git
-a00d543 dev arduino-dali https://github.com/thewhobox/arduino-dali
+a00d543 main arduino-dali https://github.com/thewhobox/arduino-dali

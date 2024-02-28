@@ -645,7 +645,7 @@ void DaliModule::loopAddressing()
         {
             if(millis() - _adrTime > DALI_WAIT_SEARCH)
             {
-                logInfoP("Address %i dont exists", _adrLow);
+                logInfoP("Address %i does not exists", _adrLow);
                 _adrState = AddressingState::SearchAdr;
                 _adrLow++;
                 return;
@@ -664,7 +664,7 @@ void DaliModule::loopAddressing()
                     addresses[_adrLow] = true;
                 _adrLow++;
             } else if(resp == -1) {
-                logInfoP("Address %i dont exists", _adrLow);
+                logInfoP("Address %i does not exist", _adrLow);
                 _adrState = AddressingState::SearchAdr;
                 _adrLow++;
             } else {
