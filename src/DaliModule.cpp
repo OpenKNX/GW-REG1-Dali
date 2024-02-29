@@ -1389,16 +1389,43 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
     //     resultData[i+9] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
     // }
 
-    if(data[2] == PT_deviceType_DT8)
+    /*
+    data = [
+        13,
+        context.Channel,
+        0, //scene number
+        parseInt(device.getParameterByName("deviceType").value),
+        parseInt(device.getParameterByName("colorType").value)
+    ];
+    */
+    logDebugP("Scene %i", data[2]);
+    uint8_t value = getInfo(data[1], DaliCmd::QUERY_SCENE_LEVEL | data[2]);
+    logDebugP("Value %i", value);
+
+    resultData[0] = value == 0xFF ? 0xFF : DaliHelper::arcToPercent(value);
+
+    if(value != 0xFF && data[3] == PT_deviceType_DT8)
     {
         //colorType is TunableWhite
-        if(data[3] == PT_colorType_TW)
+        if(data[4] == PT_colorType_TW)
         {
-            
+            resultLength = 3;
+            logDebugP("Scene %i: %.1f%% TEMP=___K", data[2], DaliHelper::arcToPercentFloat(value));
         } else { //it is RGB
-            
+            resultLength = 4;
+            sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE9);
+            sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
+            uint8_t colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            resultData[1] = colorVal;
+            resultData[2] = 0;
+            resultData[3] = 0;
+            logDebugP("Scene %i: %.1f%% RGB=%.2X", data[2], DaliHelper::arcToPercentFloat(value), resultData[1]);
         }
+    } else {
+        resultLength = 1;
+        logDebugP("Scene %i: %.1f%%", data[2], DaliHelper::arcToPercentFloat(value));
     }
+
 
 }
 
@@ -1427,7 +1454,6 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
 void DaliModule::stateHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     int16_t resp = queue.getResponse(data[1]);
-    logInfoP("Check Response %i = %i", data[1], resp);
 
     if(resp == -255)
     {
