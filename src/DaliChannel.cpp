@@ -56,6 +56,7 @@ void DaliChannel::setup()
             interval = ParamGRP_stairtime;
         _onDay = ParamGRP_onDay;
         _onNight = ParamGRP_onNight;
+        _dimmInterval = ParamGRP_dimmStateInterval;
     }
     else
     {
@@ -72,6 +73,7 @@ void DaliChannel::setup()
         _onNight = ParamADR_onNight;
         _getError = ParamADR_error;
         _queryInterval = ParamADR_queryTime;
+        _dimmInterval = ParamADR_dimmStateInterval;
     }
     logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is | Error %i | Query %i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval);
 }
@@ -140,7 +142,7 @@ void DaliChannel::loopDimming()
             _dimmLast = millis();
         }
 
-        if(millis() - _dimmLastStatus > DimmStatusInterval)
+        if(_dimmInterval != 0 && millis() - _dimmLastStatus > (_dimmInterval*100))
         {
             _dimmLastStatus = millis();
             updateCurrentDimmValue();
@@ -827,11 +829,12 @@ void DaliChannel::setDimmState(uint8_t value, bool isDimmCommand, bool isLastCom
 
     float perc = DaliHelper::arcToPercentFloat(value);
 
-    uint8_t currentState = knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(Dpt(5, 1));
-    logDebugP("SetDimmState %.1f/%i (%i)", perc, value, currentState);
-    if (perc == currentState)
-        return;
-    knx.getGroupObject(calcKoNumber(ADR_Kodimm_state)).value(perc, Dpt(5, 1));
+    GroupObject& ko = knx.getGroupObject(calcKoNumber(ADR_Kodimm_state));
+    if(ko.valueNoSendCompare(perc, Dpt(5, 1)))
+    {
+        logDebugP("SetDimmState %.1f/%i", perc, value);
+        ko.objectWritten();
+    }
 }
 
 void DaliChannel::updateCurrentDimmValue()
@@ -853,10 +856,21 @@ void DaliChannel::updateCurrentDimmValue()
             uint32_t value = currentColor[2];
             value |= currentColor[1] << 8;
             value |= currentColor[0] << 16;
-            knx.getGroupObject(calcKoNumber(ADR_Kocolor_rgb_state)).value(value, Dpt(232, 600));
-            knx.getGroupObject(calcKoNumber(ADR_Kocolor_red_state)).value(currentColor[0], Dpt(5, 1));
-            knx.getGroupObject(calcKoNumber(ADR_Kocolor_green_state)).value(currentColor[1], Dpt(5, 1));
-            knx.getGroupObject(calcKoNumber(ADR_Kocolor_blue_state)).value(currentColor[2], Dpt(5, 1));
+            GroupObject& ko = knx.getGroupObject(calcKoNumber(ADR_Kocolor_rgb_state));
+            if(ko.valueNoSendCompare(value, Dpt(232, 600)))
+                ko.objectWritten();
+            
+            ko = knx.getGroupObject(calcKoNumber(ADR_Kocolor_red_state));
+            if(ko.valueNoSendCompare(currentColor[0], Dpt(5, 1)))
+                ko.objectWritten();
+                
+            ko = knx.getGroupObject(calcKoNumber(ADR_Kocolor_green_state));
+            if(ko.valueNoSendCompare(currentColor[1], Dpt(5, 1)))
+                ko.objectWritten();
+                
+            ko = knx.getGroupObject(calcKoNumber(ADR_Kocolor_blue_state));
+            if(ko.valueNoSendCompare(currentColor[2], Dpt(5, 1)))
+                ko.objectWritten();
             break;
         }
     }

@@ -60,6 +60,7 @@ class DaliChannel : public OpenKNX::Channel
 		unsigned long _dimmLastStatus = 0;
 		uint8_t *currentDimmValue;
 		DimmType currentDimmType;
+		uint8_t _dimmInterval = 0;
 		//Treppenlicht
 		unsigned long startTime = 0;
 		uint interval = 0;

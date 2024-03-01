@@ -721,6 +721,9 @@ void DaliModule::showHelp()
     openknx.console.printHelpLine("auto", "Dali scan for unaddressed EVGs and assign free address");
     openknx.console.printHelpLine("arc", "Dali set Value for EVG, Group or Broadcast");
     openknx.console.printHelpLine("set", "Dali set EVG short address");
+    openknx.console.printHelpLine("stepUp", "stepUp x => send x times StepUp");
+    openknx.console.printHelpLine("stepDown", "stepDown xyy => send x times StepDown to evg y");
+    openknx.console.printHelpLine("getLvl", "getLvl yy => get level of evg y");
 }
 
 bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
@@ -758,6 +761,35 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
     if(command == "auto")
     {
         cmdHandleAuto(hasArg, arg);
+        return true;
+    }
+    if(command == "stepUp")
+    {
+        uint8_t value = std::stoi(arg.substr(0, 1));
+        uint8_t addr = std::stoi(arg.substr(1, 2));
+        for(int i = 0; i < value; i++)
+            sendCmd(addr, DaliCmd::STEP_UP);
+        return true;
+    }
+    if(command == "stepDown")
+    {
+        uint8_t value = std::stoi(arg.substr(0, 1));
+        uint8_t addr = std::stoi(arg.substr(1, 2));
+        for(int i = 0; i < value; i++)
+            sendCmd(addr, DaliCmd::STEP_DOWN);
+        return true;
+    }
+
+    if(command == "getLvl")
+    {
+        uint8_t addr = std::stoi(arg);
+        int16_t resp = getInfo(addr, DaliCmd::QUERY_ACTUAL_LEVEL);
+        if(resp >= 0)
+            logDebugP("EVG %i has level %i = %.2f", addr, resp, DaliHelper::arcToPercentFloat((uint8_t)resp));
+        else if(resp == -1)
+            logDebugP("EVG %i antwortet nicht", addr);
+        else
+            logDebugP("Fehler beim Auslesen %i", resp);
         return true;
     }
 
@@ -1247,8 +1279,7 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
         }
     }
 
-    resultLength = 1;
-    resultData[0] = 0x00;
+    resultLength = 0;
 }
 
 void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
@@ -1389,6 +1420,8 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
     } else {
         sendMsg(MessageType::Cmd, addr, DaliCmd::REMOVE_FROM_SCENE | data[2], type);
     }
+
+    resultLength = 0;
 }
 
 void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
@@ -1429,7 +1462,7 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
             resultData[3] = colorVal;
-            logDebugP("Scene %i: %.1f%% RGB=%.2X", data[2], DaliHelper::arcToPercentFloat(value), resultData[1]);
+            logDebugP("Scene %i: %.1f%% RGB=%.2X%.2X%.2X", data[2], DaliHelper::arcToPercentFloat(value), resultData[1], resultData[2], resultData[3]);
         }
     } else {
         resultLength = 1;
