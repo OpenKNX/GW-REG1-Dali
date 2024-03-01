@@ -1340,6 +1340,23 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
 
 void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
+    /*
+    data = [
+        12,
+        context.Channel,
+        0, //scene number
+        0, //enabled
+        parseInt(device.getParameterByName("deviceType").value),
+        parseInt(device.getParameterByName("colorType").value),
+        0, value 0-100; 255=disabled
+        0, r / tw
+        0, g / tw
+        0  b
+    ];
+    */
+    uint8_t addr = data[1] & 0b1111;
+    uint8_t type = data[1] >> 7;
+
     //scene is enabled
     if(data[3])
     {
@@ -1355,40 +1372,27 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-                sendCmd(data[1], DaliCmdExtendedDT8::SET_TEMP_KELVIN);
+                sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_KELVIN, type);
             } else { //it is RGB
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[7]); 
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR1, data[8]);
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR2, data[9]);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-                sendCmd(data[1], DaliCmdExtendedDT8::SET_TEMP_RGB);
+                sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_RGB, type);
             }
         }
 
         //set dimm value
         sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[4]);
-        sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | data[2]);
+        sendMsg(MessageType::Cmd, addr, DaliCmd::DTR_AS_SCENE | data[2], type);
         //     sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
     } else {
-        sendMsg(MessageType::Cmd, data[1], DaliCmd::REMOVE_FROM_SCENE | data[2]);
+        sendMsg(MessageType::Cmd, addr, DaliCmd::REMOVE_FROM_SCENE | data[2], type);
     }
 }
 
 void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    // for(int i = 0; i < 16; i++)
-    // {
-    //     resp = getInfo(data[1], DaliCmd::QUERY_SCENE_LEVEL, i);
-    //     if(resp < 0)
-    //     {
-    //         logErrorP("Dali Error (SCENE%i): Code %i", i, resp);
-    //         errorByteScene |= (uint16_t)pow(2, i);
-    //         resp = 0xFF;
-    //     }
-    //     logDebugP("SCENE %i: %.2X / %.2X", i, resp, DaliHelper::arcToPercent(resp));
-    //     resultData[i+9] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
-    // }
-
     /*
     data = [
         13,
@@ -1417,16 +1421,20 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             uint8_t colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
             resultData[1] = colorVal;
-            resultData[2] = 0;
-            resultData[3] = 0;
+            sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xEA);
+            sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
+            colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            resultData[2] = colorVal;
+            sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xEB);
+            sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
+            colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            resultData[3] = colorVal;
             logDebugP("Scene %i: %.1f%% RGB=%.2X", data[2], DaliHelper::arcToPercentFloat(value), resultData[1]);
         }
     } else {
         resultLength = 1;
         logDebugP("Scene %i: %.1f%%", data[2], DaliHelper::arcToPercentFloat(value));
     }
-
-
 }
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
