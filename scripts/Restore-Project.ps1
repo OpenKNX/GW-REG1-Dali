@@ -24,7 +24,7 @@ if(-Not (Test-Path -Path lib/))
 }
 
 $subprojects = Get-Content dependencies.txt
-Set-Location lib/
+
 foreach ($subproject in $subprojects) {
     $attr = $subproject.Split()
     if ($attr[0] -ne "-------") {
@@ -32,7 +32,7 @@ foreach ($subproject in $subprojects) {
         Write-Host "Subproject $($attr[2])" -ForegroundColor Yellow
 
         if(-Not (Test-Path -Path $attr[2])) {
-            git clone $attr[3]
+            git clone $attr[3] $attr[2]
             if (!$?) {
                 Write-Host "  FAIL: clone" -ForegroundColor Red
                 Set-Location $oldDir
@@ -69,7 +69,7 @@ foreach ($subproject in $subprojects) {
                 exit 1
             }
         }
-        Set-Location $projectDir/lib/
+        Set-Location $projectDir
     }
 }
 

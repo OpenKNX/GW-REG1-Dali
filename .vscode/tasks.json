@@ -1,0 +1,50 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build-and-Upload",
+            "type": "shell",
+            "command": "scripts/Upload-Firmware.ps1",
+            "args": [
+                "release_UP1"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": ["Gen. Dependencies.txt"]
+        },
+        {
+            "label": "Restore-Project Branch",
+            "type": "shell",
+            "command": "scripts/Restore-Project.ps1",
+            "args": [
+                "-wait",
+                "$false"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Restore-Project Hash",
+            "type": "shell",
+            "command": "scripts/Restore-Project.ps1",
+            "args": [
+                "-checkoutHash",
+                "-wait",
+                "$false"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Gen. Dependencies.txt",
+            "type": "shell",
+            "command": "lib/OGM-Common/scripts/setup/reusable/Build-Dependencies.ps1",
+            "args": [
+            ],
+            "problemMatcher": [],
+            "group": "test"
+        },
+    ]
+}
