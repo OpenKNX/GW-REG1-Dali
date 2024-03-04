@@ -1,11 +1,14 @@
 #include <Arduino.h>
 #include "TimerInterrupt_Generic.h"
 #include "OpenKNX.h"
-#include "DaliModule.h"
+#include "Dali/DaliModule.h"
 #ifdef ARDUINO_ARCH_RP2040
 #include "FileTransferModule.h"
 #endif
 
+#ifdef USE_LUBA_PROTOCOLL
+#include "Luba/LubaProtocoll.hpp"
+#endif
 
 void daliCallback(uint8_t *data, uint8_t len)
 {
@@ -17,6 +20,7 @@ bool setup1ready = false;
 
 void setup()
 {
+	
 	const uint8_t firmwareRevision = 0;
 	openknx.init(firmwareRevision);
 	//openknxDaliModule.setCallback(daliCallback);
@@ -27,6 +31,9 @@ void setup()
 	openknx.setup();
 
 	setup0ready = true;
+
+	Serial.end();
+	Serial.begin(38400, SERIAL_8N1);
 
 	while(!setup1ready)
 		delay(1);
@@ -51,4 +58,8 @@ void loop1()
 {
 	//openknx.loop1();
 	openknxDaliModule.loop1(knx.configured());
+
+	#ifdef USE_LUBA_PROTOCOLL
+	loopLubaProtocoll();
+	#endif
 }
