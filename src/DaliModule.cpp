@@ -320,7 +320,7 @@ void DaliModule::loopMessages()
                 logError("Dali", "Cant be high");
                 break;
             case DALI_INVALID_STARTBIT:
-                logError("Dali", "Invalid Startbit");
+                logError("Dali", "Invalid Startbit (%i/%i)", DaliBus.tempBusLevel, DaliBus.tempDelta);
                 break;
             case DALI_ERROR_TIMING:
                 logError("Dali", "Error Timing");
@@ -1436,7 +1436,7 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         }
 
         //set dimm value
-        sendCmdSpecial(DaliSpecialCmd::SET_DTR, DaliHelper::percentToArc(data[4]));
+        sendCmdSpecial(DaliSpecialCmd::SET_DTR, DaliHelper::percentToArc(data[6]));
         sendMsg(MessageType::Cmd, addr, DaliCmd::DTR_AS_SCENE | data[2], type);
         //     sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
     } else {

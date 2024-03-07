@@ -57,7 +57,7 @@ void DaliChannel::setup()
         _onDay = ParamGRP_onDay;
         _onNight = ParamGRP_onNight;
         _dimmStatusInterval = ParamGRP_dimmStateInterval;
-        _dimmInterval = ParamGRP_dimmRelDuration / 2.55;
+        _dimmInterval = (uint8_t)(ParamGRP_dimmRelDuration / 2.55);
     }
     else
     {
@@ -75,7 +75,7 @@ void DaliChannel::setup()
         _getError = ParamADR_error;
         _queryInterval = ParamADR_queryTime;
         _dimmStatusInterval = ParamADR_dimmStateInterval;
-        _dimmInterval = ParamADR_dimmRelDuration / 2.55;
+        _dimmInterval = (uint8_t)(ParamADR_dimmRelDuration / 2.55);
     }
     logDebugP("Min/Max %i/%i | D/N %i/%i | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
@@ -505,7 +505,6 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
     }
 
     currentDimmValue = &currentStep;
-    logDebugP("Dimm Pointer %i/%i", currentDimmValue, &currentStep);
     currentDimmType = DimmType::Brigthness;
     _dimmLastStatus = millis();
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
