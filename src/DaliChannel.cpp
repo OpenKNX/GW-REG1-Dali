@@ -56,7 +56,8 @@ void DaliChannel::setup()
             interval = ParamGRP_stairtime;
         _onDay = ParamGRP_onDay;
         _onNight = ParamGRP_onNight;
-        _dimmInterval = ParamGRP_dimmStateInterval;
+        _dimmStatusInterval = ParamGRP_dimmStateInterval;
+        _dimmInterval = ParamGRP_dimmRelDuration / 2.55;
     }
     else
     {
@@ -73,9 +74,10 @@ void DaliChannel::setup()
         _onNight = ParamADR_onNight;
         _getError = ParamADR_error;
         _queryInterval = ParamADR_queryTime;
-        _dimmInterval = ParamADR_dimmStateInterval;
+        _dimmStatusInterval = ParamADR_dimmStateInterval;
+        _dimmInterval = ParamADR_dimmRelDuration / 2.55;
     }
-    logDebugP("Min/Max: %i/%i | Day/Night: %i/%i | %is | Error %i | Query %i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval);
+    logDebugP("Min/Max %i/%i | D/N %i/%i | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
 
 void DaliChannel::loop()
@@ -111,7 +113,7 @@ void DaliChannel::loopDimming()
 {
     if (_dimmDirection != DimmDirection::None)
     {
-        if(millis() - _dimmLast > DimmInterval)
+        if(millis() - _dimmLast > _dimmInterval)
         {
             if (_dimmDirection == DimmDirection::Up)
             {
@@ -142,7 +144,7 @@ void DaliChannel::loopDimming()
             _dimmLast = millis();
         }
 
-        if(_dimmInterval != 0 && millis() - _dimmLastStatus > (_dimmInterval*100))
+        if(_dimmStatusInterval != 0 && millis() - _dimmLastStatus > (_dimmStatusInterval*100))
         {
             _dimmLastStatus = millis();
             updateCurrentDimmValue();

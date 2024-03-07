@@ -88,6 +88,7 @@ class DaliModule : public OpenKNX::Module
 #ifdef FUNC1_BUTTON_PIN
 		void handleFunc(uint8_t setting);
 		bool _currentToggleState = false;
+		uint8_t _currentIdentifyDevice = 0;
 #endif
 		bool _currentLockState = false;
 		int16_t getInfo(byte address, int command, uint8_t additional = 0);

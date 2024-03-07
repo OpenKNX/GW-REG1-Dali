@@ -101,6 +101,7 @@
 #define PT_clickAction_lock 4
 #define PT_clickAction_unlock 5
 #define PT_clickAction_lock_toggle 6
+#define PT_clickAction_identify 7
 #define PT_interval_Deaktivieren 0
 #define PT_interval_300 3
 #define PT_interval_400 4
@@ -115,7 +116,7 @@
 #define MAIN_ApplicationNumber 0x01
 #define MAIN_ApplicationVersion 0x04
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1586
+#define MAIN_ParameterSize 1666
 #define MAIN_MaxKoNumber 1493
 
 
@@ -159,9 +160,9 @@
 #define SCE_ParamBlockOffset 2
 #define SCE_ParamBlockSize 4
 #define ADR_ParamBlockOffset 258
-#define ADR_ParamBlockSize 17
-#define GRP_ParamBlockOffset 1346
-#define GRP_ParamBlockSize 15
+#define ADR_ParamBlockSize 18
+#define GRP_ParamBlockOffset 1410
+#define GRP_ParamBlockSize 16
 #define SCE_KoOffset 6
 #define SCE_KoBlockSize 0
 #define ADR_KoOffset 70
@@ -305,10 +306,15 @@
 #define ADR_dimmStateInterval		0x0010
 #define ADR_dimmStateInterval_Shift	4
 #define ADR_dimmStateInterval_Mask	0x000F
-// Offset: 16, Size: 4 Bit, Text: Dimmstatus Interval
+// Offset: 16, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamADR_dimmStateIntervalIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 16)) >> ADR_dimmStateInterval_Shift) & ADR_dimmStateInterval_Mask))
-// Offset: 16, Size: 4 Bit, Text: Dimmstatus Interval
+// Offset: 16, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamADR_dimmStateInterval ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 16)) >> ADR_dimmStateInterval_Shift) & ADR_dimmStateInterval_Mask))
+#define ADR_dimmRelDuration		0x0011
+// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
+#define ParamADR_dimmRelDurationIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 17)))))
+// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
+#define ParamADR_dimmRelDuration ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 17)))))
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)
@@ -494,15 +500,20 @@
 #define GRP_dimmStateInterval		0x000C
 #define GRP_dimmStateInterval_Shift	4
 #define GRP_dimmStateInterval_Mask	0x000F
-// Offset: 12, Size: 4 Bit, Text: Dimmstatus Interval
+// Offset: 12, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamGRP_dimmStateIntervalIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 12)) >> GRP_dimmStateInterval_Shift) & GRP_dimmStateInterval_Mask))
-// Offset: 12, Size: 4 Bit, Text: Dimmstatus Interval
+// Offset: 12, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamGRP_dimmStateInterval ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 12)) >> GRP_dimmStateInterval_Shift) & GRP_dimmStateInterval_Mask))
 #define GRP_queryTime		0x000D
 // Offset: 13, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamGRP_queryTimeIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 13)))))
 // Offset: 13, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamGRP_queryTime ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 13)))))
+#define GRP_dimmRelDuration		0x000F
+// Offset: 15, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
+#define ParamGRP_dimmRelDurationIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 15)))))
+// Offset: 15, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
+#define ParamGRP_dimmRelDuration ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 15)))))
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 0)

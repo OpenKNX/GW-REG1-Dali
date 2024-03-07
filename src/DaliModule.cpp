@@ -73,27 +73,49 @@ void DaliModule::handleFunc(uint8_t setting)
         case PT_clickAction_on:
             logDebugP("Broadcast on");
             sendCmd(0xFF, DaliCmd::RECALL_MAX, 1);
+            _currentIdentifyDevice = 0;
+            openknx.info1Led.errorCode();
             break;
         case PT_clickAction_off:
             logDebugP("Broadcast off");
             sendCmd(0xFF, DaliCmd::OFF, 1);
+            _currentIdentifyDevice = 0;
+            openknx.info1Led.errorCode();
             break;
         case PT_clickAction_toggle:
             _currentToggleState = !_currentToggleState;
             logDebugP("Broadcast toggle %i", _currentToggleState);
             sendCmd(0xFF, _currentToggleState ? DaliCmd::RECALL_MAX : DaliCmd::OFF, 1);
+            _currentIdentifyDevice = 0;
+            openknx.info1Led.errorCode();
             break;
         case PT_clickAction_lock:
             logDebugP("Locking Device");
             _currentLockState = true;
+            _currentIdentifyDevice = 0;
+            openknx.info1Led.errorCode();
             break;
         case PT_clickAction_unlock:
             logDebugP("Unlocking Device");
             _currentLockState = false;
+            _currentIdentifyDevice = 0;
+            openknx.info1Led.errorCode();
             break;
         case PT_clickAction_lock_toggle:
             _currentLockState = !_currentLockState;
             logDebugP("Toggle Lock Device %i", _currentLockState);
+            _currentIdentifyDevice = 0;
+            openknx.info1Led.errorCode();
+            break;
+        case PT_clickAction_identify:
+            _currentToggleState = true;
+            openknx.info1Led.errorCode(_currentIdentifyDevice + 1);
+            logDebugP("Identify Device %i", _currentIdentifyDevice);
+            sendCmd(0xFF, DaliCmd::OFF, 0xFF);
+            sendCmd(_currentIdentifyDevice, DaliCmd::RECALL_MAX);
+            _currentIdentifyDevice++;
+            if(_currentIdentifyDevice > 63)
+                _currentIdentifyDevice = 0;
             break;
     }
 }
@@ -1414,7 +1436,7 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         }
 
         //set dimm value
-        sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[4]);
+        sendCmdSpecial(DaliSpecialCmd::SET_DTR, DaliHelper::percentToArc(data[4]));
         sendMsg(MessageType::Cmd, addr, DaliCmd::DTR_AS_SCENE | data[2], type);
         //     sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
     } else {
