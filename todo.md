@@ -6,7 +6,7 @@
 - [X] Gruppensteuerung mit gleicher funktionalität wie Einzelsteuerung (z.B. Farbe)
 - [X] Farbeinstellungen bei Szenen
 - [ ] Tunable White per relativ dimmen
-- [ ] Status für Relatives Dimmen nur alle x Sekunde (einstellbar?) senden
+- [X] Status für Relatives Dimmen nur alle x Sekunde (einstellbar?) senden
 - [X] RGB einzeln relativ dimmen
 - [ ] HCL für TW
 - [X] Function Button kann mit verschiedenen Aktionen belegt werden

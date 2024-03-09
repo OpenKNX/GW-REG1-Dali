@@ -40,34 +40,28 @@ void DaliModule::setup(bool conf)
 
     if(!conf) return;
 
-    logDebugP("setting buttons");
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=] { 
-        logDebugP("single");
+        logDebugP("Func Button pressed short");
         uint8_t sett = ParamAPP_funcBtn;
-        logDebugP("single2");
         handleFunc(sett);
     });
     openknx.func1Button.onLongClick([=] { 
-        logDebugP("long");
+        logDebugP("Func Button pressed long");
         uint8_t sett = ParamAPP_funcBtnLong;
-        logDebugP("long2");
         handleFunc(sett);
     });
-    openknx.func1Button.onDoubleClick([=] { 
-        logDebugP("double");
+    openknx.func1Button.onDoubleClick([=] {
+        logDebugP("Func Button pressed double");
         uint8_t sett = ParamAPP_funcBtnDbl;
-        logDebugP("double2");
         handleFunc(sett);
     });
 #endif
-    logDebugP("buttons set");
 }
 
 #ifdef FUNC1_BUTTON_PIN
 void DaliModule::handleFunc(uint8_t setting)
 {
-    logDebugP("Func Button pressed");
     switch(setting)
     {
         case PT_clickAction_on:
@@ -1129,6 +1123,10 @@ bool DaliModule::processFunctionProperty(uint8_t objectIndex, uint8_t propertyId
         case 13:
             funcHandleGetScene(data, resultData, resultLength);
             return true;
+
+        case 14:
+            funcHandleIdentify(data, resultData, resultLength);
+            return true;
     }
 
 
@@ -1410,9 +1408,11 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
     uint8_t addr = data[1] & 0b1111;
     uint8_t type = data[1] >> 7;
 
+    logDebugP("Scene %i", data[2]);
     //scene is enabled
     if(data[3])
     {
+        logDebugP("Bri %i", data[6]);
         //deviceType is Color
         if(data[4] == PT_deviceType_DT8)
         {
@@ -1421,7 +1421,9 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
             {
                 uint16_t kelvin;
                 popWord(kelvin, data + 7);
+                logDebugP("Temp %i", kelvin);
                 uint16_t mirek = 1000000.0 / kelvin;
+                logDebugP("mirek %i", mirek);
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
@@ -1432,6 +1434,7 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR2, data[9]);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
                 sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_RGB, type);
+                logDebugP("RGB %.2X%.2X%.2X", data[7], data[8], data[9]);
             }
         }
 
@@ -1441,6 +1444,7 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         //     sendMsg(MessageType::Cmd, data[1], DaliCmd::DTR_AS_SCENE | i);
     } else {
         sendMsg(MessageType::Cmd, addr, DaliCmd::REMOVE_FROM_SCENE | data[2], type);
+        logDebugP("disabled");
     }
 
     resultLength = 0;
@@ -1490,6 +1494,13 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         resultLength = 1;
         logDebugP("Scene %i: %.1f%%", data[2], DaliHelper::arcToPercentFloat(value));
     }
+}
+
+void DaliModule::funcHandleIdentify(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
+{
+    sendCmd(0xFF, DaliCmd::OFF, 0xFF);
+    sendCmd(data[1], DaliCmd::RECALL_MAX);
+    resultLength = 0;
 }
 
 bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
