@@ -1473,7 +1473,21 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         if(data[4] == PT_colorType_TW)
         {
             resultLength = 3;
-            logDebugP("Scene %i: %.1f%% TEMP=___K", data[2], DaliHelper::arcToPercentFloat(value));
+            // sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xF0);
+            // sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
+            // int16_t resp = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            // uint16_t mirek = resp;
+            sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE2);
+            sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
+            uint16_t mirek = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE) << 8;
+            mirek |= getInfo(data[1], DaliCmd::QUERY_DTR);
+            logDebugP("mirek %i", mirek);
+
+            uint16_t kelvin = 1000000.0 / mirek;
+
+            resultData[1] = (kelvin >> 8) & 0xFF;
+            resultData[2] = kelvin & 0xFF;
+            logDebugP("Scene %i: %.1f%% TEMP=%iK", data[2], DaliHelper::arcToPercentFloat(value), kelvin);
         } else { //it is RGB
             resultLength = 4;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE9);
