@@ -11,4 +11,4 @@
 - [ ] HCL für TW
 - [X] Function Button kann mit verschiedenen Aktionen belegt werden
 - [X] Status einzelner EVGs abfragen per ETS einstellen
-- [ ] EVG per Kurzadresse blinken lassen zum Lokalisieren
+- [X] EVG per Kurzadresse blinken lassen zum Lokalisieren
