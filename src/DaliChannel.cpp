@@ -125,17 +125,37 @@ void DaliChannel::loopDimming()
                     logDebugP("Dimm Stop at 254");
                     _dimmDirection = DimmDirection::None;
                     updateCurrentDimmValue();
+                }else if (*currentDimmValue >= _max)
+                {
+                    logDebugP("Dimm Stop at max %i", _max);
+                    _dimmDirection = DimmDirection::None;
+                    updateCurrentDimmValue();
                 }
             }
             else if (_dimmDirection == DimmDirection::Down)
             {
                 if (currentDimmType == DimmType::Brigthness)
-                    sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
+                {
+                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+                    {
+                        sendCmd(DaliCmd::STEP_DOWN);
+                    } else {
+                        sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
+                    }
+                }
+                    
                 *currentDimmValue = *currentDimmValue - 1;
 
                 if (*currentDimmValue == 0)
                 {
                     logDebugP("Dimm Stop at 0");
+                    _dimmDirection = DimmDirection::None;
+                    updateCurrentDimmValue();
+                }
+                if (*currentDimmValue <= _min)
+                {
+                    logDebugP("Dimm Stop at min %i", _min);
                     _dimmDirection = DimmDirection::None;
                     updateCurrentDimmValue();
                 }
@@ -490,6 +510,13 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
     if (currentIsLocked)
     {
         logErrorP("is locked");
+        return;
+    }
+
+    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+    {
+        logDebugP("ignored due settings");
         return;
     }
 

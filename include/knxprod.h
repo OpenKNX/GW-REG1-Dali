@@ -111,13 +111,24 @@
 #define PT_interval_800 8
 #define PT_interval_900 9
 #define PT_interval_10000 10
+#define PT_hclType_sun 0
+#define PT_hclType_time 1
+#define PT_hclCurves_k1 0
+#define PT_hclCurves_k2 1
+#define PT_hclCurves_k3 2
+#define PT_hclStart_start 0
+#define PT_hclStart_during 1
+#define PT_dimmLock_none 0
+#define PT_dimmLock_noOn 1
+#define PT_dimmLock_noOff 2
+#define PT_dimmLock_noBoth 3
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
 #define MAIN_ApplicationVersion 0x04
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1666
-#define MAIN_MaxKoNumber 1493
+#define MAIN_ParameterSize 1681
+#define MAIN_MaxKoNumber 1496
 
 
 #define APP_daynight		0x0000
@@ -163,12 +174,16 @@
 #define ADR_ParamBlockSize 18
 #define GRP_ParamBlockOffset 1410
 #define GRP_ParamBlockSize 16
+#define HCL_ParamBlockOffset 1666
+#define HCL_ParamBlockSize 5
 #define SCE_KoOffset 6
 #define SCE_KoBlockSize 0
 #define ADR_KoOffset 70
 #define ADR_KoBlockSize 18
 #define GRP_KoOffset 1222
 #define GRP_KoBlockSize 17
+#define HCL_KoOffset 1494
+#define HCL_KoBlockSize 1
 
 //-----Module: adresse
 #define ADR_deviceType		0x0000
@@ -315,6 +330,24 @@
 #define ParamADR_dimmRelDurationIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 17)))))
 // Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
 #define ParamADR_dimmRelDuration ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 17)))))
+#define ADR_hclCurve		0x0010
+#define ADR_hclCurve_Shift	2
+#define ADR_hclCurve_Mask	0x0003
+// Offset: 16, BitOffset: 4, Size: 2 Bit, Text: Verwende
+#define ParamADR_hclCurveIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 16)) >> ADR_hclCurve_Shift) & ADR_hclCurve_Mask))
+// Offset: 16, BitOffset: 4, Size: 2 Bit, Text: Verwende
+#define ParamADR_hclCurve ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 16)) >> ADR_hclCurve_Shift) & ADR_hclCurve_Mask))
+#define ADR_hclStart		0x0006
+// Offset: 6, BitOffset: 7, Size: 1 Bit, Text: Temperatur ändern
+#define ParamADR_hclStartIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 6), 7)
+// Offset: 6, BitOffset: 7, Size: 1 Bit, Text: Temperatur ändern
+#define ParamADR_hclStart knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 6), 7)
+#define ADR_dimmLock		0x0010
+#define ADR_dimmLock_Mask	0x0003
+// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei rlativ
+#define ParamADR_dimmLockIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 16))) & ADR_dimmLock_Mask))
+// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei rlativ
+#define ParamADR_dimmLock ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 16))) & ADR_dimmLock_Mask))
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)
@@ -514,6 +547,19 @@
 #define ParamGRP_dimmRelDurationIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 15)))))
 // Offset: 15, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
 #define ParamGRP_dimmRelDuration ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 15)))))
+#define GRP_hclCurve		0x0004
+#define GRP_hclCurve_Mask	0x0003
+// Offset: 4, BitOffset: 6, Size: 2 Bit, Text: Verwende
+#define ParamGRP_hclCurveIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 4))) & GRP_hclCurve_Mask))
+// Offset: 4, BitOffset: 6, Size: 2 Bit, Text: Verwende
+#define ParamGRP_hclCurve ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 4))) & GRP_hclCurve_Mask))
+#define GRP_dimmLock		0x000C
+#define GRP_dimmLock_Shift	2
+#define GRP_dimmLock_Mask	0x0003
+// Offset: 12, BitOffset: 4, Size: 2 Bit, Text: Einschalten bei rlativ
+#define ParamGRP_dimmLockIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + 12)) >> GRP_dimmLock_Shift) & GRP_dimmLock_Mask))
+// Offset: 12, BitOffset: 4, Size: 2 Bit, Text: Einschalten bei rlativ
+#define ParamGRP_dimmLock ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + 12)) >> GRP_dimmLock_Shift) & GRP_dimmLock_Mask))
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + 0)
@@ -624,4 +670,25 @@
 #define ParamSCE_groupIndex(X) ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * X + 3)) >> SCE_group_Shift) & SCE_group_Mask))
 // Offset: 3, Size: 4 Bit, Text: Dali Gruppe
 #define ParamSCE_group ((uint)((knx.paramByte((SCE_ParamBlockOffset + SCE_ParamBlockSize * channelIndex() + 3)) >> SCE_group_Shift) & SCE_group_Mask))
+
+//-----Module: hcl
+#define HCL_type		0x0000
+// Offset: 0, Size: 1 Bit, Text: Ansteuerung über
+#define ParamHCL_typeIndex(X) knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 0), 0)
+// Offset: 0, Size: 1 Bit, Text: Ansteuerung über
+#define ParamHCL_type knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 0), 0)
+#define HCL_min		0x0001
+// Offset: 1, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ParamHCL_minIndex(X) ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 1)))))
+// Offset: 1, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ParamHCL_min ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 1)))))
+#define HCL_max		0x0003
+// Offset: 3, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ParamHCL_maxIndex(X) ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 3)))))
+// Offset: 3, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ParamHCL_max ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 3)))))
+//!< Number: 0, Text: HCL Kurve {{argChan}}, Function: Farbtemperatur
+#define HCL_Kohcl_state 0
+#define KoHCL_hcl_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + 0)
+#define KoHCL_hcl_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + 0)
 
