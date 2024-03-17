@@ -111,8 +111,9 @@
 #define PT_interval_800 8
 #define PT_interval_900 9
 #define PT_interval_10000 10
-#define PT_hclType_sun 0
-#define PT_hclType_time 1
+#define PT_hclType_none 0
+#define PT_hclType_sun 1
+#define PT_hclType_time 2
 #define PT_hclCurves_k1 0
 #define PT_hclCurves_k2 1
 #define PT_hclCurves_k3 2
@@ -125,10 +126,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x04
+#define MAIN_ApplicationVersion 0x0B
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1681
-#define MAIN_MaxKoNumber 1496
+#define MAIN_ParameterSize 1726
+#define MAIN_MaxKoNumber 1503
 
 
 #define APP_daynight		0x0000
@@ -168,21 +169,25 @@
 //---------------------Modules----------------------------
 
 //-----Module specific starts
-#define SCE_ParamBlockOffset 2
+#define BASE_ParamBlockOffset 2
+#define BASE_ParamBlockSize 45
+#define SCE_ParamBlockOffset 47
 #define SCE_ParamBlockSize 4
-#define ADR_ParamBlockOffset 258
+#define ADR_ParamBlockOffset 303
 #define ADR_ParamBlockSize 18
-#define GRP_ParamBlockOffset 1410
+#define GRP_ParamBlockOffset 1455
 #define GRP_ParamBlockSize 16
-#define HCL_ParamBlockOffset 1666
+#define HCL_ParamBlockOffset 1711
 #define HCL_ParamBlockSize 5
-#define SCE_KoOffset 6
-#define SCE_KoBlockSize 0
-#define ADR_KoOffset 70
+#define BASE_KoOffset 6
+#define BASE_KoBlockSize 6
+#define SCE_KoOffset 12
+#define SCE_KoBlockSize 1
+#define ADR_KoOffset 76
 #define ADR_KoBlockSize 18
-#define GRP_KoOffset 1222
+#define GRP_KoOffset 1228
 #define GRP_KoBlockSize 17
-#define HCL_KoOffset 1494
+#define HCL_KoOffset 1500
 #define HCL_KoBlockSize 1
 
 //-----Module: adresse
@@ -673,10 +678,12 @@
 
 //-----Module: hcl
 #define HCL_type		0x0000
-// Offset: 0, Size: 1 Bit, Text: Ansteuerung über
-#define ParamHCL_typeIndex(X) knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 0), 0)
-// Offset: 0, Size: 1 Bit, Text: Ansteuerung über
-#define ParamHCL_type knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 0), 0)
+#define HCL_type_Shift	6
+#define HCL_type_Mask	0x0003
+// Offset: 0, Size: 2 Bit, Text: Ansteuerung über
+#define ParamHCL_typeIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 0)) >> HCL_type_Shift) & HCL_type_Mask))
+// Offset: 0, Size: 2 Bit, Text: Ansteuerung über
+#define ParamHCL_type ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 0)) >> HCL_type_Shift) & HCL_type_Mask))
 #define HCL_min		0x0001
 // Offset: 1, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
 #define ParamHCL_minIndex(X) ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 1)))))
@@ -691,4 +698,93 @@
 #define HCL_Kohcl_state 0
 #define KoHCL_hcl_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + 0)
 #define KoHCL_hcl_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + 0)
+
+//-----Module: Common Share
+#define BASE_StartupDelayBase		0x0000
+#define BASE_StartupDelayBase_Shift	6
+#define BASE_StartupDelayBase_Mask	0x0003
+// UnionOffset: 0, ParaOffset: 0, Size: 2 Bit, Text: Zeitbasis
+#define ParamBASE_StartupDelayBase ((uint)((knx.paramByte((BASE_ParamBlockOffset + 0)) >> BASE_StartupDelayBase_Shift) & BASE_StartupDelayBase_Mask))
+#define BASE_StartupDelayTime		0x0000
+#define BASE_StartupDelayTime_Mask	0x3FFF
+// UnionOffset: 0, ParaOffset: 0, BitOffset: 2, Size: 14 Bit, Text: Zeit
+#define ParamBASE_StartupDelayTime ((uint)((knx.paramWord((BASE_ParamBlockOffset + 0))) & BASE_StartupDelayTime_Mask))
+#define ParamBASE_StartupDelayTimeMS (paramDelay(ParamBASE_StartupDelayTime))
+#define BASE_HeartbeatDelayBase		0x0002
+#define BASE_HeartbeatDelayBase_Shift	6
+#define BASE_HeartbeatDelayBase_Mask	0x0003
+// UnionOffset: 0, ParaOffset: 2, Size: 2 Bit, Text: Zeitbasis
+#define ParamBASE_HeartbeatDelayBase ((uint)((knx.paramByte((BASE_ParamBlockOffset + 2)) >> BASE_HeartbeatDelayBase_Shift) & BASE_HeartbeatDelayBase_Mask))
+#define BASE_HeartbeatDelayTime		0x0002
+#define BASE_HeartbeatDelayTime_Mask	0x3FFF
+// UnionOffset: 0, ParaOffset: 2, BitOffset: 2, Size: 14 Bit, Text: Zeit
+#define ParamBASE_HeartbeatDelayTime ((uint)((knx.paramWord((BASE_ParamBlockOffset + 2))) & BASE_HeartbeatDelayTime_Mask))
+#define ParamBASE_HeartbeatDelayTimeMS (paramDelay(ParamBASE_HeartbeatDelayTime))
+#define BASE_Timezone		0x0004
+#define BASE_Timezone_Shift	3
+#define BASE_Timezone_Mask	0x001F
+// UnionOffset: 4, ParaOffset: 0, Size: 5 Bit, Text: Zeitzone
+#define ParamBASE_Timezone ((uint)((knx.paramByte((BASE_ParamBlockOffset + 4)) >> BASE_Timezone_Shift) & BASE_Timezone_Mask))
+#define BASE_CombinedTimeDate		0x0004
+// UnionOffset: 4, ParaOffset: 0, BitOffset: 5, Size: 1 Bit, Text: Empfangen über
+#define ParamBASE_CombinedTimeDate knx.paramBit((BASE_ParamBlockOffset + 4), 5)
+#define BASE_SummertimeAll		0x0004
+#define BASE_SummertimeAll_Mask	0x0003
+// UnionOffset: 4, ParaOffset: 0, BitOffset: 6, Size: 2 Bit, Text: Sommerzeit ermitteln durch
+#define ParamBASE_SummertimeAll ((uint)((knx.paramByte((BASE_ParamBlockOffset + 4))) & BASE_SummertimeAll_Mask))
+#define BASE_SummertimeDE		0x0004
+#define BASE_SummertimeDE_Mask	0x0003
+// UnionOffset: 4, ParaOffset: 0, BitOffset: 6, Size: 2 Bit, Text: Sommerzeit ermitteln durch
+#define ParamBASE_SummertimeDE ((uint)((knx.paramByte((BASE_ParamBlockOffset + 4))) & BASE_SummertimeDE_Mask))
+#define BASE_SummertimeWorld		0x0004
+#define BASE_SummertimeWorld_Mask	0x0003
+// UnionOffset: 4, ParaOffset: 0, BitOffset: 6, Size: 2 Bit, Text: Sommerzeit ermitteln durch
+#define ParamBASE_SummertimeWorld ((uint)((knx.paramByte((BASE_ParamBlockOffset + 4))) & BASE_SummertimeWorld_Mask))
+#define BASE_SummertimeKO		0x0004
+#define BASE_SummertimeKO_Mask	0x0003
+// UnionOffset: 4, ParaOffset: 0, BitOffset: 6, Size: 2 Bit, Text: Sommerzeit ermitteln durch
+#define ParamBASE_SummertimeKO ((uint)((knx.paramByte((BASE_ParamBlockOffset + 4))) & BASE_SummertimeKO_Mask))
+#define BASE_Latitude		0x0005
+// UnionOffset: 5, ParaOffset: 0, Size: 16 Bit (2 Byte), Text: Breitengrad
+#define ParamBASE_Latitude knx.paramFloat((BASE_ParamBlockOffset + 5), Float_Enc_IEEE754Single)
+#define BASE_Longitude		0x0009
+// UnionOffset: 5, ParaOffset: 4, Size: 16 Bit (2 Byte), Text: Längengrad
+#define ParamBASE_Longitude knx.paramFloat((BASE_ParamBlockOffset + 9), Float_Enc_IEEE754Single)
+#define BASE_Diagnose		0x000D
+// UnionOffset: 13, ParaOffset: 0, Size: 1 Bit, Text: Diagnoseobjekt anzeigen
+#define ParamBASE_Diagnose knx.paramBit((BASE_ParamBlockOffset + 13), 0)
+#define BASE_Watchdog		0x000D
+// UnionOffset: 13, ParaOffset: 0, BitOffset: 1, Size: 1 Bit, Text: Watchdog aktivieren
+#define ParamBASE_Watchdog knx.paramBit((BASE_ParamBlockOffset + 13), 1)
+#define BASE_ReadTimeDate		0x000D
+// UnionOffset: 13, ParaOffset: 0, BitOffset: 2, Size: 1 Bit, Text: Bei Neustart vom Bus lesen
+#define ParamBASE_ReadTimeDate knx.paramBit((BASE_ParamBlockOffset + 13), 2)
+#define BASE_HeartbeatExtended		0x000D
+// UnionOffset: 13, ParaOffset: 0, BitOffset: 3, Size: 1 Bit, Text: Erweitertes "In Betrieb"
+#define ParamBASE_HeartbeatExtended knx.paramBit((BASE_ParamBlockOffset + 13), 3)
+#define BASE_ManualSave		0x000D
+#define BASE_ManualSave_Mask	0x0007
+// UnionOffset: 13, ParaOffset: 0, BitOffset: 5, Size: 3 Bit, Text: Manuelles speichern
+#define ParamBASE_ManualSave ((uint)((knx.paramByte((BASE_ParamBlockOffset + 13))) & BASE_ManualSave_Mask))
+#define BASE_PeriodicSave		0x000E
+// UnionOffset: 13, ParaOffset: 1, Size: 8 Bit (1 Byte), Text: Zyklisches speichern
+#define ParamBASE_PeriodicSave ((uint)((knx.paramByte((BASE_ParamBlockOffset + 14)))))
+//!< Number: 0, Text: In Betrieb, Function: Zyklisch
+#define BASE_KoHeartbeat 0
+#define KoBASE_Heartbeat knx.getGroupObject(0)
+//!< Number: 1, Text: Uhrzeit/Datum, Function: Eingang
+#define BASE_KoTime 1
+#define KoBASE_Time knx.getGroupObject(1)
+//!< Number: 2, Text: Datum, Function: Eingang
+#define BASE_KoDate 2
+#define KoBASE_Date knx.getGroupObject(2)
+//!< Number: 3, Text: Diagnose, Function: Diagnoseobjekt
+#define BASE_KoDiagnose 3
+#define KoBASE_Diagnose knx.getGroupObject(3)
+//!< Number: 4, Text: Sommerzeit aktiv, Function: Eingang
+#define BASE_KoIsSummertime 4
+#define KoBASE_IsSummertime knx.getGroupObject(4)
+//!< Number: 5, Text: Speichern, Function: Eingang
+#define BASE_KoManualSave 5
+#define KoBASE_ManualSave knx.getGroupObject(5)
 

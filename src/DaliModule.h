@@ -7,6 +7,7 @@
 #include "DaliChannel.h"
 #include "Ballast.hpp"
 #include "DaliCommands.h"
+#include "HclCurve.h"
 
 #define DALI_TX 17
 #define DALI_RX 16
@@ -117,6 +118,7 @@ class DaliModule : public OpenKNX::Module
 		DaliClass *dali;
 		DaliChannel channels[64] {queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue};
 		DaliChannel groups[16] {queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue,queue};
+		HclCurve curves[3];
 		MessageQueue queue;
 		#ifdef DALI_NO_TIMER
 		struct repeating_timer _timer;

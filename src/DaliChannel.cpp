@@ -58,6 +58,11 @@ void DaliChannel::setup()
         _onNight = ParamGRP_onNight;
         _dimmStatusInterval = ParamGRP_dimmStateInterval;
         _dimmInterval = (uint8_t)(ParamGRP_dimmRelDuration / 2.55);
+        if(ParamGRP_hcl)
+        {
+            _hclCurve = ParamGRP_hclCurve;
+            //_hclIsAlsoOn = ParamGRP_hclStart; //TODO add also on group
+        }
     }
     else
     {
@@ -76,6 +81,11 @@ void DaliChannel::setup()
         _queryInterval = ParamADR_queryTime;
         _dimmStatusInterval = ParamADR_dimmStateInterval;
         _dimmInterval = (uint8_t)(ParamADR_dimmRelDuration / 2.55);
+        if(ParamADR_hcl)
+        {
+            _hclCurve = ParamADR_hclCurve;
+            _hclIsAlsoOn = ParamADR_hclStart;
+        }
     }
     logDebugP("Min/Max %i/%i | D/N %i/%i | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
@@ -449,6 +459,8 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
         sendArc(onValue);
+        if(_hclCurve != 255)
+            setTW(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue), true);
     }
     else
@@ -486,6 +498,8 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         sendArc(onValue);
+        if(_hclCurve != 255)
+            setTW(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue));
     }
     else
@@ -683,17 +697,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
         case PT_colorType_TW:
         {
             uint16_t kelvin = ko.value(Dpt(7, 600));
-            logDebugP("Got Kelvin: %X K", kelvin);
-            uint16_t mirek = 1000000.0 / kelvin;
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmdExtendedDT8::SET_TEMP_KELVIN);
-
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::ACTIVATE);
-
-            sendKoStateOnChange(ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600));
+            setTW(kelvin);
             break;
         }
 
@@ -743,6 +747,21 @@ void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, cons
     GroupObject &ko = knx.getGroupObject(calcKoNumber(koNr));
     if(ko.valueNoSendCompare(value, type))
         ko.objectWritten();
+}
+
+void DaliChannel::setTW(uint16_t value)
+{
+    logDebugP("Set Kelvin: %X K", value);
+    uint16_t mirek = 1000000.0 / value;
+    sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
+    sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
+    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+    sendCmd(DaliCmdExtendedDT8::SET_TEMP_KELVIN);
+
+    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
+    sendCmd(DaliCmd::ACTIVATE);
+
+    sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(7, 600));
 }
 
 void DaliChannel::sendColor()
@@ -930,6 +949,12 @@ void DaliChannel::setMinMax(uint8_t min, uint8_t max)
 {
     _min = min;
     _max = max;
+}
+
+void DaliChannel::setHcl(uint8_t curve, uint16_t value)
+{
+    if(curve == _hclCurve && currentState && _hclIsAlsoOn)
+        setTW(value);
 }
 
 uint8_t DaliChannel::getMin()

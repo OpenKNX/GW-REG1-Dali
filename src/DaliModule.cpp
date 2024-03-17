@@ -1,4 +1,5 @@
 #include "DaliModule.h"
+#include "Timer.h"
 
 unsigned long daliActivity = 0;
 
@@ -39,6 +40,24 @@ void DaliModule::setup(bool conf)
     }
 
     if(!conf) return;
+
+    for(int i = 0; i < 3; i++)
+    {
+        curves[i].setup(i);
+    }
+
+    logDebugP("watchdog %i", ParamBASE_Watchdog);
+    logDebugP("breitengrad %f", ParamBASE_Latitude);
+    logDebugP("längengrad %f", ParamBASE_Longitude);
+
+// Values for Summertime
+#define VAL_STIM_FROM_KO 0
+#define VAL_STIM_FROM_DPT19 1
+#define VAL_STIM_FROM_INTERN 2
+
+    bool lUseSummertime = (ParamBASE_SummertimeAll == VAL_STIM_FROM_INTERN);
+    Timer::instance().setup(ParamBASE_Longitude, ParamBASE_Latitude, ParamBASE_Timezone, lUseSummertime, 0x0000);
+
 
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=] { 
@@ -143,6 +162,15 @@ void DaliModule::setup1(bool conf)
 
 void DaliModule::loop()
 {
+    Timer::instance().loop();
+    
+    if(Timer::instance().minuteChanged())
+    {        
+        Timer::instance().clearMinuteChanged();
+        for(int i = 0; i < 3; i++)
+            curves[i].loop();
+    }
+
     if(_adrState != AddressingState::None) return;
 
     if(!_gotInitData)
@@ -914,11 +942,10 @@ void DaliModule::cmdHandleAuto(bool hasArg, std::string arg)
 
 void DaliModule::processInputKo(GroupObject &ko)
 {
-    logDebugP("Received Ko");
+    logDebugP("Received Ko %i", ko.asap());
     if(_adrState != AddressingState::None || _currentLockState) return;
 
     int koNum = ko.asap();
-    logDebugP("Got ko %i", koNum);
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
@@ -948,6 +975,63 @@ void DaliModule::processInputKo(GroupObject &ko)
         return;
     }
 
+    if(koNum >= BASE_KoOffset && koNum < BASE_KoOffset + BASE_KoBlockSize)
+    {
+        int index = koNum - BASE_KoOffset;
+        logDebugP("For Common %i", index);
+        
+        switch(index)
+        {
+            case BASE_KoTime:
+                if(ParamBASE_CombinedTimeDate)
+                {
+                    KNXValue value = "";
+// DPT19 special flags
+#define DPT19_FAULT 0x80
+#define DPT19_WORKING_DAY 0x40
+#define DPT19_NO_WORKING_DAY 0x20
+#define DPT19_NO_YEAR 0x10
+#define DPT19_NO_DATE 0x08
+#define DPT19_NO_DAY_OF_WEEK 0x04
+#define DPT19_NO_TIME 0x02
+#define DPT19_SUMMERTIME 0x01
+// Values for Summertime
+#define VAL_STIM_FROM_KO 0
+#define VAL_STIM_FROM_DPT19 1
+#define VAL_STIM_FROM_INTERN 2
+
+                    // first ensure we have a valid data-time content
+                    // (including the correct length)
+                    if (ko.tryValue(value, Dpt(19,1)))
+                    {
+                        uint8_t *raw = ko.valueRef();
+
+                        if (!(raw[6] & (DPT19_FAULT | DPT19_NO_YEAR | DPT19_NO_DATE | DPT19_NO_TIME)))
+                        {
+                            struct tm lTmp = value;
+                            Timer::instance().setDateTimeFromBus(&lTmp);
+                            const bool lSummertime = raw[6] & DPT19_SUMMERTIME;
+                            // TODO check using ParamLOG_SummertimeAll
+                            if (ParamBASE_SummertimeAll == VAL_STIM_FROM_DPT19)
+                                Timer::instance().setIsSummertime(lSummertime);
+                        }
+                    }
+                }
+                break;
+            case BASE_KoDate:
+                break;
+        }
+        return;
+    }
+
+    if(koNum >= HCL_KoOffset && koNum < HCL_KoOffset + HCL_KoBlockSize * 3)
+    {
+        int index = floor((koNum - HCL_KoOffset) / HCL_KoBlockSize);
+        logDebugP("For HCL %i", index);
+        
+        return;
+    }
+
     switch(koNum)
     {
         //broadcast switch
@@ -972,6 +1056,10 @@ void DaliModule::processInputKo(GroupObject &ko)
 
         case APP_Koscene:
             koHandleScene(ko);
+            break;
+
+        default:
+            logDebugP("unhandled KO: %i", ko.asap());
             break;
     }
 }
@@ -1473,10 +1561,6 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         if(data[4] == PT_colorType_TW)
         {
             resultLength = 3;
-            // sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xF0);
-            // sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-            // int16_t resp = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
-            // uint16_t mirek = resp;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE2);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             uint16_t mirek = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE) << 8;

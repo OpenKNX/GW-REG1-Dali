@@ -30,6 +30,7 @@ class DaliChannel : public OpenKNX::Channel
 		void setGroupState(uint8_t group, bool state);
 		void setGroupState(uint8_t group, uint8_t value);
 		void setMinMax(uint8_t min, uint8_t max);
+		void setHcl(uint8_t curve, uint16_t value);
 		uint8_t getMin();
 		uint8_t getMax();
 		uint16_t getGroups();
@@ -73,6 +74,10 @@ class DaliChannel : public OpenKNX::Channel
 		bool _isStaircase = false;
 		bool _isGroup = false;
 		bool _isConfigured = false;
+		//HCL
+		uint8_t _hclCurve = 255;
+		uint16_t _hclCurrentTemp = 0;
+		bool _hclIsAlsoOn = false;
 		//EVG Fehler auslesen
 		bool _getError = false;
 		bool _errorState = false;
@@ -112,6 +117,7 @@ class DaliChannel : public OpenKNX::Channel
 		void updateCurrentDimmValue();
 		void sendColor();
 		void sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type);
+		void setTW(uint16_t value);
 		
 		void koHandleSwitch(GroupObject &ko);
 		void koHandleDimmRel(GroupObject &ko);
