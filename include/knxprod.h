@@ -16,22 +16,14 @@
 #define PT_deviceType_DT6 6
 #define PT_deviceType_DT7 7
 #define PT_deviceType_DT8 8
-#define PT_noyes_no 0
-#define PT_noyes_yes 1
-#define PT_runType_Normalbetrieb 0
-#define PT_runType_Treppenhauslicht 1
 #define PT_lock_no 0
 #define PT_lock_on 1
 #define PT_lock_off 2
 #define PT_lock_value 3
-#define PT_daynight_night 0
-#define PT_daynight_day 1
 #define PT_groupType_none 0
 #define PT_groupType_switch 1
 #define PT_groupType_dimm 2
 #define PT_groupType_color 3
-#define PT_lockNegate_locked 0
-#define PT_lockNegate_unlocked 1
 #define PT_scenetype_none 0
 #define PT_scenetype_address 1
 #define PT_scenetype_group 2
@@ -42,58 +34,6 @@
 #define PT_colorType_XYY 3
 #define PT_colorSpace_rgb 1
 #define PT_colorSpace_xy 0
-#define PT_fadeTimes_no 0
-#define PT_fadeTimes_0_7 1
-#define PT_fadeTimes_1_0 2
-#define PT_fadeTimes_1_4 3
-#define PT_fadeTimes_2_0 4
-#define PT_fadeTimes_2_8 5
-#define PT_fadeTimes_4_0 6
-#define PT_fadeTimes_5_7 7
-#define PT_fadeTimes_8_0 8
-#define PT_fadeTimes_11_3 9
-#define PT_fadeTimes_16_0 10
-#define PT_fadeTimes_22_6 11
-#define PT_fadeTimes_32_0 12
-#define PT_fadeTimes_45_3 13
-#define PT_fadeTimes_64_0 14
-#define PT_fadeTimes_90_5 15
-#define PT_fadeTimeExtendedBase_1 0
-#define PT_fadeTimeExtendedBase_2 1
-#define PT_fadeTimeExtendedBase_3 2
-#define PT_fadeTimeExtendedBase_4 3
-#define PT_fadeTimeExtendedBase_5 4
-#define PT_fadeTimeExtendedBase_6 5
-#define PT_fadeTimeExtendedBase_7 6
-#define PT_fadeTimeExtendedBase_8 7
-#define PT_fadeTimeExtendedBase_9 8
-#define PT_fadeTimeExtendedBase_10 9
-#define PT_fadeTimeExtendedBase_11 10
-#define PT_fadeTimeExtendedBase_12 11
-#define PT_fadeTimeExtendedBase_13 12
-#define PT_fadeTimeExtendedBase_14 13
-#define PT_fadeTimeExtendedBase_15 14
-#define PT_fadeTimeExtendedBase_16 15
-#define PT_fadeTimeExtenedMultiplier_none 0
-#define PT_fadeTimeExtenedMultiplier_100 1
-#define PT_fadeTimeExtenedMultiplier_1000 2
-#define PT_fadeTimeExtenedMultiplier_10000 3
-#define PT_fadeTimeExtenedMultiplier_60000 4
-#define PT_fadeRate_358_0 1
-#define PT_fadeRate_253_0 2
-#define PT_fadeRate_179_0 3
-#define PT_fadeRate_127_0 4
-#define PT_fadeRate_89_4 5
-#define PT_fadeRate_63_3 6
-#define PT_fadeRate_44_7 7
-#define PT_fadeRate_31_6 8
-#define PT_fadeRate_22_4 9
-#define PT_fadeRate_15_8 10
-#define PT_fadeRate_11_2 11
-#define PT_fadeRate_7_9 12
-#define PT_fadeRate_5_6 13
-#define PT_fadeRate_4_0 14
-#define PT_fadeRate_2_8 15
 #define PT_clickAction_none 0
 #define PT_clickAction_on 1
 #define PT_clickAction_off 2
@@ -102,33 +42,22 @@
 #define PT_clickAction_unlock 5
 #define PT_clickAction_lock_toggle 6
 #define PT_clickAction_identify 7
-#define PT_interval_Deaktivieren 0
-#define PT_interval_300 3
-#define PT_interval_400 4
-#define PT_interval_500 5
-#define PT_interval_600 6
-#define PT_interval_700 7
-#define PT_interval_800 8
-#define PT_interval_900 9
-#define PT_interval_10000 10
 #define PT_hclType_none 0
 #define PT_hclType_sun 1
 #define PT_hclType_time 2
-#define PT_hclCurves_k1 0
-#define PT_hclCurves_k2 1
-#define PT_hclCurves_k3 2
-#define PT_hclStart_start 0
-#define PT_hclStart_during 1
 #define PT_dimmLock_none 0
 #define PT_dimmLock_noOn 1
 #define PT_dimmLock_noOff 2
 #define PT_dimmLock_noBoth 3
+#define PT_offset_no 0
+#define PT_offset_plus 1
+#define PT_offset_minus 2
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x0B
+#define MAIN_ApplicationVersion 0x05
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1726
+#define MAIN_ParameterSize 1732
 #define MAIN_MaxKoNumber 1503
 
 
@@ -178,7 +107,7 @@
 #define GRP_ParamBlockOffset 1455
 #define GRP_ParamBlockSize 16
 #define HCL_ParamBlockOffset 1711
-#define HCL_ParamBlockSize 5
+#define HCL_ParamBlockSize 7
 #define BASE_KoOffset 6
 #define BASE_KoBlockSize 6
 #define SCE_KoOffset 12
@@ -694,6 +623,30 @@
 #define ParamHCL_maxIndex(X) ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 3)))))
 // Offset: 3, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
 #define ParamHCL_max ((uint)((knx.paramWord((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 3)))))
+#define HCL_offsetRiseType		0x0000
+#define HCL_offsetRiseType_Shift	4
+#define HCL_offsetRiseType_Mask	0x0003
+// Offset: 0, BitOffset: 2, Size: 2 Bit, Text: Verschiebe Sonnenaufgang
+#define ParamHCL_offsetRiseTypeIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 0)) >> HCL_offsetRiseType_Shift) & HCL_offsetRiseType_Mask))
+// Offset: 0, BitOffset: 2, Size: 2 Bit, Text: Verschiebe Sonnenaufgang
+#define ParamHCL_offsetRiseType ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 0)) >> HCL_offsetRiseType_Shift) & HCL_offsetRiseType_Mask))
+#define HCL_offsetRiseMin		0x0005
+// Offset: 5, Size: 8 Bit (1 Byte), Text: 
+#define ParamHCL_offsetRiseMinIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 5)))))
+// Offset: 5, Size: 8 Bit (1 Byte), Text: 
+#define ParamHCL_offsetRiseMin ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 5)))))
+#define HCL_offsetSetType		0x0000
+#define HCL_offsetSetType_Shift	2
+#define HCL_offsetSetType_Mask	0x0003
+// Offset: 0, BitOffset: 4, Size: 2 Bit, Text: Verschiebe Sonnenuntergang
+#define ParamHCL_offsetSetTypeIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 0)) >> HCL_offsetSetType_Shift) & HCL_offsetSetType_Mask))
+// Offset: 0, BitOffset: 4, Size: 2 Bit, Text: Verschiebe Sonnenuntergang
+#define ParamHCL_offsetSetType ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 0)) >> HCL_offsetSetType_Shift) & HCL_offsetSetType_Mask))
+#define HCL_offsetSetMin		0x0006
+// Offset: 6, Size: 8 Bit (1 Byte), Text: 
+#define ParamHCL_offsetSetMinIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + 6)))))
+// Offset: 6, Size: 8 Bit (1 Byte), Text: 
+#define ParamHCL_offsetSetMin ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + 6)))))
 //!< Number: 0, Text: HCL Kurve {{argChan}}, Function: Farbtemperatur
 #define HCL_Kohcl_state 0
 #define KoHCL_hcl_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + 0)

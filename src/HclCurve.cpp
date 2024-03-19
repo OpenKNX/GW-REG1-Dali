@@ -60,6 +60,17 @@ void HclCurve::loop()
         logDebugP("Irgendwas dazwischen");
         uint16_t startMin = sunRise->hour*60 + sunRise->minute;
         uint16_t stopMin = sunSet->hour*60 + sunSet->minute;
+
+        if(ParamHCL_offsetRiseType == PT_offset_plus)
+            startMin += ParamHCL_offsetRiseMin;
+        else if(ParamHCL_offsetRiseType == PT_offset_minus)
+            startMin -= ParamHCL_offsetRiseMin;
+
+        if(ParamHCL_offsetSetType == PT_offset_plus)
+            stopMin += ParamHCL_offsetSetMin;
+        else if(ParamHCL_offsetSetType == PT_offset_minus)
+            stopMin -= ParamHCL_offsetSetMin;
+
         uint16_t currentMin = Timer::instance().getHour()*60 + Timer::instance().getMinute();
         logDebugP("start %i | stop %i | curr %i", startMin, stopMin, currentMin);
         uint16_t response = ColorHelper::getKelvinFromSun(currentMin - startMin, stopMin - startMin, min, max);
