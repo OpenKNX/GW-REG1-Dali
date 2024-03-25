@@ -6,16 +6,16 @@
             (time & 0xC000) == 0x4000 ? (time & 0x3FFF) * 60000 : \
             (time & 0xC000) == 0x8000 ? ((time & 0x3FFF) > 1000 ? 3600000 : \
                                             (time & 0x3FFF) * 3600000 ) : 0 )
-#define PT_deviceType_Deaktiviert 15
-#define PT_deviceType_DT0 0
-#define PT_deviceType_DT1 1
-#define PT_deviceType_DT2 2
-#define PT_deviceType_DT3 3
-#define PT_deviceType_DT4 4
-#define PT_deviceType_DT5 5
-#define PT_deviceType_DT6 6
-#define PT_deviceType_DT7 7
-#define PT_deviceType_DT8 8
+#define PT_deviceType_Deaktiviert 0
+#define PT_deviceType_DT0 1
+#define PT_deviceType_DT1 2
+#define PT_deviceType_DT2 3
+#define PT_deviceType_DT3 4
+#define PT_deviceType_DT4 5
+#define PT_deviceType_DT5 6
+#define PT_deviceType_DT6 7
+#define PT_deviceType_DT7 8
+#define PT_deviceType_DT8 9
 #define PT_lock_no 0
 #define PT_lock_on 1
 #define PT_lock_off 2
@@ -55,10 +55,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x05
+#define MAIN_ApplicationVersion 0x03
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1732
-#define MAIN_MaxKoNumber 1503
+#define MAIN_ParameterSize 1796
+#define MAIN_MaxKoNumber 1439
 
 
 #define APP_daynight		0x0000
@@ -103,20 +103,20 @@
 #define SCE_ParamBlockOffset 47
 #define SCE_ParamBlockSize 4
 #define ADR_ParamBlockOffset 303
-#define ADR_ParamBlockSize 18
-#define GRP_ParamBlockOffset 1455
+#define ADR_ParamBlockSize 19
+#define GRP_ParamBlockOffset 1519
 #define GRP_ParamBlockSize 16
-#define HCL_ParamBlockOffset 1711
+#define HCL_ParamBlockOffset 1775
 #define HCL_ParamBlockSize 7
 #define BASE_KoOffset 6
 #define BASE_KoBlockSize 6
 #define SCE_KoOffset 12
-#define SCE_KoBlockSize 1
-#define ADR_KoOffset 76
+#define SCE_KoBlockSize 0
+#define ADR_KoOffset 12
 #define ADR_KoBlockSize 18
-#define GRP_KoOffset 1228
+#define GRP_KoOffset 1164
 #define GRP_KoBlockSize 17
-#define HCL_KoOffset 1500
+#define HCL_KoOffset 1436
 #define HCL_KoBlockSize 1
 
 //-----Module: adresse
@@ -282,6 +282,26 @@
 #define ParamADR_dimmLockIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 16))) & ADR_dimmLock_Mask))
 // Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei rlativ
 #define ParamADR_dimmLock ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 16))) & ADR_dimmLock_Mask))
+#define ADR_hcl_manu_bri		0x0007
+// Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
+#define ParamADR_hcl_manu_briIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 7), 7)
+// Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
+#define ParamADR_hcl_manu_bri knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 7), 7)
+#define ADR_hcl_manu_col		0x0008
+// Offset: 8, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ParamADR_hcl_manu_colIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 8), 7)
+// Offset: 8, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ParamADR_hcl_manu_col knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 8), 7)
+#define ADR_hcl_auto_off		0x0009
+// Offset: 9, BitOffset: 7, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ParamADR_hcl_auto_offIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 9), 7)
+// Offset: 9, BitOffset: 7, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ParamADR_hcl_auto_off knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 9), 7)
+#define ADR_hcl_auto_day		0x0012
+// Offset: 18, Size: 1 Bit, Text: der Tag vorbei ist
+#define ParamADR_hcl_auto_dayIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 18), 0)
+// Offset: 18, Size: 1 Bit, Text: der Tag vorbei ist
+#define ParamADR_hcl_auto_day knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 18), 0)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + 0)

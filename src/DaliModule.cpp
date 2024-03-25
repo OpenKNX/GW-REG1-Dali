@@ -345,7 +345,7 @@ void DaliModule::loopMessages()
                 logError("Dali", "Invalid Startbit (%i/%i)", DaliBus.tempBusLevel, DaliBus.tempDelta);
                 break;
             case DALI_ERROR_TIMING:
-                logError("Dali", "Error Timing");
+                logError("Dali", "Error Timing (%i)", DaliBus.tempDelta);
                 break;
             default:
                 logError("Dali", "Unknown Error %i", _lastDaliError);

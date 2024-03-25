@@ -78,6 +78,8 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t _hclCurve = 255;
 		uint16_t _hclCurrentTemp = 0;
 		bool _hclIsAlsoOn = false;
+		bool _hclIsAutoMode = true;
+		bool _hclLastState = false; //TOOD remove
 		//EVG Fehler auslesen
 		bool _getError = false;
 		bool _errorState = false;
