@@ -34,8 +34,8 @@ void HclCurve::loop()
 {
     if(!_isConfigured) return;
 
-    sTime *sunRise = Timer::instance().getSunInfo(SUN_SUNRISE);
-    sTime *sunSet = Timer::instance().getSunInfo(SUN_SUNSET);
+    sTime *sunRise = openknxTimerModule.getSunInfo(SUN_SUNRISE);
+    sTime *sunSet = openknxTimerModule.getSunInfo(SUN_SUNSET);
 
     if((sunRise->hour == 0 && sunRise->minute == 0) || (sunSet->hour == 0 && sunSet->minute == 0))
     {
@@ -45,13 +45,13 @@ void HclCurve::loop()
 
     uint16_t min = ParamHCL_min;
     uint16_t max = ParamHCL_max;
-    if(Timer::instance().getHour() < sunRise->hour || (Timer::instance().getHour() == sunRise->hour && Timer::instance().getMinute() < sunRise->minute))
+    if(openknxTimerModule.getHour() < sunRise->hour || (openknxTimerModule.getHour() == sunRise->hour && openknxTimerModule.getMinute() < sunRise->minute))
     {
         logDebugP("Vor Sonnenaufgang %i K", min);
         KoHCL_hcl_state.value(min, Dpt(7, 600));
         // if(KoHCL_hcl_state.valueNoSendCompare(min, Dpt(7, 600)))
         //     KoHCL_hcl_state.objectWritten();
-    } else if(Timer::instance().getHour() > sunSet->hour || (Timer::instance().getHour() == sunSet->hour && Timer::instance().getMinute() > sunSet->minute)) {
+    } else if(openknxTimerModule.getHour() > sunSet->hour || (openknxTimerModule.getHour() == sunSet->hour && openknxTimerModule.getMinute() > sunSet->minute)) {
         logDebugP("Nach Sonnenuntergang %i K (%i:%i)", max, sunSet->hour, sunSet->minute);
         KoHCL_hcl_state.value(max, Dpt(7, 600));
         // if(KoHCL_hcl_state.valueNoSendCompare(max, Dpt(7, 600)))
@@ -71,7 +71,7 @@ void HclCurve::loop()
         else if(ParamHCL_offsetSetType == PT_offset_minus)
             stopMin -= ParamHCL_offsetSetMin;
 
-        uint16_t currentMin = Timer::instance().getHour()*60 + Timer::instance().getMinute();
+        uint16_t currentMin = openknxTimerModule.getHour()*60 + openknxTimerModule.getMinute();
         logDebugP("start %i | stop %i | curr %i", startMin, stopMin, currentMin);
         uint16_t response = ColorHelper::getKelvinFromSun(currentMin - startMin, stopMin - startMin, min, max);
         logDebugP("response: %i K", response);

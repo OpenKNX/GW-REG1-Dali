@@ -1,5 +1,4 @@
 #include "DaliModule.h"
-#include "Timer.h"
 
 unsigned long daliActivity = 0;
 
@@ -47,17 +46,6 @@ void DaliModule::setup(bool conf)
     }
 
     logDebugP("watchdog %i", ParamBASE_Watchdog);
-    logDebugP("breitengrad %f", ParamBASE_Latitude);
-    logDebugP("längengrad %f", ParamBASE_Longitude);
-
-// Values for Summertime
-#define VAL_STIM_FROM_KO 0
-#define VAL_STIM_FROM_DPT19 1
-#define VAL_STIM_FROM_INTERN 2
-
-    bool lUseSummertime = (ParamBASE_SummertimeAll == VAL_STIM_FROM_INTERN);
-    Timer::instance().setup(ParamBASE_Longitude, ParamBASE_Latitude, ParamBASE_Timezone, lUseSummertime, 0x0000);
-
 
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=] { 
@@ -162,11 +150,9 @@ void DaliModule::setup1(bool conf)
 
 void DaliModule::loop()
 {
-    Timer::instance().loop();
-    
-    if(Timer::instance().minuteChanged())
+    if(openknxTimerModule.minuteChanged())
     {        
-        Timer::instance().clearMinuteChanged();
+        openknxTimerModule.clearMinuteChanged();
         for(int i = 0; i < 3; i++)
             curves[i].loop();
     }
@@ -972,55 +958,6 @@ void DaliModule::processInputKo(GroupObject &ko)
             _lastChangedValue = ko.value(Dpt(5,1));
         }
         
-        return;
-    }
-
-    if(koNum >= BASE_KoOffset && koNum < BASE_KoOffset + BASE_KoBlockSize)
-    {
-        int index = koNum - BASE_KoOffset;
-        logDebugP("For Common %i", index);
-        
-        switch(index)
-        {
-            case BASE_KoTime:
-                if(ParamBASE_CombinedTimeDate)
-                {
-                    KNXValue value = "";
-// DPT19 special flags
-#define DPT19_FAULT 0x80
-#define DPT19_WORKING_DAY 0x40
-#define DPT19_NO_WORKING_DAY 0x20
-#define DPT19_NO_YEAR 0x10
-#define DPT19_NO_DATE 0x08
-#define DPT19_NO_DAY_OF_WEEK 0x04
-#define DPT19_NO_TIME 0x02
-#define DPT19_SUMMERTIME 0x01
-// Values for Summertime
-#define VAL_STIM_FROM_KO 0
-#define VAL_STIM_FROM_DPT19 1
-#define VAL_STIM_FROM_INTERN 2
-
-                    // first ensure we have a valid data-time content
-                    // (including the correct length)
-                    if (ko.tryValue(value, Dpt(19,1)))
-                    {
-                        uint8_t *raw = ko.valueRef();
-
-                        if (!(raw[6] & (DPT19_FAULT | DPT19_NO_YEAR | DPT19_NO_DATE | DPT19_NO_TIME)))
-                        {
-                            struct tm lTmp = value;
-                            Timer::instance().setDateTimeFromBus(&lTmp);
-                            const bool lSummertime = raw[6] & DPT19_SUMMERTIME;
-                            // TODO check using ParamLOG_SummertimeAll
-                            if (ParamBASE_SummertimeAll == VAL_STIM_FROM_DPT19)
-                                Timer::instance().setIsSummertime(lSummertime);
-                        }
-                    }
-                }
-                break;
-            case BASE_KoDate:
-                break;
-        }
         return;
     }
 

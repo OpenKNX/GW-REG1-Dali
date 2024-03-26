@@ -2,6 +2,7 @@
 #include "TimerInterrupt_Generic.h"
 #include "OpenKNX.h"
 #include "DaliModule.h"
+#include "TimerModule.h"
 #ifdef ARDUINO_ARCH_RP2040
 #include "FileTransferModule.h"
 #endif
@@ -21,6 +22,7 @@ void setup()
 	openknx.init(firmwareRevision);
 	//openknxDaliModule.setCallback(daliCallback);
 	openknx.addModule(1, openknxDaliModule);
+	openknx.addModule(2, openknxTimerModule);
 #ifdef ARDUINO_ARCH_RP2040
 	openknx.addModule(3, openknxFileTransferModule);
 #endif

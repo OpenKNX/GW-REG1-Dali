@@ -4,7 +4,7 @@
 #include <string>
 #include "OpenKNX.h"
 #include "knxprod.h"
-#include "Timer.h"
+#include "TimerModule.h"
 #include "colorhelper.h"
 
 class HclCurve
