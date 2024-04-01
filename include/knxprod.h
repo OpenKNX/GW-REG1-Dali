@@ -55,7 +55,7 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x03
+#define MAIN_ApplicationVersion 0x04
 #define MAIN_OrderNumber "REG1-Dali"
 #define MAIN_ParameterSize 1796
 #define MAIN_MaxKoNumber 1439
@@ -278,9 +278,9 @@
 #define ParamADR_hclStart knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 6), 7)
 #define ADR_dimmLock		0x0010
 #define ADR_dimmLock_Mask	0x0003
-// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei rlativ
+// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei relativ
 #define ParamADR_dimmLockIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + 16))) & ADR_dimmLock_Mask))
-// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei rlativ
+// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei relativ
 #define ParamADR_dimmLock ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + 16))) & ADR_dimmLock_Mask))
 #define ADR_hcl_manu_bri		0x0007
 // Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird

@@ -2,11 +2,8 @@
 
 uint16_t ColorHelper::getKelvinFromSun(uint16_t minCurr, uint16_t minDiff, uint16_t minK, uint16_t maxK)
 {
-    logDebug("ColorHelper", "curr %i | diff %i", minCurr, minDiff);
     float xAchse = (minCurr * 3.14159) / minDiff;
-    logDebug("ColorHelper", "X: %f", xAchse);
     float yAchse = sin(xAchse);
-    logDebug("ColorHelper", "Y: %f", yAchse);
     return (maxK - minK) * yAchse + minK;
 }
 

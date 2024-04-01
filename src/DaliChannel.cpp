@@ -446,10 +446,13 @@ void DaliChannel::koHandleColorAbs(GroupObject &ko, uint8_t index)
 
     if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
         _hclIsAutoMode = false;
+        
+    logDebugP("AutoSwitchConfig %i %i", ParamADR_hcl_manu_col, _hclIsAutoMode);
 
     currentColor[index] = ko.value(Dpt(5, 4));
     updateCurrentDimmValue();
     sendColor();
+    logDebugP("AutoSwitchConfig2 %i %i", ParamADR_hcl_manu_col, _hclIsAutoMode);
 }
 
 void DaliChannel::koHandleSwitch(GroupObject &ko)
@@ -679,6 +682,8 @@ void DaliChannel::koHandleColor(GroupObject &ko)
     if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
         _hclIsAutoMode = false;
 
+    logDebugP("AutoConf %i %i %i", _isGroup, ParamADR_hcl_manu_col, _hclIsAutoMode);
+
 
     uint8_t colorType = _isGroup ? ParamGRP_colorType : ParamADR_colorType;
 
@@ -769,6 +774,8 @@ void DaliChannel::koHandleColor(GroupObject &ko)
     }
 
     setDimmState(254, true, true); // TODO get real
+    
+    logDebugP("AutoConf %i %i %i", _isGroup, ParamADR_hcl_manu_col, _hclIsAutoMode);
 }
 
 void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type)
@@ -778,9 +785,9 @@ void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, cons
         ko.objectWritten();
 }
 
-void DaliChannel::setTW(uint16_t value)
+void DaliChannel::setTW(uint16_t value, uint8_t bri)
 {
-    logDebugP("Set Kelvin: %X K", value);
+    logDebugP("Set Kelvin: %X K / %.2f %%", value, bri/2.54);
     uint16_t mirek = 1000000.0 / value;
     sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
@@ -881,10 +888,11 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
         currentStep = toSet;
     }
 
-    
-    if(!value &&_isGroup ? /*//TODO*/ false : ParamADR_hcl_auto_off)
+    logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
+    if(!value && (_isGroup ? /*//TODO*/ false : ParamADR_hcl_auto_off))
         _hclIsAutoMode = true;
 
+    logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
 
     bool currentState = knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Koswitch_state : ADR_Koswitch_state)).value(DPT_Switch);
     if (value == currentState)
@@ -985,13 +993,24 @@ void DaliChannel::setMinMax(uint8_t min, uint8_t max)
     _max = max;
 }
 
-void DaliChannel::setHcl(uint8_t curve, uint16_t value)
+void DaliChannel::setHcl(uint8_t curve, uint16_t value, uint8_t bri)
 {
-    if(curve == _hclCurve && currentState && _hclIsAlsoOn)
+    logDebugP("curve %i | state %i | isAlsoOn %i", _hclCurve, currentState, _hclIsAlsoOn);
+    if(!_hclIsAutoMode)
     {
-        if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
-            _hclIsAutoMode = false;
-        setTW(value);
+        logDebugP("Ignored because mode is manu");
+        return;
+    }
+
+    if(curve == _hclCurve)
+    {
+        if(currentState && _hclIsAlsoOn)
+        {
+            logDebugP("Setting HCL");
+            setTW(value, bri);
+        } else {
+            logDebugP("Ignored. Only apply on turning on");
+        }
     }
 }
 

@@ -157,7 +157,10 @@ void DaliModule::loop()
             curves[i].loop();
     }
 
-    if(_adrState != AddressingState::None) return;
+    if(_adrState != AddressingState::None)
+    {
+        return;
+    }
 
     if(!_gotInitData)
     {
@@ -965,7 +968,11 @@ void DaliModule::processInputKo(GroupObject &ko)
     {
         int index = floor((koNum - HCL_KoOffset) / HCL_KoBlockSize);
         logDebugP("For HCL %i", index);
-        
+        uint16_t kelvin = ko.value(Dpt(7, 600));
+        for(int i = 0; i < 64; i++)
+            channels[i].setHcl(index, kelvin, 255);
+        for(int i = 0; i < 16; i++)
+            groups[i].setHcl(index, kelvin, 255);
         return;
     }
 
