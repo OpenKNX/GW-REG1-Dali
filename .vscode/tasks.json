@@ -8,7 +8,8 @@
             "type": "shell",
             "command": "scripts/Upload-Firmware.ps1",
             "args": [
-                "release_UP1"
+                //Todo change to release_REG1_V1
+                "develop_REG1_USB_V1"
             ],
             "group": "build",
             "problemMatcher": [],
