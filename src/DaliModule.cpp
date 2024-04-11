@@ -30,7 +30,6 @@ void DaliModule::setup(bool conf)
         channels[i].init(i, false);
         channels[i].setup();
     }
-
     
     for(int i = 0; i < 16; i++)
     {
@@ -1193,11 +1192,10 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
             logDebugP("Resp: %.2X", resp);
             if(resp == 254)
                 break;
-            else
+            else if(resp < 20)
                 deviceType = resp;
         }
     }
-
 
     resultData[0] = 0x00;
     resultData[1] = deviceType;
@@ -1250,7 +1248,6 @@ void DaliModule::funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &res
         logInfoP("Don't Randomize");
         _adrState = AddressingState::Search;
     }
-
 
     _adrNoRespCounter = 1;
     resultLength = 0;
