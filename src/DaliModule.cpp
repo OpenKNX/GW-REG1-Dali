@@ -1204,7 +1204,7 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
     if(deviceType == PT_deviceType_DT8)
     {
         sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 8);
-        resp = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_TYPE_FEATURES);
+        resp = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_TYPE_FEATURES);
         if(resp < 0)
         {
             logErrorP("Dali Error (CT): Code %i", resp);
@@ -1456,13 +1456,13 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-                sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_KELVIN, type);
+                sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_COLOUR_TEMPERATURE, type);
             } else { //it is RGB
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR, data[7]); 
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR1, data[8]);
                 sendCmdSpecial(DaliSpecialCmd::SET_DTR2, data[9]);
                 sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-                sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_RGB, type);
+                sendCmd(addr, DaliCmdExtendedDT8::SET_TEMP_RGB_LEVEL, type);
                 logDebugP("RGB %.2X%.2X%.2X", data[7], data[8], data[9]);
             }
         }
@@ -1504,7 +1504,7 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
             resultLength = 3;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE2);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-            uint16_t mirek = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE) << 8;
+            uint16_t mirek = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE) << 8;
             mirek |= getInfo(data[1], DaliCmd::QUERY_DTR);
             logDebugP("mirek %i", mirek);
 
@@ -1517,15 +1517,15 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
             resultLength = 4;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE9);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-            uint8_t colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            uint8_t colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE);
             resultData[1] = colorVal;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xEA);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-            colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE);
             resultData[2] = colorVal;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xEB);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
-            colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOR_VALUE);
+            colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE);
             resultData[3] = colorVal;
             logDebugP("Scene %i: %.1f%% RGB=%.2X%.2X%.2X", data[2], DaliHelper::arcToPercentFloat(value), resultData[1], resultData[2], resultData[3]);
         }

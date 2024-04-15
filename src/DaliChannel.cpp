@@ -792,10 +792,10 @@ void DaliChannel::setTW(uint16_t value, uint8_t bri)
     sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-    sendCmd(DaliCmdExtendedDT8::SET_TEMP_KELVIN);
+    sendCmd(DaliCmdExtendedDT8::SET_TEMP_COLOUR_TEMPERATURE);
 
     sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-    sendCmd(DaliCmd::ACTIVATE);
+    sendCmd(DaliCmdExtendedDT8::ACTIVATE);
 
     sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(7, 600));
 }
@@ -832,9 +832,9 @@ void DaliChannel::sendColor()
         sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
         sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::SET_TEMP_RGB);
+        sendCmd(DaliCmdExtendedDT8::SET_TEMP_RGB_LEVEL);
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmd::ACTIVATE);
+        sendCmd(DaliCmdExtendedDT8::ACTIVATE);
         break;
     }
 
@@ -856,15 +856,15 @@ void DaliChannel::sendColor()
         sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (x >> 8) & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmd::SET_COORDINATE_X);
+        sendCmd(DaliCmdExtendedDT8::SET_COORDINATE_X);
 
         sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmd::SET_COORDINATE_Y);
+        sendCmd(DaliCmdExtendedDT8::SET_COORDINATE_Y);
 
         sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmd::ACTIVATE);
+        sendCmd(DaliCmdExtendedDT8::ACTIVATE);
         break;
     }
     }
