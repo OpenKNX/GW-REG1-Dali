@@ -156,7 +156,7 @@ void DaliModule::loop()
             curves[i].loop();
     }
 
-    if(_adrState != AddressingState::None)
+    if(_adrState != AddressingState::OFF)
     {
         return;
     }
@@ -182,7 +182,7 @@ unsigned long last = 0;
 
 void DaliModule::loop1(bool configured)
 {
-    if(_adrState != AddressingState::None)
+    if(_adrState != AddressingState::OFF)
     {
         loopAddressing();
         loopMessages();
@@ -378,335 +378,447 @@ void DaliModule::loopMessages()
 
 void DaliModule::loopAddressing()
 {
-    switch(_adrState)
-    {
-        case AddressingState::Randomize_Wait:
-        {
-            if(millis() - _adrTime > DALI_WAIT_RANDOMIZE)
-            {
-                _adrState = AddressingState::Search;
-                logInfoP("RandomizeWait finished");
-            }
-            break;
+  if (DaliBus.busIsIdle()) { // wait until bus is idle
+    switch (_adrState) {
+      case AddressingState::INIT:
+        dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, (commissionOnlyNew ? 255 : 0));
+        _adrState = AddressingState::INIT2;
+        break;
+      case AddressingState::INIT2:
+        dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, (commissionOnlyNew ? 255 : 0));
+        _adrState = (commissionRandomize ? AddressingState::RANDOM : AddressingState::STARTSEARCH);
+        break;
+    //   case AddressingState::WRITE_DTR:
+    //     dali->sendSpecialCmd(DaliSpecialCmd::SET_DTR, 255);
+    //     _adrState = AddressingState::REMOVE_SHORT;
+    //     break;
+    //   case AddressingState::REMOVE_SHORT:
+    //     dali->sendCmd(63, DaliCmd::DTR_AS_SHORT, DaliAddressTypes::GROUP);
+    //     _adrState = AddressingState::REMOVE_SHORT2;
+    //     break;
+    //   case AddressingState::REMOVE_SHORT2:
+    //     dali->sendCmd(63, DaliCmd::DTR_AS_SHORT, DaliAddressTypes::GROUP);
+    //     _adrState = AddressingState::RANDOM;
+    //     break;
+      case AddressingState::RANDOM:
+        dali->sendSpecialCmd(DaliSpecialCmd::RANDOMISE);
+        _adrState = AddressingState::RANDOM2;
+        break;
+      case AddressingState::RANDOM2:
+        dali->sendSpecialCmd(DaliSpecialCmd::RANDOMISE);
+        _adrState = AddressingState::RANDOMWAIT;
+        break;
+      case AddressingState::RANDOMWAIT:  // wait 100ms for random address to generate
+        if (DaliBus.busIdleCount >= 255)
+          _adrState = AddressingState::STARTSEARCH;
+        break;
+      case AddressingState::STARTSEARCH:
+        searchIterations = 0;
+        currentSearchAddress = 0xFFFFFF;
+        _adrFound = 0;
+      case AddressingState::SEARCHHIGH:
+        dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRH, (currentSearchAddress >> 16) & 0xFF);
+        _adrState = AddressingState::SEARCHMID;
+        break;
+      case AddressingState::SEARCHMID:
+        dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRM, (currentSearchAddress >> 8) & 0xFF);
+        _adrState = AddressingState::SEARCHLOW;
+        break;
+      case AddressingState::SEARCHLOW:
+        dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRL, (currentSearchAddress) & 0xFF);
+        _adrState = AddressingState::COMPARE;
+        break;
+      case AddressingState::COMPARE:
+        dali->sendSpecialCmd(DaliSpecialCmd::COMPARE);
+        _adrState = AddressingState::CHECKFOUND;
+        break;
+      case AddressingState::CHECKFOUND:
+        {  // create scope for response variable
+        int response = DaliBus.getLastResponse();
+        if (response != DALI_RX_EMPTY)
+          if (searchIterations >= 24) // ballast found
+          {
+            //_adrState = AddressingState::PROGRAMSHORT;
+            _adrState = AddressingState::WITHDRAW;
+            logInfoP("Found ballast at %.6X", currentSearchAddress);
+            _adrFound++;
+          }
+          else {
+            currentSearchAddress -= (0x800000 >> searchIterations);
+            _adrState = AddressingState::SEARCHHIGH;
+          }
+        else
+          if (searchIterations == 0 || searchIterations > 24) // no device at all responded or error
+            _adrState = AddressingState::TERMINATE;
+          else if (searchIterations == 24) {  // device responded before, but didn't now, so address is one higher
+            currentSearchAddress++;           // and for the device to act at upcoming commands, we need to send the actual address
+            _adrState = AddressingState::SEARCHHIGH;
+          }
+          else {  // there's a device that didn't respond anymore, increase address
+            currentSearchAddress += (0x800000 >> searchIterations);
+            _adrState = AddressingState::SEARCHHIGH;
+          }
+        searchIterations++;
+        break;
         }
-
-        case AddressingState::Search:
-        {
-            if(_adrNoRespCounter == 2)
-            {
-                _adrState = AddressingState::Finish;
-                break;
-            }
-
-            byte high = _adrHigh >> 16;
-            byte middle = (_adrHigh >> 8) & 0xFF;
-            byte low = _adrHigh & 0xFF;
-            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
-            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
-            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
-            _adrResp = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0x00, true);
-            _adrTime = millis();
-            _adrState = AddressingState::SearchWait;
-            break;
-        }
-
-        case AddressingState::SearchWait:
-        {
-            int16_t response = queue.getResponse(_adrResp);
-            
-            if(response == -200 || response == -1)
-            {
-                if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
-                {
-                    _adrLow = _adrHigh + 1;
-                    _adrHigh = _adrHighLast;
-                    _adrState = AddressingState::Search;
-                    _adrNoRespCounter++;
-                }
-            } else if(response >= 0) {
-                if(_adrLow == _adrHigh)
-                {
-                    logInfoP("Found Ballast at %.6X", _adrLow);
-                    if(_adrAssign)
-                    {
-                        uint8_t addr = 0;
-                        while(addresses[addr] == true){
-                            addr++;
-                        }
-                        addresses[addr] = true;
-                        logInfoP("Assigning Address %i", addr);
-                        sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, (addr << 1) | 1);
-                        sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
-                        ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
-                        ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
-                        ballasts[_adrFound].low = _adrLow & 0xFF;
-                        ballasts[_adrFound].address = response >> 1;
-                        _adrFound++;
-
-                        _adrLow = 0;
-                        _adrHigh = 0xFFFFFF;
-                        _adrHighLast = 0xFFFFFF;
-                        _adrNoRespCounter = 1;
-                        _adrState = AddressingState::Search;
-                    } else {
-                        _adrResp = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
-                        _adrTime = millis();
-                        _adrState = AddressingState::Found;
-                    }
-                } else {
-                    _adrHighLast = _adrHigh;
-                    _adrHigh = (_adrLow + _adrHigh) / 2;
-                    _adrNoRespCounter = 0;
-                    _adrState = AddressingState::Search;
-                }
-            } else {
-                logErrorP("Dali Error %i, aborting addressing", response);
-                _adrState = AddressingState::Finish;
-            }
-            break;
-        }
-
-        case AddressingState::Found:
-        {
-            int16_t response = queue.getResponse(_adrResp);
-            if(response == -200 || response == -1)
-            {
-                if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
-                {
-                    logErrorP("Found ballast not answering");
-                    _adrState = AddressingState::Finish;
-                    ballasts[_adrFound].address = 255;
-                    _adrFound++;
-                }
-            } else if(response >= 0) {
-                if(response == 255)
-                    logInfoP(" -> has no Short Address");
-                else
-                    logInfoP(" -> has Short Address %i", response >> 1);
-
-                ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
-                ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
-                ballasts[_adrFound].low = _adrLow & 0xFF;
-                ballasts[_adrFound].address = response >> 1;
-                _adrFound++;
-
-                _adrLow = 0;
-                _adrHigh = 0xFFFFFF;
-                _adrHighLast = 0xFFFFFF;
-                _adrNoRespCounter = 1;
-                sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
-                _adrState = AddressingState::Search;
-            } else {
-                logErrorP("Dali Error %i, aborting addressing", response);
-                _adrState = AddressingState::Finish;
-            }
-            break;
-        }
-
-        case AddressingState::Finish:
-        {
-            logErrorP("Found %i ballasts", _adrFound);
-            sendCmdSpecial(DaliSpecialCmd::TERMINATE);
-            _adrState = AddressingState::None;
-            break;
-        }
-
-        case AddressingState::Finish_Assign:
-        {
-            sendCmdSpecial(DaliSpecialCmd::TERMINATE);
-            _adrState = AddressingState::None;
-            delete[] addresses;
-            delete[] ballasts;
-            break;
-        }
-
-        case AddressingState::Query_Wait:
-        {
-            int16_t resp = queue.getResponse(_adrResp);
-
-            if(resp == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
-            {
-                _adrState = AddressingState::Withdraw_Others;
-                logErrorP("Adresse wird nicht verwendet");
-                return;
-            }
-
-            if(resp == -200) return;
-
-            if(resp >= 0)
-            {
-                logErrorP("Adresse wird bereits verwendet");
-                _assState = AssigningState::Failed_Exists;
-                _adrState = AddressingState::None;
-                return;
-            } else {
-                logErrorP("Bus Error %i", resp);
-                _assState = AssigningState::Failed_Bus;
-                _adrState = AddressingState::None;
-                return;
-            }
-            break;
-        }
-
-        case AddressingState::Withdraw_Others:
-        {
-            sendCmdSpecial(DaliSpecialCmd::INITIALISE, 0);
-            sendCmdSpecial(DaliSpecialCmd::INITIALISE, 0);
-            if(_adrHigh > 0)
-            {
-                logInfoP("Verwerfe alle mit niedrigerer Long Address");
-                _adrHigh--;
-                byte high = _adrHigh >> 16;
-                byte middle = (_adrHigh >> 8) & 0xFF;
-                byte low = _adrHigh & 0xFF;
-                sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
-                sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
-                sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
-                sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
-                _adrHigh++;
-            }
-            byte high = _adrHigh >> 16;
-            byte middle = (_adrHigh >> 8) & 0xFF;
-            byte low = _adrHigh & 0xFF;
-            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
-            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
-            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
-            _adrResp =  sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
-            _adrTime = millis();
-            _adrState = AddressingState::Check_Address;
-            break;
-        }
-
-        case AddressingState::Check_Address:
-        {
-            if(millis() - _adrTime > DALI_WAIT_SEARCH)
-            {
-                logInfoP("Device does not answer");
-                _assState = AssigningState::Failed_No_Answer;
-                _adrState = AddressingState::Finish_Assign;
-                return;
-            }
-
-            int16_t resp = queue.getResponse(_adrResp);
-
-            if(resp == -200) return;
-
-            if(resp >= 0)
-            {
-                logInfoP("Long Address exists");
-                sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, _adrLow);
-                _adrState = AddressingState::Confirm_Address;
-                _adrResp = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
-                _adrTime = millis();
-                logInfoP("Check Short Address");
-                return;
-            } else if(resp == -1) {
-                logInfoP("Long Address dont exists");
-                _assState = AssigningState::Failed_Exists_Not;
-                _adrState = AddressingState::Finish_Assign;
-            } else {
-                logInfoP("Bus Error %i", resp);
-                _assState = AssigningState::Failed_Bus;
-                _adrState = AddressingState::Finish_Assign;
-            }
-            break;
-        }
-
-        case AddressingState::Confirm_Address:
-        {
-            if(millis() - _adrTime > DALI_WAIT_SEARCH)
-            {
-                logInfoP("Device does not answer");
-                _assState = AssigningState::Failed_No_Answer;
-                _adrState = AddressingState::Finish_Assign;
-                return;
-            }
-
-            int16_t resp = queue.getResponse(_adrResp);
-
-            if(resp == -200) return;
-
-            if(resp >= 0)
-            {
-                if(resp == 255 && _adrLow == 255) {
-                    logInfoP("Removing short address was succesfull");
-                    _assState = AssigningState::Success;
-                } else if(resp == _adrLow)
-                {
-                    logInfoP("Setting short address was succesfull");
-                    _assState = AssigningState::Success;
-                } else {
-                    logInfoP("Setting short address failed");
-                    _assState = AssigningState::Failed_Confirm;
-                }
-                _adrState = AddressingState::Finish_Assign;
-                return;
-            } else {
-                logInfoP("Bus Error %i", resp);
-                _assState = AssigningState::Failed_Bus;
-                _adrState = AddressingState::Finish_Assign;
-                return;
-            }
-            break;
-        }
-
-        case AddressingState::SearchAdr:
-        {
-            if(_adrLow == 64)
-            {
-                sendCmdSpecial(DaliSpecialCmd::INITIALISE, 255);
-                sendCmdSpecial(DaliSpecialCmd::INITIALISE, 255);
-                //sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
-                //sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
-                _adrState = AddressingState::Randomize_Wait;
-                _adrLow = 0;
-                _adrHigh = 0xFFFFFF;
-                _adrHighLast = 0xFFFFFF;
-                _adrNoRespCounter = 0;
-                break;
-            }
-                
-            _adrState = AddressingState::SearchAdrWait;
-            _assState = AssigningState::Working;
-            _adrResp = sendCmd(_adrLow, DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
-            _adrTime = millis();
-            break;
-        }
-        
-        case AddressingState::SearchAdrWait:
-        {
-            if(millis() - _adrTime > DALI_WAIT_SEARCH)
-            {
-                logInfoP("Address %i does not exists", _adrLow);
-                _adrState = AddressingState::SearchAdr;
-                _adrLow++;
-                return;
-            }
-
-            int16_t resp = queue.getResponse(_adrResp);
-
-            if(resp == -200) return;
-
-            if(resp >= 0)
-            {
-                logInfoP("Address %i exists", _adrLow);
-                ballasts[_adrFound].address = _adrLow;
-                _adrState = AddressingState::SearchAdr;
-                if(_adrAssign)
-                    addresses[_adrLow] = true;
-                _adrLow++;
-            } else if(resp == -1) {
-                logInfoP("Address %i does not exist", _adrLow);
-                _adrState = AddressingState::SearchAdr;
-                _adrLow++;
-            } else {
-                logInfoP("Bus Error %i", resp);
-                _assState = AssigningState::Failed_Bus;
-                _adrState = AddressingState::Finish_Assign;
-            }
-            break;
-        }
+    //   case AddressingState::PROGRAMSHORT:
+    //     dali->sendSpecialCmd(DaliSpecialCmd::PROGRAMSHORT, (nextShortAddress << 1) | 1);
+    //     _adrState = AddressingState::VERIFYSHORT;
+    //     break;
+    //   case AddressingState::VERIFYSHORT:
+    //     dali->sendSpecialCmd(DaliSpecialCmd::VERIFYSHORT, (nextShortAddress << 1) | 1);
+    //     _adrState = AddressingState::VERIFYSHORTRESPONSE;
+    //     break;
+    //   case AddressingState::VERIFYSHORTRESPONSE:
+    //     if (DaliBus.getLastResponse() == 0xFF) {
+    //       nextShortAddress++;
+    //       _adrState = AddressingState::WITHDRAW;
+    //     } else
+    //       // error, stop commissioning
+    //       _adrState = AddressingState::TERMINATE;
+    //     break;
+      case AddressingState::WITHDRAW:
+        dali->sendSpecialCmd(DaliSpecialCmd::WITHDRAW);
+        _adrState = AddressingState::STARTSEARCH;
+        break;
+      case AddressingState::TERMINATE:
+        dali->sendSpecialCmd(DaliSpecialCmd::TERMINATE);
+        _adrState = AddressingState::OFF;
+        logInfoP("Found %i ballasts", _adrFound);
+        break;
     }
+  }
+
+
+    // switch(_adrState)
+    // {
+    //     case AddressingState::Randomize_Wait:
+    //     {
+    //         if(millis() - _adrTime > DALI_WAIT_RANDOMIZE)
+    //         {
+    //             _adrState = AddressingState::Search;
+    //             logInfoP("RandomizeWait finished");
+    //         }
+    //         break;
+    //     }
+
+    //     case AddressingState::Search:
+    //     {
+    //         if(_adrNoRespCounter == 2)
+    //         {
+    //             _adrState = AddressingState::Finish;
+    //             break;
+    //         }
+
+    //         byte high = _adrHigh >> 16;
+    //         byte middle = (_adrHigh >> 8) & 0xFF;
+    //         byte low = _adrHigh & 0xFF;
+    //         sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
+    //         sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
+    //         sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
+    //         _adrResp = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0x00, true);
+    //         _adrTime = millis();
+    //         _adrState = AddressingState::SearchWait;
+    //         break;
+    //     }
+
+    //     case AddressingState::SearchWait:
+    //     {
+    //         int16_t response = queue.getResponse(_adrResp);
+            
+    //         if(response == -200 || response == -1)
+    //         {
+    //             if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
+    //             {
+    //                 _adrLow = _adrHigh + 1;
+    //                 _adrHigh = _adrHighLast;
+    //                 _adrState = AddressingState::Search;
+    //                 _adrNoRespCounter++;
+    //             }
+    //         } else if(response >= 0) {
+    //             if(_adrLow == _adrHigh)
+    //             {
+    //                 logInfoP("Found Ballast at %.6X", _adrLow);
+    //                 if(_adrAssign)
+    //                 {
+    //                     uint8_t addr = 0;
+    //                     while(addresses[addr] == true){
+    //                         addr++;
+    //                     }
+    //                     addresses[addr] = true;
+    //                     logInfoP("Assigning Address %i", addr);
+    //                     sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, (addr << 1) | 1);
+    //                     sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
+    //                     ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
+    //                     ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
+    //                     ballasts[_adrFound].low = _adrLow & 0xFF;
+    //                     ballasts[_adrFound].address = response >> 1;
+    //                     _adrFound++;
+
+    //                     _adrLow = 0;
+    //                     _adrHigh = 0xFFFFFF;
+    //                     _adrHighLast = 0xFFFFFF;
+    //                     _adrNoRespCounter = 1;
+    //                     _adrState = AddressingState::Search;
+    //                 } else {
+    //                     _adrResp = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
+    //                     _adrTime = millis();
+    //                     _adrState = AddressingState::Found;
+    //                 }
+    //             } else {
+    //                 _adrHighLast = _adrHigh;
+    //                 _adrHigh = (_adrLow + _adrHigh) / 2;
+    //                 _adrNoRespCounter = 0;
+    //                 _adrState = AddressingState::Search;
+    //             }
+    //         } else {
+    //             logErrorP("Dali Error %i, aborting addressing", response);
+    //             _adrState = AddressingState::Finish;
+    //         }
+    //         break;
+    //     }
+
+    //     case AddressingState::Found:
+    //     {
+    //         int16_t response = queue.getResponse(_adrResp);
+    //         if(response == -200 || response == -1)
+    //         {
+    //             if(response == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
+    //             {
+    //                 logErrorP("Found ballast not answering");
+    //                 _adrState = AddressingState::Finish;
+    //                 ballasts[_adrFound].address = 255;
+    //                 _adrFound++;
+    //             }
+    //         } else if(response >= 0) {
+    //             if(response == 255)
+    //                 logInfoP(" -> has no Short Address");
+    //             else
+    //                 logInfoP(" -> has Short Address %i", response >> 1);
+
+    //             ballasts[_adrFound].high = (_adrLow >> 16) & 0xFF;
+    //             ballasts[_adrFound].middle = (_adrLow >> 8) & 0xFF;
+    //             ballasts[_adrFound].low = _adrLow & 0xFF;
+    //             ballasts[_adrFound].address = response >> 1;
+    //             _adrFound++;
+
+    //             _adrLow = 0;
+    //             _adrHigh = 0xFFFFFF;
+    //             _adrHighLast = 0xFFFFFF;
+    //             _adrNoRespCounter = 1;
+    //             sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
+    //             _adrState = AddressingState::Search;
+    //         } else {
+    //             logErrorP("Dali Error %i, aborting addressing", response);
+    //             _adrState = AddressingState::Finish;
+    //         }
+    //         break;
+    //     }
+
+    //     case AddressingState::Finish:
+    //     {
+    //         logErrorP("Found %i ballasts", _adrFound);
+    //         sendCmdSpecial(DaliSpecialCmd::TERMINATE);
+    //         _adrState = AddressingState::None;
+    //         break;
+    //     }
+
+    //     case AddressingState::Finish_Assign:
+    //     {
+    //         sendCmdSpecial(DaliSpecialCmd::TERMINATE);
+    //         _adrState = AddressingState::None;
+    //         delete[] addresses;
+    //         delete[] ballasts;
+    //         break;
+    //     }
+
+    //     case AddressingState::Query_Wait:
+    //     {
+    //         int16_t resp = queue.getResponse(_adrResp);
+
+    //         if(resp == -1 || millis() - _adrTime > DALI_WAIT_SEARCH)
+    //         {
+    //             _adrState = AddressingState::Withdraw_Others;
+    //             logErrorP("Adresse wird nicht verwendet");
+    //             return;
+    //         }
+
+    //         if(resp == -200) return;
+
+    //         if(resp >= 0)
+    //         {
+    //             logErrorP("Adresse wird bereits verwendet");
+    //             _assState = AssigningState::Failed_Exists;
+    //             _adrState = AddressingState::None;
+    //             return;
+    //         } else {
+    //             logErrorP("Bus Error %i", resp);
+    //             _assState = AssigningState::Failed_Bus;
+    //             _adrState = AddressingState::None;
+    //             return;
+    //         }
+    //         break;
+    //     }
+
+    //     case AddressingState::Withdraw_Others:
+    //     {
+    //         sendCmdSpecial(DaliSpecialCmd::INITIALISE, 0);
+    //         sendCmdSpecial(DaliSpecialCmd::INITIALISE, 0);
+    //         if(_adrHigh > 0)
+    //         {
+    //             logInfoP("Verwerfe alle mit niedrigerer Long Address");
+    //             _adrHigh--;
+    //             byte high = _adrHigh >> 16;
+    //             byte middle = (_adrHigh >> 8) & 0xFF;
+    //             byte low = _adrHigh & 0xFF;
+    //             sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
+    //             sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
+    //             sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
+    //             sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
+    //             _adrHigh++;
+    //         }
+    //         byte high = _adrHigh >> 16;
+    //         byte middle = (_adrHigh >> 8) & 0xFF;
+    //         byte low = _adrHigh & 0xFF;
+    //         sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, high);
+    //         sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, middle);
+    //         sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, low);
+    //         _adrResp =  sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
+    //         _adrTime = millis();
+    //         _adrState = AddressingState::Check_Address;
+    //         break;
+    //     }
+
+    //     case AddressingState::Check_Address:
+    //     {
+    //         if(millis() - _adrTime > DALI_WAIT_SEARCH)
+    //         {
+    //             logInfoP("Device does not answer");
+    //             _assState = AssigningState::Failed_No_Answer;
+    //             _adrState = AddressingState::Finish_Assign;
+    //             return;
+    //         }
+
+    //         int16_t resp = queue.getResponse(_adrResp);
+
+    //         if(resp == -200) return;
+
+    //         if(resp >= 0)
+    //         {
+    //             logInfoP("Long Address exists");
+    //             sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, _adrLow);
+    //             _adrState = AddressingState::Confirm_Address;
+    //             _adrResp = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
+    //             _adrTime = millis();
+    //             logInfoP("Check Short Address");
+    //             return;
+    //         } else if(resp == -1) {
+    //             logInfoP("Long Address dont exists");
+    //             _assState = AssigningState::Failed_Exists_Not;
+    //             _adrState = AddressingState::Finish_Assign;
+    //         } else {
+    //             logInfoP("Bus Error %i", resp);
+    //             _assState = AssigningState::Failed_Bus;
+    //             _adrState = AddressingState::Finish_Assign;
+    //         }
+    //         break;
+    //     }
+
+    //     case AddressingState::Confirm_Address:
+    //     {
+    //         if(millis() - _adrTime > DALI_WAIT_SEARCH)
+    //         {
+    //             logInfoP("Device does not answer");
+    //             _assState = AssigningState::Failed_No_Answer;
+    //             _adrState = AddressingState::Finish_Assign;
+    //             return;
+    //         }
+
+    //         int16_t resp = queue.getResponse(_adrResp);
+
+    //         if(resp == -200) return;
+
+    //         if(resp >= 0)
+    //         {
+    //             if(resp == 255 && _adrLow == 255) {
+    //                 logInfoP("Removing short address was succesfull");
+    //                 _assState = AssigningState::Success;
+    //             } else if(resp == _adrLow)
+    //             {
+    //                 logInfoP("Setting short address was succesfull");
+    //                 _assState = AssigningState::Success;
+    //             } else {
+    //                 logInfoP("Setting short address failed");
+    //                 _assState = AssigningState::Failed_Confirm;
+    //             }
+    //             _adrState = AddressingState::Finish_Assign;
+    //             return;
+    //         } else {
+    //             logInfoP("Bus Error %i", resp);
+    //             _assState = AssigningState::Failed_Bus;
+    //             _adrState = AddressingState::Finish_Assign;
+    //             return;
+    //         }
+    //         break;
+    //     }
+
+    //     case AddressingState::SearchAdr:
+    //     {
+    //         if(_adrLow == 64)
+    //         {
+    //             sendCmdSpecial(DaliSpecialCmd::INITIALISE, 255);
+    //             sendCmdSpecial(DaliSpecialCmd::INITIALISE, 255);
+    //             //sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
+    //             //sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
+    //             _adrState = AddressingState::Randomize_Wait;
+    //             _adrLow = 0;
+    //             _adrHigh = 0xFFFFFF;
+    //             _adrHighLast = 0xFFFFFF;
+    //             _adrNoRespCounter = 0;
+    //             break;
+    //         }
+                
+    //         _adrState = AddressingState::SearchAdrWait;
+    //         _assState = AssigningState::Working;
+    //         _adrResp = sendCmd(_adrLow, DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
+    //         _adrTime = millis();
+    //         break;
+    //     }
+        
+    //     case AddressingState::SearchAdrWait:
+    //     {
+    //         if(millis() - _adrTime > DALI_WAIT_SEARCH)
+    //         {
+    //             logInfoP("Address %i does not exists", _adrLow);
+    //             _adrState = AddressingState::SearchAdr;
+    //             _adrLow++;
+    //             return;
+    //         }
+
+    //         int16_t resp = queue.getResponse(_adrResp);
+
+    //         if(resp == -200) return;
+
+    //         if(resp >= 0)
+    //         {
+    //             logInfoP("Address %i exists", _adrLow);
+    //             ballasts[_adrFound].address = _adrLow;
+    //             _adrState = AddressingState::SearchAdr;
+    //             if(_adrAssign)
+    //                 addresses[_adrLow] = true;
+    //             _adrLow++;
+    //         } else if(resp == -1) {
+    //             logInfoP("Address %i does not exist", _adrLow);
+    //             _adrState = AddressingState::SearchAdr;
+    //             _adrLow++;
+    //         } else {
+    //             logInfoP("Bus Error %i", resp);
+    //             _assState = AssigningState::Failed_Bus;
+    //             _adrState = AddressingState::Finish_Assign;
+    //         }
+    //         break;
+    //     }
+    // }
 }
 
 void DaliModule::loopBusState()
@@ -931,7 +1043,7 @@ void DaliModule::cmdHandleAuto(bool hasArg, std::string arg)
 void DaliModule::processInputKo(GroupObject &ko)
 {
     logDebugP("Received Ko %i", ko.asap());
-    if(_adrState != AddressingState::None || _currentLockState) return;
+    if(_adrState != AddressingState::OFF || _currentLockState) return;
 
     int koNum = ko.asap();
     if(koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
@@ -1223,58 +1335,57 @@ void DaliModule::funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &res
 {
     ballasts = new Ballast[64];
     logInfoP("Starting Scan");
-    _adrState = AddressingState::Init;
-    _adrLow = 0;
-    _adrHigh = 0xFFFFFF;
-    _adrHighLast = 0xFFFFFF;
-    _adrFound = 0;
-    _adrAssign = false;
+    _adrState = AddressingState::INIT;
+    // _adrLow = 0;
+    // _adrHigh = 0xFFFFFF;
+    // _adrHighLast = 0xFFFFFF;
+    // _adrFound = 0;
+    // _adrAssign = false;
     
-    sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[1] ? 255 : 0);
-    sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[1] ? 255 : 0);
+    // sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[1] ? 255 : 0);
+    // sendCmdSpecial(DaliSpecialCmd::INITIALISE, data[1] ? 255 : 0);
 
     if(data[1])
+    {
         logInfoP("Unaddressed only");
+        commissionOnlyNew = true;
+    }
+
 
     if(data[2] == 1)
     {
         logInfoP("Do Randomize");
-        sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
-        sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
-        _adrState = AddressingState::Randomize_Wait;
-        _adrTime = millis();
-        logInfoP("RandomizeWait");
+        commissionRandomize = true;
     } else {
         logInfoP("Don't Randomize");
-        _adrState = AddressingState::Search;
     }
 
-    _adrNoRespCounter = 1;
     resultLength = 0;
 }
 
 void DaliModule::funcHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     logInfoP("Starting assigning address");
-    _adrResp = sendCmd(data[1], DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
-    _adrTime = millis();
-    _adrState = AddressingState::Query_Wait;
-    _assState = AssigningState::Working;
+    //TODO make it work
+    // _adrResp = sendCmd(data[1], DaliCmd::QUERY_STATUS, DaliAddressTypes::SHORT, true);
+    // _adrTime = millis();
+    // _adrState = AddressingState::Query_Wait;
+    // _assState = AssigningState::Working;
 
-    _adrHigh = data[2] << 16;
-    _adrHigh |= data[3] << 8;
-    _adrHigh |= data[4];
-    logInfoP("Long  Addr %X", _adrHigh);
+    // _adrHigh = data[2] << 16;
+    // _adrHigh |= data[3] << 8;
+    // _adrHigh |= data[4];
+    // logInfoP("Long  Addr %X", _adrHigh);
     
-    if(data[1] == 99)
-    {
-        data[1] = 255;
-        logInfoP("Removing Short Addr");
-        _adrState = AddressingState::Withdraw_Others;
-    } else {
-        logInfoP("Short Addr %i", data[1]);
-    }
-    _adrLow = ((data[1] << 1) | 1) & 0xFF;
+    // if(data[1] == 99)
+    // {
+    //     data[1] = 255;
+    //     logInfoP("Removing Short Addr");
+    //     _adrState = AddressingState::Withdraw_Others;
+    // } else {
+    //     logInfoP("Short Addr %i", data[1]);
+    // }
+    // _adrLow = ((data[1] << 1) | 1) & 0xFF;
     
     resultLength = 0;
 }
@@ -1282,13 +1393,14 @@ void DaliModule::funcHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &r
 void DaliModule::funcHandleAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     logInfoP("Starting addressing new auto");
-    _adrLow = 0;
-    _adrState = AddressingState::SearchAdr;
-    _adrFound = 0;
-    _adrAssign = true;
-    ballasts = new Ballast[64];
-    addresses = new bool[64];
-    for(int i = 0; i < 64; i++) addresses[i] = false;
+    //TODO make it work
+    // _adrLow = 0;
+    // _adrState = AddressingState::SearchAdr;
+    // _adrFound = 0;
+    // _adrAssign = true;
+    // ballasts = new Ballast[64];
+    // addresses = new bool[64];
+    // for(int i = 0; i < 64; i++) addresses[i] = false;
     resultLength = 0;
 }
 
@@ -1594,7 +1706,7 @@ void DaliModule::stateHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &
 
 void DaliModule::stateHandleScanAndAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    resultData[0] = _adrState == AddressingState::None;
+    resultData[0] = _adrState == AddressingState::OFF;
     if(data[0] == 3)
     {
         resultData[1] = _adrFound;
@@ -1611,7 +1723,7 @@ void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_
         delete[] ballasts;
         delete[] addresses;
         resultLength = 0;
-        _adrState = AddressingState::None;
+        _adrState = AddressingState::OFF;
         _assState = AssigningState::None;
         return;
     }

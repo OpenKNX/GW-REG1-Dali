@@ -45,28 +45,50 @@ class DaliModule : public OpenKNX::Module
 		
 	private:
 		enum class AddressingState {
-			None,
-			//addressing
-			Init,
-			Randomize_Wait,
-			Search,
-			SearchWait,
-			Found,
-			Finish,
-			Finish_Assign,
-			//addressing auto
-			SearchAdr,
-			SearchAdrWait,
-			GetHWait,
-			GetLWait,
-			GetMWait,
-			//assigning
-			Query_Wait,
-			Withdraw_Others,
-			Set_Address,
-			Check_Address,
-			Confirm_Address
+			OFF,
+			INIT,
+			INIT2,
+			WRITE_DTR,
+			REMOVE_SHORT,
+			REMOVE_SHORT2,
+			RANDOM,
+			RANDOM2,
+			RANDOMWAIT,
+			STARTSEARCH,
+			SEARCHHIGH,
+			SEARCHMID,
+			SEARCHLOW,
+			COMPARE,
+			CHECKFOUND,
+			PROGRAMSHORT,
+			VERIFYSHORT,
+			VERIFYSHORTRESPONSE,
+			WITHDRAW,
+			TERMINATE
 		};
+		// enum class AddressingState {
+		// 	None,
+		// 	//addressing
+		// 	Init,
+		// 	Randomize_Wait,
+		// 	Search,
+		// 	SearchWait,
+		// 	Found,
+		// 	Finish,
+		// 	Finish_Assign,
+		// 	//addressing auto
+		// 	SearchAdr,
+		// 	SearchAdrWait,
+		// 	GetHWait,
+		// 	GetLWait,
+		// 	GetMWait,
+		// 	//assigning
+		// 	Query_Wait,
+		// 	Withdraw_Others,
+		// 	Set_Address,
+		// 	Check_Address,
+		// 	Confirm_Address
+		// };
 		enum class AssigningState {
 			None,
 			Working,
@@ -100,13 +122,18 @@ class DaliModule : public OpenKNX::Module
 		int _adrResp = -1;
 		int _adrNoRespCounter = 0;
 		unsigned long _adrTime = 0;
-		AddressingState _adrState = AddressingState::None;
+		AddressingState _adrState = AddressingState::OFF;
 		AssigningState _assState = AssigningState::None;
 		Ballast *ballasts;
 		bool *addresses;
 		int _adrFound = 0;
 		bool _adrAssign = false;
 		uint8_t _lastBusState = 2;
+		byte searchIterations;
+		unsigned long currentSearchAddress;
+		bool commissionOnlyNew = false;
+		bool commissionRandomize = false;
+
 
 		uint8_t _lastChangedGroup = 255;
 		uint8_t _lastChangedValue = 0;
