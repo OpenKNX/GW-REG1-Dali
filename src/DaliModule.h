@@ -59,6 +59,7 @@ class DaliModule : public OpenKNX::Module
 			SEARCHMID,
 			SEARCHLOW,
 			COMPARE,
+			GETSHORT,
 			CHECKFOUND,
 			PROGRAMSHORT,
 			VERIFYSHORT,
@@ -116,23 +117,19 @@ class DaliModule : public OpenKNX::Module
 		bool _currentLockState = false;
 		int16_t getInfo(byte address, int command, uint8_t additional = 0);
 	
-		uint32_t _adrLow = 0;
-		uint32_t _adrHigh = 0xFFFFFF;
-		uint32_t _adrHighLast = 0xFFFFFF;
-		int _adrResp = -1;
-		int _adrNoRespCounter = 0;
-		unsigned long _adrTime = 0;
 		AddressingState _adrState = AddressingState::OFF;
-		AssigningState _assState = AssigningState::None;
-		Ballast *ballasts;
-		bool *addresses;
+		//AssigningState _assState = AssigningState::None;
+		Ballast ballasts[64];
+		bool addresses[64];
 		int _adrFound = 0;
-		bool _adrAssign = false;
+		uint8_t _adrNew = 0;
 		uint8_t _lastBusState = 2;
-		byte searchIterations;
-		unsigned long currentSearchAddress;
-		bool commissionOnlyNew = false;
-		bool commissionRandomize = false;
+		byte _adrIterations;
+		unsigned long _adrSearch;
+		bool _adrAssign = false;
+		bool _adrOnlyNew = false;
+		bool _adrRandomize = false;
+		bool _adrDeleteAll = false;
 
 
 		uint8_t _lastChangedGroup = 255;
