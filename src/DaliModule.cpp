@@ -158,6 +158,7 @@ void DaliModule::loop()
 
     if(_adrState != AddressingState::OFF)
     {
+        loopAddressing();
         return;
     }
 
@@ -184,7 +185,6 @@ void DaliModule::loop1(bool configured)
 {
     if(_adrState != AddressingState::OFF)
     {
-        loopAddressing();
         loopMessages();
         return;
     }
@@ -381,6 +381,16 @@ void DaliModule::loopAddressing()
   if (DaliBus.busIsIdle()) { // wait until bus is idle
     switch (_adrState) {
       case AddressingState::INIT:
+        _adrFound = 0;
+        if(_adrOnlyNew) logInfoP("Searching unaddressed only");
+        else logInfoP("Searching all");
+
+        if(_adrRandomize) logInfoP("Do Randomize");
+        else logInfoP("Don't Randomize");
+
+        if(_adrDeleteAll) logInfoP("Delete all short addresses");
+        else logInfoP("Keeping all short addresses");
+
         dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, ((_adrOnlyNew || _adrAssign) ? 255 : 0));
         _adrState = AddressingState::INIT2;
         break;
@@ -418,7 +428,6 @@ void DaliModule::loopAddressing()
       case AddressingState::STARTSEARCH:
         _adrIterations = 0;
         _adrSearch = 0xFFFFFF;
-        _adrFound = 0;
       case AddressingState::SEARCHHIGH:
         dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRH, (_adrSearch >> 16) & 0xFF);
         _adrState = AddressingState::SEARCHMID;
@@ -1373,32 +1382,12 @@ void DaliModule::funcHandleType(uint8_t *data, uint8_t *resultData, uint8_t &res
 
 void DaliModule::funcHandleScan(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
-    logInfoP("Starting Scan");
+    logInfoP("Starting Scan %i %i %i", data[1], data[2], data[3]);
     _adrState = AddressingState::INIT;
 
-    if(data[1])
-    {
-        logInfoP("Searching unaddressed only");
-        _adrOnlyNew = true;
-    } else {
-        logInfoP("Searching all");
-    }
-
-    if(data[2])
-    {
-        logInfoP("Do Randomize");
-        _adrRandomize = true;
-    } else {
-        logInfoP("Don't Randomize");
-    }
-
-    if(data[3])
-    {
-        logInfoP("Delete all short addresses");
-        _adrDeleteAll = true;
-    } else {
-        logInfoP("Keeping all short addresses");
-    }
+    _adrOnlyNew = data[1] == 1;
+    _adrRandomize = data[2] == 1;
+    _adrDeleteAll = data[3] == 1;
 
     resultLength = 0;
 }
