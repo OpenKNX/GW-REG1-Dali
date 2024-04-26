@@ -65,43 +65,31 @@ class DaliModule : public OpenKNX::Module
 			VERIFYSHORT,
 			VERIFYSHORTRESPONSE,
 			WITHDRAW,
-			TERMINATE
+			TERMINATE,
+			SEARCHSHORT,
+			CHECKSEARCHSHORT
 		};
-		// enum class AddressingState {
-		// 	None,
-		// 	//addressing
-		// 	Init,
-		// 	Randomize_Wait,
-		// 	Search,
-		// 	SearchWait,
-		// 	Found,
-		// 	Finish,
-		// 	Finish_Assign,
-		// 	//addressing auto
-		// 	SearchAdr,
-		// 	SearchAdrWait,
-		// 	GetHWait,
-		// 	GetLWait,
-		// 	GetMWait,
-		// 	//assigning
-		// 	Query_Wait,
-		// 	Withdraw_Others,
-		// 	Set_Address,
-		// 	Check_Address,
-		// 	Confirm_Address
-		// };
 		enum class AssigningState {
-			None,
-			Working,
-			Success,
-			Failed_Bus = 10,
-			Failed_Exists,
-			Failed_Exists_Not,
-			Failed_Confirm,
-			Failed_No_Answer
+			OFF,
+			INIT,
+			INIT2,
+			QUERY,
+			CHECKQUERY,
+			STARTSEARCH,
+			SEARCHHIGH,
+			SEARCHMID,
+			SEARCHLOW,
+			COMPARE,
+			CHECKFOUND,
+			WITHDRAW,
+			PROGRAMSHORT,
+			VERIFYSHORT,
+			VERIFYSHORTRESPONSE,
+			TERMINATE
 		};
 		
 		void loopAddressing();
+		void loopAssigning();
 		void loopMessages();
 		void loopBusState();
 		void loopInitData();
@@ -118,7 +106,7 @@ class DaliModule : public OpenKNX::Module
 		int16_t getInfo(byte address, int command, uint8_t additional = 0);
 	
 		AddressingState _adrState = AddressingState::OFF;
-		//AssigningState _assState = AssigningState::None;
+		AssigningState _assState = AssigningState::OFF;
 		Ballast ballasts[64];
 		bool addresses[64];
 		int _adrFound = 0;

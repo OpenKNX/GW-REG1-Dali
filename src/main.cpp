@@ -51,6 +51,6 @@ void setup1()
 
 void loop1()
 {
-	//openknx.loop1();
+	// openknx.loop1();
 	openknxDaliModule.loop1(knx.configured());
 }

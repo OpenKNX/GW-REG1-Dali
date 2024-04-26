@@ -87,6 +87,8 @@ void DaliChannel::setup()
             _hclIsAlsoOn = ParamADR_hclStart;
         }
     }
+    _min = DaliHelper::percentToArc(_min);
+    _max = DaliHelper::percentToArc(_max);
     logDebugP("Min/Max %i/%i | D/N %i/%i | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
 
@@ -575,6 +577,11 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
     if (_dimmDirection == DimmDirection::Up)
     {
+        if(!currentState)
+        {
+            *currentDimmValue = _min;
+            logDebugP("starting with min %i", _min);
+        }
         logDebugP("Dimm Up Start %i/%i", currentStep, *currentDimmValue);
     }
     else if (_dimmDirection == DimmDirection::Down)
@@ -989,12 +996,18 @@ void DaliChannel::setGroupState(uint8_t group, uint8_t value)
 
 void DaliChannel::setMinMax(uint8_t min, uint8_t max)
 {
+    _min = DaliHelper::percentToArc(min);
+    _max = DaliHelper::percentToArc(max);
+}
+
+void DaliChannel::setMinArc(uint8_t min)
+{
     _min = min;
-    _max = max;
 }
 
 void DaliChannel::setHcl(uint8_t curve, uint16_t value, uint8_t bri)
 {
+    if(_hclCurve == 255) return;
     logDebugP("curve %i | state %i | isAlsoOn %i", _hclCurve, currentState, _hclIsAlsoOn);
     if(!_hclIsAutoMode)
     {
@@ -1002,9 +1015,9 @@ void DaliChannel::setHcl(uint8_t curve, uint16_t value, uint8_t bri)
         return;
     }
 
-    if(curve == _hclCurve)
+    if(curve == _hclCurve && currentState)
     {
-        if(currentState && _hclIsAlsoOn)
+        if(_hclIsAlsoOn)
         {
             logDebugP("Setting HCL");
             setTW(value, bri);
@@ -1016,12 +1029,12 @@ void DaliChannel::setHcl(uint8_t curve, uint16_t value, uint8_t bri)
 
 uint8_t DaliChannel::getMin()
 {
-    return _min;
+    return DaliHelper::arcToPercent(_min);
 }
 
 uint8_t DaliChannel::getMax()
 {
-    return _max;
+    return DaliHelper::arcToPercent(_max);
 }
 
 uint16_t DaliChannel::getGroups()
