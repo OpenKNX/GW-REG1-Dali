@@ -357,38 +357,37 @@ void DaliModule::loopMessages()
         _lastDaliError = DALI_NO_ERROR;
     }
 
-    Message *msg = queue.pop();
-    if(msg == nullptr) return;
+    Message msg;
+    
+    if(!queue.pop(msg)) return;
 
-    switch(msg->type)
+    switch(msg.type)
     {
         case MessageType::Arc:
         {
             logInfoP("sending Arc");
-            int16_t resp = dali->sendArcWait(msg->para1, msg->para2, msg->addrtype);
-            if(msg->wait)
-                queue.setResponse(msg->id, resp);
+            int16_t resp = dali->sendArcWait(msg.para1, msg.para2, msg.addrtype);
+            if(msg.wait)
+                queue.setResponse(msg.id, resp);
             break;
         }
 
         case MessageType::Cmd:
         {
-            int16_t resp = dali->sendCmdWait(msg->para1, static_cast<DaliCmd>(msg->para2), msg->addrtype);
-            if(msg->wait)
-                queue.setResponse(msg->id, resp);
+            int16_t resp = dali->sendCmdWait(msg.para1, static_cast<DaliCmd>(msg.para2), msg.addrtype);
+            if(msg.wait)
+                queue.setResponse(msg.id, resp);
             break;
         }
 
         case MessageType::SpecialCmd:
         {
-            int16_t resp = dali->sendSpecialCmdWait(msg->para1, msg->para2);
-            if(msg->wait)
-                queue.setResponse(msg->id, resp);
+            int16_t resp = dali->sendSpecialCmdWait(msg.para1, msg.para2);
+            if(msg.wait)
+                queue.setResponse(msg.id, resp);
             break;
         }
     }
-
-    delete[] msg;
 }
 
 void DaliModule::loopAddressing()

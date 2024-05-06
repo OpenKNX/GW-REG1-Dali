@@ -18,7 +18,7 @@ bool setup1ready = false;
 
 void setup()
 {
-	const uint8_t firmwareRevision = 1;
+	const uint8_t firmwareRevision = 2;
 	openknx.init(firmwareRevision);
 	//openknxDaliModule.setCallback(daliCallback);
 	openknx.addModule(1, openknxDaliModule);
