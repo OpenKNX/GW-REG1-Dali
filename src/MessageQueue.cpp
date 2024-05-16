@@ -25,9 +25,10 @@ uint8_t MessageQueue::push(Message *msg)
 
 bool MessageQueue::pop(Message &msg)
 {
-    while(isLocked) ;
+    unsigned long started = millis();
+    while(isLocked && (millis() - started < 3000)) ;
 
-    if(head == nullptr) return false;
+    if(isLocked || head == nullptr) return false;
     isLocked = true;
 
     msg.addrtype = head->addrtype;

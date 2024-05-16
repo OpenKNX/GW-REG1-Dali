@@ -147,7 +147,7 @@ void DaliModule::setup1(bool conf)
     });
 }
 
-void DaliModule::loop()
+void DaliModule::loop(bool configured)
 {
     if(openknxTimerModule.minuteChanged())
     {        
@@ -166,6 +166,9 @@ void DaliModule::loop()
         loopAssigning();
         return;
     }
+ 
+ //TODO remove if scan moved to core1
+    if(!configured) return;
 
     if(!_gotInitData)
     {
@@ -183,8 +186,6 @@ void DaliModule::loop()
         groups[i].loop();
     }
 }
-
-unsigned long last = 0;
 
 void DaliModule::loop1(bool configured)
 {
