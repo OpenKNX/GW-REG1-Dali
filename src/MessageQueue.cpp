@@ -23,24 +23,36 @@ uint8_t MessageQueue::push(Message *msg)
     return msg->id;
 }
 
-Message* MessageQueue::pop()
+bool MessageQueue::pop(Message &msg)
 {
-    while(isLocked) ;
+    unsigned long started = millis();
+    while(isLocked && (millis() - started < 3000)) ;
 
-    if(head == nullptr) return nullptr;
+    if(isLocked || head == nullptr) return false;
     isLocked = true;
-    Message *item = head;
-    
-    if(item->next == nullptr)
+
+    msg.addrtype = head->addrtype;
+    msg.data = head->data;
+    msg.id = head->id;
+    msg.para1 = head->para1;
+    msg.para2 = head->para2;
+    msg.type = head->type;
+    msg.wait = head->wait;
+
+    Message *temp = head;
+
+    if(head->next == nullptr)
     {
         head = nullptr;
         tail = nullptr;
     } else {
-        head = item->next;
+        head = head->next;
     }
 
+    delete temp;
+
     isLocked = false;
-    return item;
+    return true;
 }
 
 uint8_t MessageQueue::getNextId()

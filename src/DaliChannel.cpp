@@ -58,6 +58,11 @@ void DaliChannel::setup()
         _onNight = ParamGRP_onNight;
         _dimmStatusInterval = ParamGRP_dimmStateInterval;
         _dimmInterval = (uint8_t)(ParamGRP_dimmRelDuration / 2.55);
+        if(ParamGRP_hcl)
+        {
+            _hclCurve = ParamGRP_hclCurve;
+            //_hclIsAlsoOn = ParamGRP_hclStart; //TODO add also on group
+        }
     }
     else
     {
@@ -76,12 +81,24 @@ void DaliChannel::setup()
         _queryInterval = ParamADR_queryTime;
         _dimmStatusInterval = ParamADR_dimmStateInterval;
         _dimmInterval = (uint8_t)(ParamADR_dimmRelDuration / 2.55);
+        if(ParamADR_hcl)
+        {
+            _hclCurve = ParamADR_hclCurve;
+            _hclIsAlsoOn = ParamADR_hclStart;
+        }
     }
+    _min = DaliHelper::percentToArc(_min);
+    _max = DaliHelper::percentToArc(_max);
     logDebugP("Min/Max %i/%i | D/N %i/%i | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
 
 void DaliChannel::loop()
 {
+    if(_hclIsAutoMode != _hclLastState)
+    {
+        _hclLastState = _hclIsAutoMode;
+        logDebugP("HCL Mode: %s", _hclIsAutoMode ? "Auto" : "Manu");
+    }
 }
 
 void DaliChannel::loop1()
@@ -385,6 +402,16 @@ void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
         return;
     }
 
+    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+    {
+        logDebugP("ignored due settings");
+        return;
+    }
+
+    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
+        _hclIsAutoMode = false;
+
     _dimmStep = ko.value(Dpt(3, 7, 1));
 
     if (_dimmStep == 0)
@@ -419,9 +446,15 @@ void DaliChannel::koHandleColorAbs(GroupObject &ko, uint8_t index)
         return;
     }
 
+    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
+        _hclIsAutoMode = false;
+        
+    logDebugP("AutoSwitchConfig %i %i", ParamADR_hcl_manu_col, _hclIsAutoMode);
+
     currentColor[index] = ko.value(Dpt(5, 4));
     updateCurrentDimmValue();
     sendColor();
+    logDebugP("AutoSwitchConfig2 %i %i", ParamADR_hcl_manu_col, _hclIsAutoMode);
 }
 
 void DaliChannel::koHandleSwitch(GroupObject &ko)
@@ -449,6 +482,8 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
         sendArc(onValue);
+        if(_hclCurve != 255 && _hclIsAutoMode)
+            setTW(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue), true);
     }
     else
@@ -486,6 +521,8 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         sendArc(onValue);
+        if(_hclCurve != 255 && _hclIsAutoMode)
+            setTW(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue));
     }
     else
@@ -520,6 +557,9 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
         return;
     }
 
+    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_bri)
+        _hclIsAutoMode = false;
+
     _dimmStep = ko.value(Dpt(3, 7, 1));
 
     if (_dimmStep == 0)
@@ -537,6 +577,11 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
     _dimmDirection = ko.value(Dpt(3, 7, 0)) ? DimmDirection::Up : DimmDirection::Down;
     if (_dimmDirection == DimmDirection::Up)
     {
+        if(!currentState)
+        {
+            *currentDimmValue = _min;
+            logDebugP("starting with min %i", _min);
+        }
         logDebugP("Dimm Up Start %i/%i", currentStep, *currentDimmValue);
     }
     else if (_dimmDirection == DimmDirection::Down)
@@ -553,6 +598,9 @@ void DaliChannel::koHandleDimmAbs(GroupObject &ko)
         logErrorP("is locked");
         return;
     }
+
+    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_bri)
+        _hclIsAutoMode = false;
 
     uint8_t value = ko.value(Dpt(5, 1));
     logDebugP("Dimmen Absolut auf %i%%", value);
@@ -637,6 +685,13 @@ void DaliChannel::koHandleColor(GroupObject &ko)
         return;
     }
 
+    
+    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
+        _hclIsAutoMode = false;
+
+    logDebugP("AutoConf %i %i %i", _isGroup, ParamADR_hcl_manu_col, _hclIsAutoMode);
+
+
     uint8_t colorType = _isGroup ? ParamGRP_colorType : ParamADR_colorType;
 
     switch(colorType)
@@ -683,17 +738,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
         case PT_colorType_TW:
         {
             uint16_t kelvin = ko.value(Dpt(7, 600));
-            logDebugP("Got Kelvin: %X K", kelvin);
-            uint16_t mirek = 1000000.0 / kelvin;
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmdExtendedDT8::SET_TEMP_KELVIN);
-
-            sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-            sendCmd(DaliCmd::ACTIVATE);
-
-            sendKoStateOnChange(ADR_Kocolor_rgb_state, kelvin, Dpt(7, 600));
+            setTW(kelvin);
             break;
         }
 
@@ -736,6 +781,8 @@ void DaliChannel::koHandleColor(GroupObject &ko)
     }
 
     setDimmState(254, true, true); // TODO get real
+    
+    logDebugP("AutoConf %i %i %i", _isGroup, ParamADR_hcl_manu_col, _hclIsAutoMode);
 }
 
 void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, const Dpt &type)
@@ -752,10 +799,10 @@ void DaliChannel::setTW(uint16_t value, uint8_t bri)
     sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-    sendCmd(DaliCmdExtendedDT8::SET_TEMP_KELVIN);
+    sendCmd(DaliCmdExtendedDT8::SET_TEMP_COLOUR_TEMPERATURE);
 
     sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-    sendCmd(DaliCmd::ACTIVATE);
+    sendCmd(DaliCmdExtendedDT8::ACTIVATE);
 
     sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(7, 600));
 }
@@ -847,6 +894,12 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
         setDimmState(toSet);
         currentStep = toSet;
     }
+
+    logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
+    if(!value && (_isGroup ? /*//TODO*/ false : ParamADR_hcl_auto_off))
+        _hclIsAutoMode = true;
+
+    logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
 
     bool currentState = knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Koswitch_state : ADR_Koswitch_state)).value(DPT_Switch);
     if (value == currentState)
@@ -943,18 +996,45 @@ void DaliChannel::setGroupState(uint8_t group, uint8_t value)
 
 void DaliChannel::setMinMax(uint8_t min, uint8_t max)
 {
+    _min = DaliHelper::percentToArc(min);
+    _max = DaliHelper::percentToArc(max);
+}
+
+void DaliChannel::setMinArc(uint8_t min)
+{
     _min = min;
-    _max = max;
+}
+
+void DaliChannel::setHcl(uint8_t curve, uint16_t value, uint8_t bri)
+{
+    if(_hclCurve == 255) return;
+    logDebugP("curve %i | state %i | isAlsoOn %i", _hclCurve, currentState, _hclIsAlsoOn);
+    if(!_hclIsAutoMode)
+    {
+        logDebugP("Ignored because mode is manu");
+        return;
+    }
+
+    if(curve == _hclCurve && currentState)
+    {
+        if(_hclIsAlsoOn)
+        {
+            logDebugP("Setting HCL");
+            setTW(value, bri);
+        } else {
+            logDebugP("Ignored. Only apply on turning on");
+        }
+    }
 }
 
 uint8_t DaliChannel::getMin()
 {
-    return _min;
+    return DaliHelper::arcToPercent(_min);
 }
 
 uint8_t DaliChannel::getMax()
 {
-    return _max;
+    return DaliHelper::arcToPercent(_max);
 }
 
 uint16_t DaliChannel::getGroups()
