@@ -21,6 +21,7 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Restore Project
+        shell: pwsh
         run: .\scripts\Restore-Project.ps1 --checkoutHash
 
       - name: Build PlatformIO Project
