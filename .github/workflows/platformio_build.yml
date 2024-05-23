@@ -22,7 +22,7 @@ jobs:
 
       - name: Restore Project
         shell: pwsh
-        run: .\scripts\Restore-Project.ps1 -checkoutHash
+        run: .\scripts\Restore-Project.ps1 -checkoutHash -wait=False
 
       - name: Build PlatformIO Project
         run: pio run -t upload -e release_REG1_V1
