@@ -1280,8 +1280,15 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         errorByte |= 0b1;
         resp = 0xFF;
     }
-    logDebugP("MIN: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
-    resultData[1] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+    logDebugP("MIN: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
+    if(resp == 255)
+        resultData[1] = 255;
+    else {
+        float perc = DaliHelper::arcToPercentFloat(resp);
+        uint16_t data = ColorHelper::getBytes(perc / 100);
+        resultData[1] = (data >> 8) & 0xFF;
+        resultData[2] = data & 0xFF;
+    }
 
     resp = getInfo(data[1], DaliCmd::QUERY_MAX_LEVEL);
     if(resp < 0)
@@ -1290,8 +1297,15 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         errorByte |= 0b10;
         resp = 0xFF;
     }
-    logDebugP("MAX: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
-    resultData[2] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+    logDebugP("MAX: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
+    if(resp == 255)
+        resultData[3] = 255;
+    else {
+        float perc = DaliHelper::arcToPercentFloat(resp);
+        uint16_t data = ColorHelper::getBytes(perc / 100);
+        resultData[3] = (data >> 8) & 0xFF;
+        resultData[4] = data & 0xFF;
+    }
 
     resp = getInfo(data[1], DaliCmd::QUERY_POWER_ON_LEVEL);
     if(resp < 0)
@@ -1300,8 +1314,15 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         errorByte |= 0b100;
         resp = 0xFF;
     }
-    logDebugP("POWER: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
-    resultData[3] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+    logDebugP("POWER: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
+    if(resp == 255)
+        resultData[5] = 255;
+    else {
+        float perc = DaliHelper::arcToPercentFloat(resp);
+        uint16_t data = ColorHelper::getBytes(perc / 100);
+        resultData[5] = (data >> 8) & 0xFF;
+        resultData[6] = data & 0xFF;
+    }
 
     resp = getInfo(data[1], DaliCmd::QUERY_FAIL_LEVEL);
     if(resp < 0)
@@ -1310,8 +1331,15 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         errorByte |= 0b1000;
         resp = 0xFF;
     }
-    logDebugP("FAILURE: %.2X / %.2X", resp, DaliHelper::arcToPercent(resp));
-    resultData[4] = (resp == 255) ? 255 : DaliHelper::arcToPercent(resp);
+    logDebugP("FAILURE: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
+    if(resp == 255)
+        resultData[7] = 255;
+    else {
+        float perc = DaliHelper::arcToPercentFloat(resp);
+        uint16_t data = ColorHelper::getBytes(perc / 100);
+        resultData[7] = (data >> 8) & 0xFF;
+        resultData[8] = data & 0xFF;
+    }
     
     resp = getInfo(data[1], DaliCmd::QUERY_FADE_SPEEDS);
     if(resp < 0)
@@ -1321,7 +1349,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0xFF;
     }
     logDebugP("FAID: %.2X", resp);
-    resultData[5] = resp;
+    resultData[9] = resp;
     
     //1byte free
 
@@ -1333,7 +1361,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0;
     }
     logDebugP("GROUPS0-7: %.2X", resp);
-    resultData[7] = resp;
+    resultData[10] = resp;
     
     resp = getInfo(data[1], DaliCmd::QUERY_GROUPS_8_15);
     if(resp < 0)
@@ -1343,12 +1371,12 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0;
     }
     logDebugP("GROUPS8-15: %.2X", resp);
-    resultData[8] = resp;
+    resultData[11] = resp;
 
-    resultData[9] = errorByte;
-    resultData[10] = errorByteScene & 0xFF;
-    resultData[11] = (errorByteScene >> 8) & 0xFF;
-    resultLength = 12;
+    resultData[12] = errorByte;
+    resultData[13] = errorByteScene & 0xFF;
+    resultData[14] = (errorByteScene >> 8) & 0xFF;
+    resultLength = 15;
 }
 
 void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)

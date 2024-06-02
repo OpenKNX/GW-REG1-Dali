@@ -55,9 +55,9 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x05
+#define MAIN_ApplicationVersion 0x07
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 1796
+#define MAIN_ParameterSize 2052
 #define MAIN_MaxKoNumber 1439
 
 
@@ -103,10 +103,10 @@
 #define SCE_ParamBlockOffset 47
 #define SCE_ParamBlockSize 4
 #define ADR_ParamBlockOffset 303
-#define ADR_ParamBlockSize 19
-#define GRP_ParamBlockOffset 1519
+#define ADR_ParamBlockSize 23
+#define GRP_ParamBlockOffset 1775
 #define GRP_ParamBlockSize 16
-#define HCL_ParamBlockOffset 1775
+#define HCL_ParamBlockOffset 2031
 #define HCL_ParamBlockSize 7
 #define BASE_Share_KoOffset 6
 #define BASE_Share_KoBlockSize 6
@@ -138,170 +138,163 @@
 // Offset: 0, BitOffset: 5, Size: 1 Bit, Text: Fehlerstatus auslesen
 #define ParamADR_error knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_error), 5)
 #define ADR_min		0x0001
-#define ADR_min_Shift	1
-#define ADR_min_Mask	0x007F
-// Offset: 1, Size: 7 Bit, Text: 
-#define ParamADR_minIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_min)) >> ADR_min_Shift) & ADR_min_Mask))
-// Offset: 1, Size: 7 Bit, Text: 
-#define ParamADR_min ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_min)) >> ADR_min_Shift) & ADR_min_Mask))
-#define ADR_max		0x0002
-#define ADR_max_Shift	1
-#define ADR_max_Mask	0x007F
-// Offset: 2, Size: 7 Bit, Text: 
-#define ParamADR_maxIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_max)) >> ADR_max_Shift) & ADR_max_Mask))
-// Offset: 2, Size: 7 Bit, Text: 
-#define ParamADR_max ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_max)) >> ADR_max_Shift) & ADR_max_Mask))
+// Offset: 1, Size: 16 Bit (2 Byte), Text: 
+#define ParamADR_minIndex(X) knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_min), Float_Enc_DPT9)
+// Offset: 1, Size: 16 Bit (2 Byte), Text: 
+#define ParamADR_min knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_min), Float_Enc_DPT9)
+#define ADR_max		0x0003
+// Offset: 3, Size: 16 Bit (2 Byte), Text: 
+#define ParamADR_maxIndex(X) knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_max), Float_Enc_DPT9)
+// Offset: 3, Size: 16 Bit (2 Byte), Text: 
+#define ParamADR_max knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_max), Float_Enc_DPT9)
 #define ADR_nachtriggern		0x0000
 // Offset: 0, BitOffset: 6, Size: 1 Bit, Text: Nachtriggern erlauben
 #define ParamADR_nachtriggernIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_nachtriggern), 6)
 // Offset: 0, BitOffset: 6, Size: 1 Bit, Text: Nachtriggern erlauben
 #define ParamADR_nachtriggern knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_nachtriggern), 6)
-#define ADR_stairtime		0x0003
+#define ADR_stairtime		0x0005
 #define ADR_stairtime_Shift	2
 #define ADR_stairtime_Mask	0x3FFF
-// Offset: 3, Size: 14 Bit, Text: Nachlaufzeit
+// Offset: 5, Size: 14 Bit, Text: Nachlaufzeit
 #define ParamADR_stairtimeIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_stairtime)) >> ADR_stairtime_Shift) & ADR_stairtime_Mask))
-// Offset: 3, Size: 14 Bit, Text: Nachlaufzeit
+// Offset: 5, Size: 14 Bit, Text: Nachlaufzeit
 #define ParamADR_stairtime ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_stairtime)) >> ADR_stairtime_Shift) & ADR_stairtime_Mask))
 #define ADR_manuoff		0x0000
 // Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Manuelles ausschalten
 #define ParamADR_manuoffIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_manuoff), 7)
 // Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Manuelles ausschalten
 #define ParamADR_manuoff knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_manuoff), 7)
-#define ADR_lockbehave		0x0005
+#define ADR_lockbehave		0x0007
 #define ADR_lockbehave_Shift	6
 #define ADR_lockbehave_Mask	0x0003
-// Offset: 5, Size: 2 Bit, Text: Verhalten bei Sperren
+// Offset: 7, Size: 2 Bit, Text: Verhalten bei Sperren
 #define ParamADR_lockbehaveIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_lockbehave)) >> ADR_lockbehave_Shift) & ADR_lockbehave_Mask))
-// Offset: 5, Size: 2 Bit, Text: Verhalten bei Sperren
+// Offset: 7, Size: 2 Bit, Text: Verhalten bei Sperren
 #define ParamADR_lockbehave ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_lockbehave)) >> ADR_lockbehave_Shift) & ADR_lockbehave_Mask))
-#define ADR_lockvalue		0x0006
+#define ADR_lockvalue		0x0008
 #define ADR_lockvalue_Shift	1
 #define ADR_lockvalue_Mask	0x007F
-// Offset: 6, Size: 7 Bit, Text: 
+// Offset: 8, Size: 7 Bit, Text: 
 #define ParamADR_lockvalueIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_lockvalue)) >> ADR_lockvalue_Shift) & ADR_lockvalue_Mask))
-// Offset: 6, Size: 7 Bit, Text: 
+// Offset: 8, Size: 7 Bit, Text: 
 #define ParamADR_lockvalue ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_lockvalue)) >> ADR_lockvalue_Shift) & ADR_lockvalue_Mask))
-#define ADR_unlockbehave		0x0005
+#define ADR_unlockbehave		0x0007
 #define ADR_unlockbehave_Shift	4
 #define ADR_unlockbehave_Mask	0x0003
-// Offset: 5, BitOffset: 2, Size: 2 Bit, Text: Verhalten bei Entsperren
+// Offset: 7, BitOffset: 2, Size: 2 Bit, Text: Verhalten bei Entsperren
 #define ParamADR_unlockbehaveIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_unlockbehave)) >> ADR_unlockbehave_Shift) & ADR_unlockbehave_Mask))
-// Offset: 5, BitOffset: 2, Size: 2 Bit, Text: Verhalten bei Entsperren
+// Offset: 7, BitOffset: 2, Size: 2 Bit, Text: Verhalten bei Entsperren
 #define ParamADR_unlockbehave ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_unlockbehave)) >> ADR_unlockbehave_Shift) & ADR_unlockbehave_Mask))
-#define ADR_unlockvalue		0x0007
+#define ADR_unlockvalue		0x0009
 #define ADR_unlockvalue_Shift	1
 #define ADR_unlockvalue_Mask	0x007F
-// Offset: 7, Size: 7 Bit, Text: 
+// Offset: 9, Size: 7 Bit, Text: 
 #define ParamADR_unlockvalueIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_unlockvalue)) >> ADR_unlockvalue_Shift) & ADR_unlockvalue_Mask))
-// Offset: 7, Size: 7 Bit, Text: 
+// Offset: 9, Size: 7 Bit, Text: 
 #define ParamADR_unlockvalue ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_unlockvalue)) >> ADR_unlockvalue_Shift) & ADR_unlockvalue_Mask))
-#define ADR_onDay		0x0008
-#define ADR_onDay_Shift	1
-#define ADR_onDay_Mask	0x007F
-// Offset: 8, Size: 7 Bit, Text: Einschaltwert Tag
-#define ParamADR_onDayIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_onDay)) >> ADR_onDay_Shift) & ADR_onDay_Mask))
-// Offset: 8, Size: 7 Bit, Text: Einschaltwert Tag
-#define ParamADR_onDay ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_onDay)) >> ADR_onDay_Shift) & ADR_onDay_Mask))
-#define ADR_onNight		0x0009
-#define ADR_onNight_Shift	1
-#define ADR_onNight_Mask	0x007F
-// Offset: 9, Size: 7 Bit, Text: Einschaltwert Nacht
-#define ParamADR_onNightIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_onNight)) >> ADR_onNight_Shift) & ADR_onNight_Mask))
-// Offset: 9, Size: 7 Bit, Text: Einschaltwert Nacht
-#define ParamADR_onNight ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_onNight)) >> ADR_onNight_Shift) & ADR_onNight_Mask))
-#define ADR_locknegate		0x0001
-// Offset: 1, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
-#define ParamADR_locknegateIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_locknegate), 7)
-// Offset: 1, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
-#define ParamADR_locknegate knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_locknegate), 7)
-#define ADR_colorType		0x0005
-#define ADR_colorType_Shift	2
+#define ADR_onDay		0x000A
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Einschaltwert Tag
+#define ParamADR_onDayIndex(X) knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_onDay), Float_Enc_DPT9)
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Einschaltwert Tag
+#define ParamADR_onDay knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_onDay), Float_Enc_DPT9)
+#define ADR_onNight		0x000C
+// Offset: 12, Size: 16 Bit (2 Byte), Text: Einschaltwert Nacht
+#define ParamADR_onNightIndex(X) knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_onNight), Float_Enc_DPT9)
+// Offset: 12, Size: 16 Bit (2 Byte), Text: Einschaltwert Nacht
+#define ParamADR_onNight knx.paramFloat((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_onNight), Float_Enc_DPT9)
+#define ADR_locknegate		0x0007
+// Offset: 7, BitOffset: 4, Size: 1 Bit, Text: Sperren bei
+#define ParamADR_locknegateIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_locknegate), 4)
+// Offset: 7, BitOffset: 4, Size: 1 Bit, Text: Sperren bei
+#define ParamADR_locknegate knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_locknegate), 4)
+#define ADR_colorType		0x0007
+#define ADR_colorType_Shift	1
 #define ADR_colorType_Mask	0x0003
-// Offset: 5, BitOffset: 4, Size: 2 Bit, Text: Farbe ansteuern per
+// Offset: 7, BitOffset: 5, Size: 2 Bit, Text: Farbe ansteuern per
 #define ParamADR_colorTypeIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_colorType)) >> ADR_colorType_Shift) & ADR_colorType_Mask))
-// Offset: 5, BitOffset: 4, Size: 2 Bit, Text: Farbe ansteuern per
+// Offset: 7, BitOffset: 5, Size: 2 Bit, Text: Farbe ansteuern per
 #define ParamADR_colorType ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_colorType)) >> ADR_colorType_Shift) & ADR_colorType_Mask))
-#define ADR_colorSpace		0x0002
-// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
+#define ADR_colorSpace		0x0007
+// Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
 #define ParamADR_colorSpaceIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_colorSpace), 7)
-// Offset: 2, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
+// Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
 #define ParamADR_colorSpace knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_colorSpace), 7)
-#define ADR_tempMin		0x000A
-// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define ADR_tempMin		0x000E
+// Offset: 14, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
 #define ParamADR_tempMinIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_tempMin)))))
-// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+// Offset: 14, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
 #define ParamADR_tempMin ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_tempMin)))))
-#define ADR_tempMax		0x000C
-// Offset: 12, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define ADR_tempMax		0x0010
+// Offset: 16, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
 #define ParamADR_tempMaxIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_tempMax)))))
-// Offset: 12, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+// Offset: 16, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
 #define ParamADR_tempMax ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_tempMax)))))
-#define ADR_hcl		0x0005
-// Offset: 5, BitOffset: 6, Size: 1 Bit, Text: HCL aktivieren
-#define ParamADR_hclIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl), 6)
-// Offset: 5, BitOffset: 6, Size: 1 Bit, Text: HCL aktivieren
-#define ParamADR_hcl knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl), 6)
-#define ADR_queryTime		0x000E
-// Offset: 14, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
+#define ADR_hcl		0x0008
+// Offset: 8, BitOffset: 7, Size: 1 Bit, Text: HCL aktivieren
+#define ParamADR_hclIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl), 7)
+// Offset: 8, BitOffset: 7, Size: 1 Bit, Text: HCL aktivieren
+#define ParamADR_hcl knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl), 7)
+#define ADR_queryTime		0x0012
+// Offset: 18, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamADR_queryTimeIndex(X) ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_queryTime)))))
-// Offset: 14, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
+// Offset: 18, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamADR_queryTime ((uint)((knx.paramWord((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_queryTime)))))
-#define ADR_xyIgnore		0x0005
-// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
+#define ADR_xyIgnore		0x0009
+// Offset: 9, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
 #define ParamADR_xyIgnoreIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_xyIgnore), 7)
-// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
+// Offset: 9, BitOffset: 7, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
 #define ParamADR_xyIgnore knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_xyIgnore), 7)
-#define ADR_dimmStateInterval		0x0010
+#define ADR_dimmStateInterval		0x0014
 #define ADR_dimmStateInterval_Shift	4
 #define ADR_dimmStateInterval_Mask	0x000F
-// Offset: 16, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
+// Offset: 20, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamADR_dimmStateIntervalIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmStateInterval)) >> ADR_dimmStateInterval_Shift) & ADR_dimmStateInterval_Mask))
-// Offset: 16, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
+// Offset: 20, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamADR_dimmStateInterval ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmStateInterval)) >> ADR_dimmStateInterval_Shift) & ADR_dimmStateInterval_Mask))
-#define ADR_dimmRelDuration		0x0011
-// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
+#define ADR_dimmRelDuration		0x0015
+// Offset: 21, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
 #define ParamADR_dimmRelDurationIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmRelDuration)))))
-// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
+// Offset: 21, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
 #define ParamADR_dimmRelDuration ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmRelDuration)))))
-#define ADR_hclCurve		0x0010
+#define ADR_hclCurve		0x0014
 #define ADR_hclCurve_Shift	2
 #define ADR_hclCurve_Mask	0x0003
-// Offset: 16, BitOffset: 4, Size: 2 Bit, Text: Verwende
+// Offset: 20, BitOffset: 4, Size: 2 Bit, Text: Verwende
 #define ParamADR_hclCurveIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hclCurve)) >> ADR_hclCurve_Shift) & ADR_hclCurve_Mask))
-// Offset: 16, BitOffset: 4, Size: 2 Bit, Text: Verwende
+// Offset: 20, BitOffset: 4, Size: 2 Bit, Text: Verwende
 #define ParamADR_hclCurve ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hclCurve)) >> ADR_hclCurve_Shift) & ADR_hclCurve_Mask))
-#define ADR_hclStart		0x0006
-// Offset: 6, BitOffset: 7, Size: 1 Bit, Text: Temperatur ändern
-#define ParamADR_hclStartIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hclStart), 7)
-// Offset: 6, BitOffset: 7, Size: 1 Bit, Text: Temperatur ändern
-#define ParamADR_hclStart knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hclStart), 7)
-#define ADR_dimmLock		0x0010
+#define ADR_hclStart		0x0014
+// Offset: 20, BitOffset: 6, Size: 1 Bit, Text: Temperatur ändern
+#define ParamADR_hclStartIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hclStart), 6)
+// Offset: 20, BitOffset: 6, Size: 1 Bit, Text: Temperatur ändern
+#define ParamADR_hclStart knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hclStart), 6)
+#define ADR_dimmLock		0x0016
+#define ADR_dimmLock_Shift	6
 #define ADR_dimmLock_Mask	0x0003
-// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei relativ
-#define ParamADR_dimmLockIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmLock))) & ADR_dimmLock_Mask))
-// Offset: 16, BitOffset: 6, Size: 2 Bit, Text: Einschalten bei relativ
-#define ParamADR_dimmLock ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmLock))) & ADR_dimmLock_Mask))
-#define ADR_hcl_manu_bri		0x0007
-// Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
+// Offset: 22, Size: 2 Bit, Text: Einschalten bei relativ
+#define ParamADR_dimmLockIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmLock)) >> ADR_dimmLock_Shift) & ADR_dimmLock_Mask))
+// Offset: 22, Size: 2 Bit, Text: Einschalten bei relativ
+#define ParamADR_dimmLock ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmLock)) >> ADR_dimmLock_Shift) & ADR_dimmLock_Mask))
+#define ADR_hcl_manu_bri		0x0014
+// Offset: 20, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
 #define ParamADR_hcl_manu_briIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_manu_bri), 7)
-// Offset: 7, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
+// Offset: 20, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
 #define ParamADR_hcl_manu_bri knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_manu_bri), 7)
-#define ADR_hcl_manu_col		0x0008
-// Offset: 8, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
-#define ParamADR_hcl_manu_colIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_manu_col), 7)
-// Offset: 8, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
-#define ParamADR_hcl_manu_col knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_manu_col), 7)
-#define ADR_hcl_auto_off		0x0009
-// Offset: 9, BitOffset: 7, Size: 1 Bit, Text: das EVG ausgeschaltet wird
-#define ParamADR_hcl_auto_offIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_auto_off), 7)
-// Offset: 9, BitOffset: 7, Size: 1 Bit, Text: das EVG ausgeschaltet wird
-#define ParamADR_hcl_auto_off knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_auto_off), 7)
-#define ADR_hcl_auto_day		0x0012
-// Offset: 18, Size: 1 Bit, Text: der Tag vorbei ist
-#define ParamADR_hcl_auto_dayIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_auto_day), 0)
-// Offset: 18, Size: 1 Bit, Text: der Tag vorbei ist
-#define ParamADR_hcl_auto_day knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_auto_day), 0)
+#define ADR_hcl_manu_col		0x0016
+// Offset: 22, BitOffset: 2, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ParamADR_hcl_manu_colIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_manu_col), 2)
+// Offset: 22, BitOffset: 2, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ParamADR_hcl_manu_col knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_manu_col), 2)
+#define ADR_hcl_auto_off		0x0016
+// Offset: 22, BitOffset: 3, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ParamADR_hcl_auto_offIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_auto_off), 3)
+// Offset: 22, BitOffset: 3, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ParamADR_hcl_auto_off knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_auto_off), 3)
+#define ADR_hcl_auto_day		0x0016
+// Offset: 22, BitOffset: 4, Size: 1 Bit, Text: der Tag vorbei ist
+#define ParamADR_hcl_auto_dayIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_auto_day), 4)
+// Offset: 22, BitOffset: 4, Size: 1 Bit, Text: der Tag vorbei ist
+#define ParamADR_hcl_auto_day knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_auto_day), 4)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
 #define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koswitch)

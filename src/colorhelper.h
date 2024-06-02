@@ -15,9 +15,9 @@ class ColorHelper
         static void kelvinToRGB(uint16_t kelvin, uint8_t& r, uint8_t& g, uint8_t& b);
         static void xyyToRGB(uint16_t x, uint16_t y, uint8_t z, uint8_t& r, uint8_t& g, uint8_t& b);
         static uint16_t getKelvinFromSun(uint16_t minCurr, uint16_t minDiff, uint16_t minK, uint16_t maxK);
-    private:
         static uint16_t getBytes(float input);
         static float getFloat(uint16_t input);
+    private:
         static double hue2rgb(double p, double q, double t);
         static float adjust(float input);
 };
