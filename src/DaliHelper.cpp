@@ -11,6 +11,17 @@ uint8_t DaliHelper::percentToArc(uint8_t value)
     return arc;
 }
 
+uint8_t DaliHelper::percentToArc(float value)
+{
+    if(value == 0)
+    {
+        return 0;
+    }
+    //Todo also include _max
+    uint8_t arc = roundToInt(((253/3.0)*(log10(value)+1)) + 1);
+    return arc;
+}
+
 uint8_t DaliHelper::arcToPercent(uint8_t value)
 {
     if(value == 0)
