@@ -1290,14 +1290,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0xFF;
     }
     logDebugP("MIN: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
-    if(resp == 255)
-        resultData[1] = 255;
-    else {
-        float perc = DaliHelper::arcToPercentFloat(resp);
-        uint16_t data = ColorHelper::getBytes(perc / 100);
-        resultData[1] = (data >> 8) & 0xFF;
-        resultData[2] = data & 0xFF;
-    }
+    resultData[1] = resp;
 
     resp = getInfo(data[1], DaliCmd::QUERY_MAX_LEVEL);
     if(resp < 0)
@@ -1307,14 +1300,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0xFF;
     }
     logDebugP("MAX: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
-    if(resp == 255)
-        resultData[3] = 255;
-    else {
-        float perc = DaliHelper::arcToPercentFloat(resp);
-        uint16_t data = ColorHelper::getBytes(perc / 100);
-        resultData[3] = (data >> 8) & 0xFF;
-        resultData[4] = data & 0xFF;
-    }
+    resultData[2] = resp;
 
     resp = getInfo(data[1], DaliCmd::QUERY_POWER_ON_LEVEL);
     if(resp < 0)
@@ -1324,14 +1310,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0xFF;
     }
     logDebugP("POWER: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
-    if(resp == 255)
-        resultData[5] = 255;
-    else {
-        float perc = DaliHelper::arcToPercentFloat(resp);
-        uint16_t data = ColorHelper::getBytes(perc / 100);
-        resultData[5] = (data >> 8) & 0xFF;
-        resultData[6] = data & 0xFF;
-    }
+    resultData[3] = resp;
 
     resp = getInfo(data[1], DaliCmd::QUERY_FAIL_LEVEL);
     if(resp < 0)
@@ -1341,14 +1320,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0xFF;
     }
     logDebugP("FAILURE: %.2X / %.2f", resp, DaliHelper::arcToPercentFloat(resp));
-    if(resp == 255)
-        resultData[7] = 255;
-    else {
-        float perc = DaliHelper::arcToPercentFloat(resp);
-        uint16_t data = ColorHelper::getBytes(perc / 100);
-        resultData[7] = (data >> 8) & 0xFF;
-        resultData[8] = data & 0xFF;
-    }
+    resultData[4] = resp;
     
     resp = getInfo(data[1], DaliCmd::QUERY_FADE_SPEEDS);
     if(resp < 0)
@@ -1358,7 +1330,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0xFF;
     }
     logDebugP("FAID: %.2X", resp);
-    resultData[9] = resp;
+    resultData[5] = resp;
     
     //1byte free
 
@@ -1370,7 +1342,7 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0;
     }
     logDebugP("GROUPS0-7: %.2X", resp);
-    resultData[10] = resp;
+    resultData[7] = resp;
     
     resp = getInfo(data[1], DaliCmd::QUERY_GROUPS_8_15);
     if(resp < 0)
@@ -1380,10 +1352,10 @@ void DaliModule::funcHandleEvgRead(uint8_t *data, uint8_t *resultData, uint8_t &
         resp = 0;
     }
     logDebugP("GROUPS8-15: %.2X", resp);
-    resultData[11] = resp;
+    resultData[8] = resp;
 
-    resultData[12] = errorByte;
-    resultLength = 13;
+    resultData[9] = errorByte;
+    resultLength = 10;
 }
 
 void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
@@ -1463,20 +1435,13 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
     logDebugP("Value %i", value);
 
     resultData[0] = value;
-    if(value < 255)
-    {
-        float perc = DaliHelper::arcToPercentFloat(value);
-        uint16_t data = ColorHelper::getBytes(perc / 100);
-        resultData[0] = (data >> 8) & 0xFF;
-        resultData[1] = data & 0xFF;
-    }
 
     if(value != 0xFF && data[3] == PT_deviceType_DT8)
     {
         //colorType is TunableWhite
         if(data[4] == PT_colorType_TW)
         {
-            resultLength = 4;
+            resultLength = 3;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE2);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             uint16_t mirek = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE) << 8;
@@ -1485,27 +1450,27 @@ void DaliModule::funcHandleGetScene(uint8_t *data, uint8_t *resultData, uint8_t 
 
             uint16_t kelvin = 1000000.0 / mirek;
 
-            resultData[2] = (kelvin >> 8) & 0xFF;
-            resultData[3] = kelvin & 0xFF;
+            resultData[1] = (kelvin >> 8) & 0xFF;
+            resultData[2] = kelvin & 0xFF;
             logDebugP("Scene %i: %.1f%% TEMP=%iK", data[2], DaliHelper::arcToPercentFloat(value), kelvin);
         } else { //it is RGB
-            resultLength = 5;
+            resultLength = 4;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xE9);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             uint8_t colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE);
-            resultData[2] = colorVal;
+            resultData[1] = colorVal;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xEA);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE);
-            resultData[3] = colorVal;
+            resultData[2] = colorVal;
             sendCmdSpecial(DaliSpecialCmd::SET_DTR, 0xEB);
             sendCmdSpecial(DaliSpecialCmd::ENABLE_DT, 0x08);
             colorVal = getInfo(data[1], DaliCmdExtendedDT8::QUERY_COLOUR_VALUE);
-            resultData[4] = colorVal;
+            resultData[3] = colorVal;
             logDebugP("Scene %i: %.1f%% RGB=%.2X%.2X%.2X", data[2], DaliHelper::arcToPercentFloat(value), resultData[1], resultData[2], resultData[3]);
         }
     } else {
-        resultLength = 2;
+        resultLength = 1;
         logDebugP("Scene %i: %.1f%%", data[2], DaliHelper::arcToPercentFloat(value));
     }
 }

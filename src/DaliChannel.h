@@ -70,8 +70,8 @@ class DaliChannel : public OpenKNX::Channel
 		//Initialwerte
 		uint8_t _min = 0;
 		uint8_t _max = 0;
-		uint8_t _onDay = 100;
-		uint8_t _onNight = 10;
+		float _onDay = 100;
+		float _onNight = 10;
 		bool _isStaircase = false;
 		bool _isGroup = false;
 		bool _isConfigured = false;

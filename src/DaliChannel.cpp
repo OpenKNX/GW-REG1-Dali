@@ -89,7 +89,7 @@ void DaliChannel::setup()
     }
     _min = DaliHelper::percentToArc(_min);
     _max = DaliHelper::percentToArc(_max);
-    logDebugP("Min/Max %i/%i | D/N %i/%i | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
+    logDebugP("Min/Max %i/%i | D/N %.2f/%.2f | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
 
 void DaliChannel::loop()
