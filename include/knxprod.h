@@ -55,10 +55,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x0F
+#define MAIN_ApplicationVersion 0x15
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 2052
-#define MAIN_MaxKoNumber 1439
+#define MAIN_ParameterSize 2106
+#define MAIN_MaxKoNumber 1602
 
 
 #define APP_daynight		0x0000
@@ -105,19 +105,19 @@
 #define ADR_ParamBlockOffset 303
 #define ADR_ParamBlockSize 23
 #define GRP_ParamBlockOffset 1775
-#define GRP_ParamBlockSize 16
-#define HCL_ParamBlockOffset 2031
-#define HCL_ParamBlockSize 7
+#define GRP_ParamBlockSize 19
+#define HCL_ParamBlockOffset 2079
+#define HCL_ParamBlockSize 9
 #define BASE_Share_KoOffset 6
 #define BASE_Share_KoBlockSize 6
 #define SCE_KoOffset 12
 #define SCE_KoBlockSize 0
 #define ADR_KoOffset 12
-#define ADR_KoBlockSize 18
-#define GRP_KoOffset 1164
-#define GRP_KoBlockSize 17
-#define HCL_KoOffset 1436
-#define HCL_KoBlockSize 1
+#define ADR_KoBlockSize 20
+#define GRP_KoOffset 1292
+#define GRP_KoBlockSize 19
+#define HCL_KoOffset 1596
+#define HCL_KoBlockSize 2
 
 //-----Module: adresse
 #define ADR_deviceType		0x0000
@@ -264,9 +264,9 @@
 // Offset: 20, BitOffset: 4, Size: 2 Bit, Text: Verwende
 #define ParamADR_hclCurve ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hclCurve)) >> ADR_hclCurve_Shift) & ADR_hclCurve_Mask))
 #define ADR_hclStart		0x0014
-// Offset: 20, BitOffset: 6, Size: 1 Bit, Text: Temperatur ändern
+// Offset: 20, BitOffset: 6, Size: 1 Bit, Text: HCL anwenden
 #define ParamADR_hclStartIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hclStart), 6)
-// Offset: 20, BitOffset: 6, Size: 1 Bit, Text: Temperatur ändern
+// Offset: 20, BitOffset: 6, Size: 1 Bit, Text: HCL anwenden
 #define ParamADR_hclStart knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hclStart), 6)
 #define ADR_dimmLock		0x0016
 #define ADR_dimmLock_Shift	6
@@ -319,8 +319,8 @@
 #define ADR_Kolock 5
 #define KoADR_lockIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kolock)
 #define KoADR_lock knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kolock)
-//!< Number: 17, Text: A{{argChan}} {{0}}, Function: Fehler
-#define ADR_Koerror 17
+//!< Number: 19, Text: A{{argChan}} {{0}}, Function: Fehler
+#define ADR_Koerror 19
 #define KoADR_errorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koerror)
 #define KoADR_error knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Koerror)
 //!< Number: 6, Text: A{{argChan}} {{0}}, Function: RGB Farbe
@@ -367,6 +367,14 @@
 #define ADR_Kocolor_blue_state 16
 #define KoADR_color_blue_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_blue_state)
 #define KoADR_color_blue_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_state)
+//!< Number: 17, Text: A{{argChan}} {{0}}, Function: HCL Kurve
+#define ADR_Kohcl_curve 17
+#define KoADR_hcl_curveIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kohcl_curve)
+#define KoADR_hcl_curve knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kohcl_curve)
+//!< Number: 18, Text: A{{argChan}} {{0}}, Function: Szene
+#define ADR_Koscene 18
+#define KoADR_sceneIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koscene)
+#define KoADR_scene knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Koscene)
 
 //-----Module: group
 #define GRP_deviceType		0x0000
@@ -427,19 +435,15 @@
 // Offset: 5, Size: 7 Bit, Text: 
 #define ParamGRP_unlockvalue ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_unlockvalue)) >> GRP_unlockvalue_Shift) & GRP_unlockvalue_Mask))
 #define GRP_onDay		0x0006
-#define GRP_onDay_Shift	1
-#define GRP_onDay_Mask	0x007F
-// Offset: 6, Size: 7 Bit, Text: Einschaltwert Tag
-#define ParamGRP_onDayIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_onDay)) >> GRP_onDay_Shift) & GRP_onDay_Mask))
-// Offset: 6, Size: 7 Bit, Text: Einschaltwert Tag
-#define ParamGRP_onDay ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_onDay)) >> GRP_onDay_Shift) & GRP_onDay_Mask))
-#define GRP_onNight		0x0007
-#define GRP_onNight_Shift	1
-#define GRP_onNight_Mask	0x007F
-// Offset: 7, Size: 7 Bit, Text: Einschaltwert Nacht
-#define ParamGRP_onNightIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_onNight)) >> GRP_onNight_Shift) & GRP_onNight_Mask))
-// Offset: 7, Size: 7 Bit, Text: Einschaltwert Nacht
-#define ParamGRP_onNight ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_onNight)) >> GRP_onNight_Shift) & GRP_onNight_Mask))
+// Offset: 6, Size: 16 Bit (2 Byte), Text: Einschaltwert Tag
+#define ParamGRP_onDayIndex(X) knx.paramFloat((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_onDay), Float_Enc_DPT9)
+// Offset: 6, Size: 16 Bit (2 Byte), Text: Einschaltwert Tag
+#define ParamGRP_onDay knx.paramFloat((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_onDay), Float_Enc_DPT9)
+#define GRP_onNight		0x0008
+// Offset: 8, Size: 16 Bit (2 Byte), Text: Einschaltwert Nacht
+#define ParamGRP_onNightIndex(X) knx.paramFloat((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_onNight), Float_Enc_DPT9)
+// Offset: 8, Size: 16 Bit (2 Byte), Text: Einschaltwert Nacht
+#define ParamGRP_onNight knx.paramFloat((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_onNight), Float_Enc_DPT9)
 #define GRP_locknegate		0x0000
 // Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Sperren bei
 #define ParamGRP_locknegateIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_locknegate), 7)
@@ -457,15 +461,15 @@
 #define ParamGRP_colorSpaceIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_colorSpace), 7)
 // Offset: 3, BitOffset: 7, Size: 1 Bit, Text: Farbe übertragen per
 #define ParamGRP_colorSpace knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_colorSpace), 7)
-#define GRP_tempMin		0x0008
-// Offset: 8, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+#define GRP_tempMin		0x000A
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
 #define ParamGRP_tempMinIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_tempMin)))))
-// Offset: 8, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
+// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Min
 #define ParamGRP_tempMin ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_tempMin)))))
-#define GRP_tempMax		0x000A
-// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+#define GRP_tempMax		0x000C
+// Offset: 12, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
 #define ParamGRP_tempMaxIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_tempMax)))))
-// Offset: 10, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
+// Offset: 12, Size: 16 Bit (2 Byte), Text: Farbtemperatur Max
 #define ParamGRP_tempMax ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_tempMax)))))
 #define GRP_hcl		0x0004
 // Offset: 4, BitOffset: 4, Size: 1 Bit, Text: HCL aktivieren
@@ -477,22 +481,22 @@
 #define ParamGRP_xyIgnoreIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_xyIgnore), 5)
 // Offset: 4, BitOffset: 5, Size: 1 Bit, Text: Helligkeit ignorieren? (nur xy verwenden)
 #define ParamGRP_xyIgnore knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_xyIgnore), 5)
-#define GRP_dimmStateInterval		0x000C
+#define GRP_dimmStateInterval		0x000E
 #define GRP_dimmStateInterval_Shift	4
 #define GRP_dimmStateInterval_Mask	0x000F
-// Offset: 12, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
+// Offset: 14, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamGRP_dimmStateIntervalIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_dimmStateInterval)) >> GRP_dimmStateInterval_Shift) & GRP_dimmStateInterval_Mask))
-// Offset: 12, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
+// Offset: 14, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamGRP_dimmStateInterval ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_dimmStateInterval)) >> GRP_dimmStateInterval_Shift) & GRP_dimmStateInterval_Mask))
-#define GRP_queryTime		0x000D
-// Offset: 13, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
+#define GRP_queryTime		0x000F
+// Offset: 15, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamGRP_queryTimeIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_queryTime)))))
-// Offset: 13, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
+// Offset: 15, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamGRP_queryTime ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_queryTime)))))
-#define GRP_dimmRelDuration		0x000F
-// Offset: 15, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
+#define GRP_dimmRelDuration		0x0011
+// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
 #define ParamGRP_dimmRelDurationIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_dimmRelDuration)))))
-// Offset: 15, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
+// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
 #define ParamGRP_dimmRelDuration ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_dimmRelDuration)))))
 #define GRP_hclCurve		0x0004
 #define GRP_hclCurve_Mask	0x0003
@@ -500,13 +504,38 @@
 #define ParamGRP_hclCurveIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hclCurve))) & GRP_hclCurve_Mask))
 // Offset: 4, BitOffset: 6, Size: 2 Bit, Text: Verwende
 #define ParamGRP_hclCurve ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hclCurve))) & GRP_hclCurve_Mask))
-#define GRP_dimmLock		0x000C
+#define GRP_hclStart		0x0005
+// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: HCL anwenden
+#define ParamGRP_hclStartIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hclStart), 7)
+// Offset: 5, BitOffset: 7, Size: 1 Bit, Text: HCL anwenden
+#define ParamGRP_hclStart knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hclStart), 7)
+#define GRP_dimmLock		0x000E
 #define GRP_dimmLock_Shift	2
 #define GRP_dimmLock_Mask	0x0003
-// Offset: 12, BitOffset: 4, Size: 2 Bit, Text: Einschalten bei rlativ
+// Offset: 14, BitOffset: 4, Size: 2 Bit, Text: Einschalten bei rlativ
 #define ParamGRP_dimmLockIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_dimmLock)) >> GRP_dimmLock_Shift) & GRP_dimmLock_Mask))
-// Offset: 12, BitOffset: 4, Size: 2 Bit, Text: Einschalten bei rlativ
+// Offset: 14, BitOffset: 4, Size: 2 Bit, Text: Einschalten bei rlativ
 #define ParamGRP_dimmLock ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_dimmLock)) >> GRP_dimmLock_Shift) & GRP_dimmLock_Mask))
+#define GRP_hcl_manu_bri		0x000E
+// Offset: 14, BitOffset: 6, Size: 1 Bit, Text: Helligkeit geändert wird
+#define ParamGRP_hcl_manu_briIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_manu_bri), 6)
+// Offset: 14, BitOffset: 6, Size: 1 Bit, Text: Helligkeit geändert wird
+#define ParamGRP_hcl_manu_bri knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_manu_bri), 6)
+#define GRP_hcl_manu_col		0x000E
+// Offset: 14, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ParamGRP_hcl_manu_colIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_manu_col), 7)
+// Offset: 14, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ParamGRP_hcl_manu_col knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_manu_col), 7)
+#define GRP_hcl_auto_off		0x0012
+// Offset: 18, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ParamGRP_hcl_auto_offIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_auto_off), 0)
+// Offset: 18, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ParamGRP_hcl_auto_off knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_auto_off), 0)
+#define GRP_hcl_auto_day		0x0012
+// Offset: 18, BitOffset: 1, Size: 1 Bit, Text: der Tag vorbei ist
+#define ParamGRP_hcl_auto_dayIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_auto_day), 1)
+// Offset: 18, BitOffset: 1, Size: 1 Bit, Text: der Tag vorbei ist
+#define ParamGRP_hcl_auto_day knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_auto_day), 1)
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
 #define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Koswitch)
@@ -575,6 +604,14 @@
 #define GRP_Kocolor_blue_state 16
 #define KoGRP_color_blue_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_blue_state)
 #define KoGRP_color_blue_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_state)
+//!< Number: 17, Text: G{{argChan}} {{0}}, Function: HCL Kurve
+#define GRP_Kohcl_curve 17
+#define KoGRP_hcl_curveIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kohcl_curve)
+#define KoGRP_hcl_curve knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kohcl_curve)
+//!< Number: 18, Text: G{{argChan}} {{0}}, Function: Szene
+#define GRP_Koscene 18
+#define KoGRP_sceneIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Koscene)
+#define KoGRP_scene knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Koscene)
 
 //-----Module: scene
 #define SCE_type		0x0000
@@ -660,10 +697,38 @@
 #define ParamHCL_offsetSetMinIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + HCL_offsetSetMin)))))
 // Offset: 6, Size: 8 Bit (1 Byte), Text: 
 #define ParamHCL_offsetSetMin ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + HCL_offsetSetMin)))))
+#define HCL_briMin		0x0007
+#define HCL_briMin_Shift	1
+#define HCL_briMin_Mask	0x007F
+// Offset: 7, Size: 7 Bit, Text: Helligkeit Min
+#define ParamHCL_briMinIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + HCL_briMin)) >> HCL_briMin_Shift) & HCL_briMin_Mask))
+// Offset: 7, Size: 7 Bit, Text: Helligkeit Min
+#define ParamHCL_briMin ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + HCL_briMin)) >> HCL_briMin_Shift) & HCL_briMin_Mask))
+#define HCL_briMax		0x0008
+#define HCL_briMax_Shift	1
+#define HCL_briMax_Mask	0x007F
+// Offset: 8, Size: 7 Bit, Text: Helligkeit Max
+#define ParamHCL_briMaxIndex(X) ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + HCL_briMax)) >> HCL_briMax_Shift) & HCL_briMax_Mask))
+// Offset: 8, Size: 7 Bit, Text: Helligkeit Max
+#define ParamHCL_briMax ((uint)((knx.paramByte((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + HCL_briMax)) >> HCL_briMax_Shift) & HCL_briMax_Mask))
+#define HCL_checkTemperature		0x0000
+// Offset: 0, BitOffset: 6, Size: 1 Bit, Text: Farbtemperatur aktivieren
+#define ParamHCL_checkTemperatureIndex(X) knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + HCL_checkTemperature), 6)
+// Offset: 0, BitOffset: 6, Size: 1 Bit, Text: Farbtemperatur aktivieren
+#define ParamHCL_checkTemperature knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + HCL_checkTemperature), 6)
+#define HCL_checkBrightness		0x0000
+// Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Helligkeit aktivieren
+#define ParamHCL_checkBrightnessIndex(X) knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * X + HCL_checkBrightness), 7)
+// Offset: 0, BitOffset: 7, Size: 1 Bit, Text: Helligkeit aktivieren
+#define ParamHCL_checkBrightness knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + HCL_checkBrightness), 7)
 //!< Number: 0, Text: HCL Kurve {{argChan}}, Function: Farbtemperatur
 #define HCL_Kohcl_state 0
 #define KoHCL_hcl_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + HCL_Kohcl_state)
 #define KoHCL_hcl_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + HCL_Kohcl_state)
+//!< Number: 1, Text: HCL Kurve {{argChan}}, Function: Helligkeit
+#define HCL_Kobri_state 1
+#define KoHCL_bri_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + HCL_Kobri_state)
+#define KoHCL_bri_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + HCL_Kobri_state)
 
 //-----Module: Common Share
 #define BASE_StartupDelayBase		0x0000

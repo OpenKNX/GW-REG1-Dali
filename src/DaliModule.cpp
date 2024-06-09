@@ -929,12 +929,34 @@ void DaliModule::processInputKo(GroupObject &ko)
     if(koNum >= HCL_KoOffset && koNum < HCL_KoOffset + HCL_KoBlockSize * 3)
     {
         int index = floor((koNum - HCL_KoOffset) / HCL_KoBlockSize);
-        logDebugP("For HCL %i", index);
-        uint16_t kelvin = ko.value(Dpt(7, 600));
-        for(int i = 0; i < 64; i++)
-            channels[i].setHcl(index, kelvin, 255);
-        for(int i = 0; i < 16; i++)
-            groups[i].setHcl(index, kelvin, 255);
+        int chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
+        logDebugP("For HCL %i - Ko %i", index, chanIndex);
+        
+        switch(chanIndex)
+        {
+            case HCL_Kohcl_state:
+            {
+                uint16_t kelvin = ko.value(Dpt(7, 600));
+                for(int i = 0; i < 64; i++)
+                    channels[i].setHcl(index, kelvin);
+                for(int i = 0; i < 16; i++)
+                    groups[i].setHcl(index, kelvin);
+                break;
+            }
+
+            case HCL_Kobri_state:
+            {
+                uint8_t brightness = ko.value(Dpt(5, 1));
+                for(int i = 0; i < 64; i++)
+                    channels[i].setHcl(index, brightness);
+                for(int i = 0; i < 16; i++)
+                    groups[i].setHcl(index, brightness);
+                break;
+            }
+            
+            default:
+                logDebugP("unhandled KO: %i", ko.asap());
+        }
         return;
     }
 

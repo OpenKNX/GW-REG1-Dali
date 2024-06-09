@@ -1,6 +1,6 @@
 #include "colorhelper.h"
 
-uint16_t ColorHelper::getKelvinFromSun(uint16_t minCurr, uint16_t minDiff, uint16_t minK, uint16_t maxK)
+uint16_t ColorHelper::getValueFromSun(uint16_t minCurr, uint16_t minDiff, uint16_t minK, uint16_t maxK)
 {
     float xAchse = (minCurr * 3.14159) / minDiff;
     float yAchse = sin(xAchse);

@@ -21,7 +21,7 @@ void HclCurve::setup(uint8_t index)
     if(_isConfigured)
     {
         if(_type == PT_hclType_sun)
-            logDebugP("Konfiguriert: Sonnenstand %i/%i", ParamHCL_min, ParamHCL_max);
+            logDebugP("Konfiguriert: Sonnenstand %i/%i K - %i/%i %%", ParamHCL_min, ParamHCL_max, ParamHCL_briMin, ParamHCL_briMax);
         else if(_type == PT_hclType_time)
             logDebugP("Konfiguriert: Zeittabelle");
     } else 
@@ -45,21 +45,24 @@ void HclCurve::loop()
         
     logDebugP("Aktuelle Zeit: %i:%i:%i", openknxTimerModule.getHour(), openknxTimerModule.getMinute(), openknxTimerModule.getSecond());
 
-    uint16_t min = ParamHCL_min;
-    uint16_t max = ParamHCL_max;
+    uint16_t minT = ParamHCL_min;
+    uint8_t minB = ParamHCL_briMin;
+
     if(openknxTimerModule.getHour() < sunRise->hour || (openknxTimerModule.getHour() == sunRise->hour && openknxTimerModule.getMinute() < sunRise->minute))
     {
-        logDebugP("Vor Sonnenaufgang %i K (%i:%i)", min, sunRise->hour, sunRise->minute);
-        KoHCL_hcl_state.value(min, Dpt(7, 600));
-        // if(KoHCL_hcl_state.valueNoSendCompare(min, Dpt(7, 600)))
-        //     KoHCL_hcl_state.objectWritten();
+        logDebugP("Vor Sonnenaufgang %i K (%i:%i)", minT, sunRise->hour, sunRise->minute);
+        if(ParamHCL_checkTemperature)
+            KoHCL_hcl_state.value(minT, Dpt(7, 600));
+        if(ParamHCL_checkBrightness)
+            KoHCL_bri_state.value(minB, Dpt(5, 1));
     } else if(openknxTimerModule.getHour() > sunSet->hour || (openknxTimerModule.getHour() == sunSet->hour && openknxTimerModule.getMinute() > sunSet->minute)) {
-        logDebugP("Nach Sonnenuntergang %i K (%i:%i)", max, sunSet->hour, sunSet->minute);
-        KoHCL_hcl_state.value(max, Dpt(7, 600));
-        // if(KoHCL_hcl_state.valueNoSendCompare(max, Dpt(7, 600)))
-        //     KoHCL_hcl_state.objectWritten();
+        logDebugP("Nach Sonnenuntergang %i K (%i:%i)", minT, sunSet->hour, sunSet->minute);
+        if(ParamHCL_checkTemperature)
+            KoHCL_hcl_state.value(minT, Dpt(7, 600));
+        if(ParamHCL_checkBrightness)
+            KoHCL_bri_state.value(minB, Dpt(5, 1));
     } else {
-        logDebugP("Irgendwas dazwischen");
+        logDebugP("Dazwischen %i:%i - jetzt - %i:%i", sunRise->hour, sunRise->minute, sunSet->hour, sunSet->minute);
         uint16_t startMin = sunRise->hour*60 + sunRise->minute;
         uint16_t stopMin = sunSet->hour*60 + sunSet->minute;
 
@@ -75,8 +78,21 @@ void HclCurve::loop()
 
         uint16_t currentMin = openknxTimerModule.getHour()*60 + openknxTimerModule.getMinute();
         //logDebugP("start %i | stop %i | curr %i", startMin, stopMin, currentMin);
-        uint16_t response = ColorHelper::getKelvinFromSun(currentMin - startMin, stopMin - startMin, min, max);
-        logDebugP("response: %i K", response);
-        KoHCL_hcl_state.value(response, Dpt(7, 600));
+        uint16_t response = 0;
+        uint16_t maxT = ParamHCL_max;
+        uint8_t maxB = ParamHCL_briMax;
+        
+        if(ParamHCL_checkTemperature)
+        {
+            response = ColorHelper::getValueFromSun(currentMin - startMin, stopMin - startMin, minT, maxT);
+            logDebugP("response: %i K", response);
+            KoHCL_hcl_state.value(response, Dpt(7, 600));
+        }
+        if(ParamHCL_checkBrightness)
+        {
+            response = ColorHelper::getValueFromSun(currentMin - startMin, stopMin - startMin, minB, maxB);
+            logDebugP("response: %i %", response);
+            KoHCL_bri_state.value(response, Dpt(5, 1));
+        }
     }
 }

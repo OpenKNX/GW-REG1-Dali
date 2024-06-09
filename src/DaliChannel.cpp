@@ -54,14 +54,14 @@ void DaliChannel::setup()
         _max = 0xFF;
         if (_isStaircase)
             interval = ParamGRP_stairtime;
-        _onDay = ParamGRP_onDay;
-        _onNight = ParamGRP_onNight;
+        _onDay = DaliHelper::percentToArc((float)ParamGRP_onDay);
+        _onNight = DaliHelper::percentToArc((float)ParamGRP_onNight);
         _dimmStatusInterval = ParamGRP_dimmStateInterval;
         _dimmInterval = (uint8_t)(ParamGRP_dimmRelDuration / 2.55);
         if(ParamGRP_hcl)
         {
             _hclCurve = ParamGRP_hclCurve;
-            //_hclIsAlsoOn = ParamGRP_hclStart; //TODO add also on group
+            _hclIsAlsoOn = ParamGRP_hclStart;
         }
     }
     else
@@ -75,8 +75,8 @@ void DaliChannel::setup()
         _max = ParamADR_max;
         if (_isStaircase)
             interval = ParamADR_stairtime;
-        _onDay = ParamADR_onDay;
-        _onNight = ParamADR_onNight;
+        _onDay = DaliHelper::percentToArc((float)ParamADR_onDay);
+        _onNight = DaliHelper::percentToArc((float)ParamADR_onNight);
         _getError = ParamADR_error;
         _queryInterval = ParamADR_queryTime;
         _dimmStatusInterval = ParamADR_dimmStateInterval;
@@ -89,7 +89,7 @@ void DaliChannel::setup()
     }
     _min = DaliHelper::percentToArc(_min);
     _max = DaliHelper::percentToArc(_max);
-    logDebugP("Min/Max %i/%i | D/N %.2f/%.2f | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
+    logDebugP("Min/Max %i/%i | D/N %i/%i (%.2f/%.2f) | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, DaliHelper::arcToPercentFloat(_onDay), DaliHelper::arcToPercentFloat(_onNight), interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
 }
 
 void DaliChannel::loop()
@@ -272,7 +272,7 @@ uint8_t DaliChannel::sendArc(byte v)
     msg->id = _queue.getNextId();
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
-    msg->para2 = DaliHelper::percentToArc(v);
+    msg->para2 = v;
     msg->addrtype = _isGroup;
     return _queue.push(msg);
 }
@@ -409,7 +409,7 @@ void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
         return;
     }
 
-    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
+    if(_isGroup ? ParamGRP_hcl_manu_col : ParamADR_hcl_manu_col)
         _hclIsAutoMode = false;
 
     _dimmStep = ko.value(Dpt(3, 7, 1));
@@ -446,7 +446,7 @@ void DaliChannel::koHandleColorAbs(GroupObject &ko, uint8_t index)
         return;
     }
 
-    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
+    if(_isGroup ? ParamADR_hcl_manu_col : ParamADR_hcl_manu_col)
         _hclIsAutoMode = false;
         
     logDebugP("AutoSwitchConfig %i %i", ParamADR_hcl_manu_col, _hclIsAutoMode);
@@ -557,7 +557,7 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
         return;
     }
 
-    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_bri)
+    if(_isGroup ? ParamGRP_hcl_manu_bri : ParamADR_hcl_manu_bri)
         _hclIsAutoMode = false;
 
     _dimmStep = ko.value(Dpt(3, 7, 1));
@@ -599,7 +599,7 @@ void DaliChannel::koHandleDimmAbs(GroupObject &ko)
         return;
     }
 
-    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_bri)
+    if(_isGroup ? ParamGRP_hcl_manu_bri : ParamADR_hcl_manu_bri)
         _hclIsAutoMode = false;
 
     uint8_t value = ko.value(Dpt(5, 1));
@@ -686,7 +686,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
     }
 
     
-    if(_isGroup ? /*//TODO*/ false : ParamADR_hcl_manu_col)
+    if(_isGroup ? ParamGRP_hcl_manu_col : ParamADR_hcl_manu_col)
         _hclIsAutoMode = false;
 
     logDebugP("AutoConf %i %i %i", _isGroup, ParamADR_hcl_manu_col, _hclIsAutoMode);
@@ -792,10 +792,11 @@ void DaliChannel::sendKoStateOnChange(uint16_t koNr, const KNXValue &value, cons
         ko.objectWritten();
 }
 
-void DaliChannel::setTW(uint16_t value, uint8_t bri)
+void DaliChannel::setTemperature(uint16_t value)
 {
-    logDebugP("Set Kelvin: %X K / %.2f %%", value, bri/2.54);
+    logDebugP("Set Kelvin: %i K", value);
     uint16_t mirek = 1000000.0 / value;
+    //TODO check the colorType and then set RGB or TW or do nothing if it is no color Device
     sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
     sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
@@ -805,6 +806,14 @@ void DaliChannel::setTW(uint16_t value, uint8_t bri)
     sendCmd(DaliCmdExtendedDT8::ACTIVATE);
 
     sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(7, 600));
+}
+
+void DaliChannel::setBrightness(uint8_t value)
+{
+    logDebugP("Set Brightness: %i %%", value);
+    //TODO implement it...
+    sendArc(DaliHelper::percentToArc(value));
+    sendKoStateOnChange(ADR_Kodimm_state, value, Dpt(5, 1));
 }
 
 void DaliChannel::sendColor()
@@ -896,7 +905,7 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
     }
 
     logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
-    if(!value && (_isGroup ? /*//TODO*/ false : ParamADR_hcl_auto_off))
+    if(!value && (_isGroup ? ParamGRP_hcl_auto_off : ParamADR_hcl_auto_off))
         _hclIsAutoMode = true;
 
     logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
@@ -1005,22 +1014,49 @@ void DaliChannel::setMinArc(uint8_t min)
     _min = min;
 }
 
-void DaliChannel::setHcl(uint8_t curve, uint16_t value, uint8_t bri)
+void DaliChannel::setHcl(uint8_t curve, uint16_t value)
 {
+    //TODO add ComObject for selecting curve
     if(_hclCurve == 255) return;
-    logDebugP("curve %i | state %i | isAlsoOn %i", _hclCurve, currentState, _hclIsAlsoOn);
+    logDebugP("Temp curve %i | state %i | isAlsoOn %i", _hclCurve, currentState, _hclIsAlsoOn);
     if(!_hclIsAutoMode)
     {
         logDebugP("Ignored because mode is manu");
         return;
     }
 
+    //TODO implement to activate/deactivate brightness for hcl in knxprod
+
     if(curve == _hclCurve && currentState)
     {
         if(_hclIsAlsoOn)
         {
             logDebugP("Setting HCL");
-            setTW(value, bri);
+            setTemperature(value);
+        } else {
+            logDebugP("Ignored. Only apply on turning on");
+        }
+    }
+}
+
+void DaliChannel::setHcl(uint8_t curve, uint8_t value)
+{
+    if(_hclCurve == 255) return;
+    logDebugP("Bri curve %i | state %i | isAlsoOn %i", _hclCurve, currentState, _hclIsAlsoOn);
+    if(!_hclIsAutoMode)
+    {
+        logDebugP("Ignored because mode is manu");
+        return;
+    }
+
+    //TODO implement to activate/deactivate brightness for hcl in knxprod
+
+    if(curve == _hclCurve && currentState)
+    {
+        if(_hclIsAlsoOn)
+        {
+            logDebugP("Setting HCL");
+            setBrightness(value);
         } else {
             logDebugP("Ignored. Only apply on turning on");
         }
