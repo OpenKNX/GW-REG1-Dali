@@ -388,9 +388,40 @@ void DaliChannel::processInputKo(GroupObject &ko)
     // Farbe Blau Status
     // case 16
 
+    case ADR_Kohcl_curve:
+        koHandleHclCurve(ko);
+        break;
+
+    case ADR_Koscene:
+        koHandleScene(ko);
+        break;
+        
     // Error
-    // case 17
+    // case 19
     }
+}
+
+void DaliChannel::koHandleHclCurve(GroupObject &ko)
+{
+    uint8_t curve = ko.value(Dpt(5,0));
+    if(curve > 2)
+    {
+        logErrorP("Setzen der HCL Kurve ignoriert, da zu hoch: %i, max %i", curve, 2);
+        return;
+    }
+    _hclCurve = curve;
+}
+
+void DaliChannel::koHandleScene(GroupObject &ko)
+{
+    uint8_t number = ko.value(Dpt(5,0));
+    if(number > 2)
+    {
+        logErrorP("Szene ignoriert, da zu hoch: %i, max 15", number);
+        return;
+    }
+
+    sendCmd(DaliCmd::GO_TO_SCENE | number);
 }
 
 void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
@@ -483,7 +514,7 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
         logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
         sendArc(onValue);
         if(_hclCurve != 255 && _hclIsAutoMode)
-            setTW(_hclCurrentTemp);
+            setTemperature(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue), true);
     }
     else
@@ -522,7 +553,7 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         sendArc(onValue);
         if(_hclCurve != 255 && _hclIsAutoMode)
-            setTW(_hclCurrentTemp);
+            setTemperature(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue));
     }
     else
@@ -738,7 +769,7 @@ void DaliChannel::koHandleColor(GroupObject &ko)
         case PT_colorType_TW:
         {
             uint16_t kelvin = ko.value(Dpt(7, 600));
-            setTW(kelvin);
+            setTemperature(kelvin);
             break;
         }
 
@@ -1025,7 +1056,8 @@ void DaliChannel::setHcl(uint8_t curve, uint16_t value)
         return;
     }
 
-    //TODO implement to activate/deactivate brightness for hcl in knxprod
+    if(curve == _hclCurve)
+        _hclCurrentTemp = value;
 
     if(curve == _hclCurve && currentState)
     {
@@ -1049,10 +1081,12 @@ void DaliChannel::setHcl(uint8_t curve, uint8_t value)
         return;
     }
 
-    //TODO implement to activate/deactivate brightness for hcl in knxprod
+    if(curve == _hclCurve)
+        _hclCurrentBri = value;
 
     if(curve == _hclCurve && currentState)
     {
+        _hclCurrentBri = value;
         if(_hclIsAlsoOn)
         {
             logDebugP("Setting HCL");

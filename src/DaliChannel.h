@@ -79,6 +79,7 @@ class DaliChannel : public OpenKNX::Channel
 		//HCL
 		uint8_t _hclCurve = 255;
 		uint16_t _hclCurrentTemp = 0;
+		uint8_t _hclCurrentBri = 0;
 		bool _hclIsAlsoOn = false;
 		bool _hclIsAutoMode = true;
 		bool _hclLastState = true; //TOOD remove
@@ -131,6 +132,8 @@ class DaliChannel : public OpenKNX::Channel
 		void koHandleColor(GroupObject &ko);
 		void koHandleColorRel(GroupObject &ko, uint8_t index);
 		void koHandleColorAbs(GroupObject &ko, uint8_t index);
+		void koHandleHclCurve(GroupObject &ko);
+		void koHandleScene(GroupObject &ko);
 
 		void handleSwitchNormal(GroupObject &ko);
 		void handleSwitchStaircase(GroupObject &ko);
