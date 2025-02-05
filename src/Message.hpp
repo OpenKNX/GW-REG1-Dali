@@ -11,7 +11,7 @@ enum class MessageType
 struct Message 
 {
     Message *next;
-    byte *data;
+    //byte *data;
     MessageType type;
     byte para1;
     byte addrtype = 0;

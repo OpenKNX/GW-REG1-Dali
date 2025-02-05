@@ -2,41 +2,76 @@
 #include "OpenKNX.h"
 #include "MessageQueue.h"
 
+void MessageQueue::init()
+{
+    //queue_handle = xQueueCreate(10, sizeof(Message));
+    #ifdef ARDUINO_ARCH_ESP32
+    mutex_handle = xSemaphoreCreateBinary();
+    #else
+    mutex_init(&mutex);
+    #endif
+}
+
 uint8_t MessageQueue::push(Message *msg)
 {
-    while(isLocked) ;
-    isLocked = true;
+#ifdef ARDUINO_ARCH_ESP32
+    xSemaphoreTake(mutex_handle, portMAX_DELAY);
+#else
+    if(!mutex_try_enter_block_until(&mutex, 1000))
+    {
+        logError("Queue", "Mutex timeout");
+        return -1;
+    }
+#endif
 
     msg->next = nullptr;
     if(tail == nullptr)
     {
         head = msg;
         tail = msg;
-        isLocked = false;
+#ifdef ARDUINO_ARCH_ESP32
+        xSemaphoreGive(mutex_handle);
+#else
+        mutex_exit(&mutex);
+#endif
         return msg->id;
     }
 
     tail->next = msg;
     tail = msg;
     lastPush = millis();
-    isLocked = false;
     
+#ifdef ARDUINO_ARCH_ESP32
+    xSemaphoreGive(mutex_handle);
+#else
+    mutex_exit(&mutex);
+#endif
     return msg->id;
 }
 
 bool MessageQueue::pop(Message &msg)
 {
+    if(head == nullptr) return false;
     if(millis() - lastPush < 50) return false;
     if(lastPop != 0 && (millis() - lastPop < 200)) return false;
 
-    unsigned long started = millis();
-    while(isLocked && (millis() - started < 3000)) ;
-    if(isLocked) return false;
-    isLocked = true;
+#ifdef ARDUINO_ARCH_ESP32
+    xSemaphoreTake(mutex_handle, portMAX_DELAY);
+#else
+    if(!mutex_try_enter_block_until(&mutex, 1000))
+    {
+        logError("Queue", "Mutex timeout");
+        return false;
+    }
+#endif
 
     if(head == nullptr)
     {
-        isLocked = false;
+#ifdef ARDUINO_ARCH_ESP32
+        xSemaphoreGive(mutex_handle);
+#else
+        mutex_exit(&mutex);
+#endif
         return false;
     }
     
@@ -46,7 +81,6 @@ bool MessageQueue::pop(Message &msg)
         lastPop = 0;
 
     msg.addrtype = head->addrtype;
-    msg.data = head->data;
     msg.id = head->id;
     msg.para1 = head->para1;
     msg.para2 = head->para2;
@@ -65,7 +99,11 @@ bool MessageQueue::pop(Message &msg)
 
     delete temp;
 
-    isLocked = false;
+#ifdef ARDUINO_ARCH_ESP32
+    xSemaphoreGive(mutex_handle);
+#else
+    mutex_exit(&mutex);
+#endif
     return true;
 }
 

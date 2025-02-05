@@ -46,7 +46,7 @@ void DaliModule::setup(bool conf)
         curves[i].setup(i);
     }
 
-    logDebugP("watchdog %i", ParamBASE_Watchdog);
+    queue.init();
 
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=]
@@ -148,8 +148,6 @@ void DaliModule::setup1(bool conf)
     dali->setActivityCallback([] {
         daliActivity = millis();
     });
-    dali->setActivityCallback([]
-                              { daliActivity = millis(); });
 }
 
 void DaliModule::loop(bool configured)
@@ -891,7 +889,7 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
     uint8_t value = std::stoi(arg.substr(3, 3));
     if (arg.at(0) == 'B')
     {
-        logInfoP("Sending Arc %i to Broadcast");
+        logInfoP("Sending Arc %i to Broadcast", value);
         sendArc(0xFF, value, DaliAddressTypes::GROUP);
     }
     else if (arg.at(0) == 'A')
@@ -1328,14 +1326,12 @@ void DaliModule::funcHandleEvgWrite(uint8_t *data, uint8_t *resultData, uint8_t 
     popWord(tempValue, data + 2);
     logDebugP("set min %3.2f%%", ColorHelper::getFloat(tempValue) * 100);
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, DaliHelper::percentToArc(ColorHelper::getFloat(tempValue) * 100));
-    delay(1);
     sendCmd(data[1], DaliCmd::DTR_AS_MIN);
     channel.setMinArc(DaliHelper::percentToArc(ColorHelper::getFloat(tempValue) * 100));
 
     popWord(tempValue, data + 4);
     logDebugP("set max %3.2f%%", ColorHelper::getFloat(tempValue) * 100);
     sendCmdSpecial(DaliSpecialCmd::SET_DTR, DaliHelper::percentToArc(ColorHelper::getFloat(tempValue) * 100));
-    delay(1);
     sendCmd(data[1], DaliCmd::DTR_AS_MAX);
     channel.setMaxArc(DaliHelper::percentToArc(ColorHelper::getFloat(tempValue) * 100));
 
