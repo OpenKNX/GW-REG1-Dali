@@ -24,7 +24,8 @@ void DaliModule::setCallback(EventHandlerReceivedDataFuncPtr callback)
 void DaliModule::setup(bool conf)
 {
     pinMode(DALI_RX, INPUT);
-
+    queue.init();
+    
     if (!conf)
         return;
 
@@ -45,7 +46,6 @@ void DaliModule::setup(bool conf)
         curves[i].setup(i);
     }
 
-    queue.init();
 
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=]

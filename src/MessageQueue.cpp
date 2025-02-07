@@ -6,7 +6,7 @@ void MessageQueue::init()
 {
     //queue_handle = xQueueCreate(10, sizeof(Message));
     #ifdef ARDUINO_ARCH_ESP32
-    mutex_handle = xSemaphoreCreateBinary();
+    mutex_handle = xSemaphoreCreateMutex();
     #else
     mutex_init(&mutex);
     #endif
@@ -15,7 +15,7 @@ void MessageQueue::init()
 uint8_t MessageQueue::push(Message *msg)
 {
 #ifdef ARDUINO_ARCH_ESP32
-    xSemaphoreTake(mutex_handle, portMAX_DELAY);
+    xQueueSemaphoreTake(mutex_handle, portMAX_DELAY);
 #else
     if(!mutex_try_enter_block_until(&mutex, 1000))
     {
