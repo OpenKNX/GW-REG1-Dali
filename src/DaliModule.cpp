@@ -861,6 +861,15 @@ void DaliModule::cmdHandleStepDown(bool hasArg, std::string arg)
 
 void DaliModule::cmdHandleGetLvl(bool hasArg, std::string arg)
 {
+    if(!hasArg || arg.length() != 2)
+    {
+        logErrorP("Argument is invalid!");
+        logIndentUp();
+        logErrorP("getLvl yy");
+        logErrorP("yy = Address of device (only short address)");
+        logIndentDown();
+        return;
+    }
     uint8_t addr = std::stoi(arg);
     int16_t resp = getInfo(addr, DaliCmd::QUERY_ACTUAL_LEVEL);
     if (resp >= 0)
