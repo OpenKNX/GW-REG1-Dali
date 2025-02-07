@@ -871,6 +871,11 @@ void DaliModule::cmdHandleGetLvl(bool hasArg, std::string arg)
         return;
     }
     uint8_t addr = std::stoi(arg);
+    if(addr > 63)
+    {
+        logErrorP("Short Address is invalid!");
+        return;
+    }
     int16_t resp = getInfo(addr, DaliCmd::QUERY_ACTUAL_LEVEL);
     if (resp >= 0)
         logDebugP("EVG %i has level %i = %.2f %%", addr, resp, DaliHelper::arcToPercentFloat((uint8_t)resp));
