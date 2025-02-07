@@ -158,6 +158,9 @@ class DaliModule : public OpenKNX::Module
 		void cmdHandleArc(bool hasArg, std::string arg);
 		void cmdHandleSet(bool hasArg, std::string arg);
 		void cmdHandleAuto(bool hasArg, std::string arg);
+		void cmdHandleStepUp(bool hasArg, std::string arg);
+		void cmdHandleStepDown(bool hasArg, std::string arg);
+		void cmdHandleGetLvl(bool hasArg, std::string arg);
 
 		void stateHandleType(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);
 		void stateHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength);

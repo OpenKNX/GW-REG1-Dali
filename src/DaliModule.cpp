@@ -805,35 +805,70 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
     }
     if (command == "stepUp")
     {
-        uint8_t value = std::stoi(arg.substr(0, 1));
-        uint8_t addr = std::stoi(arg.substr(1, 2));
-        for (int i = 0; i < value; i++)
-            sendCmd(addr, DaliCmd::STEP_UP);
+        cmdHandleStepUp(hasArg, arg);
         return true;
     }
     if (command == "stepDown")
     {
-        uint8_t value = std::stoi(arg.substr(0, 1));
-        uint8_t addr = std::stoi(arg.substr(1, 2));
-        for (int i = 0; i < value; i++)
-            sendCmd(addr, DaliCmd::STEP_DOWN);
+        cmdHandleStepDown(hasArg, arg);
         return true;
     }
 
     if (command == "getLvl")
     {
-        uint8_t addr = std::stoi(arg);
-        int16_t resp = getInfo(addr, DaliCmd::QUERY_ACTUAL_LEVEL);
-        if (resp >= 0)
-            logDebugP("EVG %i has level %i = %.2f %%", addr, resp, DaliHelper::arcToPercentFloat((uint8_t)resp));
-        else if (resp == -1)
-            logDebugP("EVG %i antwortet nicht", addr);
-        else
-            logDebugP("Fehler beim Auslesen %i", resp);
+        cmdHandleGetLvl(hasArg, arg);
         return true;
     }
 
     return false;
+}
+
+void DaliModule::cmdHandleStepUp(bool hasArg, std::string arg)
+{
+    if(!hasArg || arg.length() != 3)
+    {
+        logErrorP("Argument is invalid!");
+        logIndentUp();
+        logErrorP("stepUp xyy");
+        logErrorP("x =  Count how often to send");
+        logErrorP("yy = Address of device (only short address)");
+        logIndentDown();
+        return;
+    }
+    uint8_t value = std::stoi(arg.substr(0, 1));
+    uint8_t addr = std::stoi(arg.substr(1, 2));
+    for (int i = 0; i < value; i++)
+        sendCmd(addr, DaliCmd::STEP_UP);
+}
+
+void DaliModule::cmdHandleStepDown(bool hasArg, std::string arg)
+{
+    if(!hasArg || arg.length() != 3)
+    {
+        logErrorP("Argument is invalid!");
+        logIndentUp();
+        logErrorP("stepDown xyy");
+        logErrorP("x =  Count how often to send");
+        logErrorP("yy = Address of device (only short address)");
+        logIndentDown();
+        return;
+    }
+    uint8_t value = std::stoi(arg.substr(0, 1));
+    uint8_t addr = std::stoi(arg.substr(1, 2));
+    for (int i = 0; i < value; i++)
+        sendCmd(addr, DaliCmd::STEP_DOWN);
+}
+
+void DaliModule::cmdHandleGetLvl(bool hasArg, std::string arg)
+{
+    uint8_t addr = std::stoi(arg);
+    int16_t resp = getInfo(addr, DaliCmd::QUERY_ACTUAL_LEVEL);
+    if (resp >= 0)
+        logDebugP("EVG %i has level %i = %.2f %%", addr, resp, DaliHelper::arcToPercentFloat((uint8_t)resp));
+    else if (resp == -1)
+        logDebugP("EVG %i antwortet nicht", addr);
+    else
+        logDebugP("Fehler beim Auslesen %i", resp);
 }
 
 void DaliModule::cmdHandleScan(bool hasArg, std::string arg)
@@ -887,6 +922,11 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
     }
 
     uint8_t value = std::stoi(arg.substr(3, 3));
+    if(value > 100)
+    {
+        logErrorP("Value is invalid!");
+        return;
+    }
     if (arg.at(0) == 'B')
     {
         logInfoP("Sending Arc %i to Broadcast", value);
@@ -895,12 +935,22 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
     else if (arg.at(0) == 'A')
     {
         uint8_t addr = std::stoi(arg.substr(1, 2));
+        if(addr > 63)
+        {
+            logErrorP("Short Address is invalid!");
+            return;
+        }
         logInfoP("Sending Arc %i to EVG %i", value, addr);
         sendArc(addr, value, DaliAddressTypes::SHORT);
     }
     else if (arg.at(0) == 'G')
     {
         uint8_t addr = std::stoi(arg.substr(1, 2));
+        if(addr > 15)
+        {
+            logErrorP("Group is invalid!");
+            return;
+        }
         logInfoP("Sending Arc %i to Group %i", value, addr);
         sendArc(addr, value, DaliAddressTypes::GROUP);
     }
@@ -927,6 +977,11 @@ void DaliModule::cmdHandleSet(bool hasArg, std::string arg)
     uint8_t *data = new uint8_t[5];
     uint8_t *resultData = new uint8_t[4];
     data[1] = std::stoi(arg.substr(6, 2));
+    if(data[1] > 63 && data[1] != 99)
+    {
+        logErrorP("Short Address is invalid!");
+        return;
+    }
     data[2] = std::stoi(arg.substr(0, 2), nullptr, 16);
     data[3] = std::stoi(arg.substr(2, 2), nullptr, 16);
     data[4] = std::stoi(arg.substr(4, 2), nullptr, 16);
