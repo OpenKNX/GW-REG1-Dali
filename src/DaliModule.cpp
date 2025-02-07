@@ -48,6 +48,8 @@ void DaliModule::setup(bool conf)
 
     queue.init();
 
+    pinMode(DALI_RX, INPUT);
+
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=]
                                      { 
