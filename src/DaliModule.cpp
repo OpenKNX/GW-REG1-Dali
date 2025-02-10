@@ -493,7 +493,7 @@ void DaliModule::loopAddressing()
         {  // create scope for response variable
         int response = queue.getResponse(_adrResponse);
         if(response == -200) return;
-        printf("Resp compare %i (%i)", response, _adrIterations);
+        printf("Resp compare %i (%i)\n", response, _adrIterations);
         if (response != DALI_RX_EMPTY)
           if (_adrIterations >= 24) // ballast found
           {
@@ -506,7 +506,7 @@ void DaliModule::loopAddressing()
                 _adrState = AddressingState::PROGRAMSHORT;
             } else {
                 _adrState = AddressingState::GETSHORT;
-                sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
+                _adrResponse = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
             }
           }
           else {
