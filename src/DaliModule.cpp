@@ -462,9 +462,10 @@ void DaliModule::loopAddressing()
       case AddressingState::RANDOM2:
         sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
         _adrState = AddressingState::RANDOMWAIT;
+        _adrSearch = millis();
         break;
       case AddressingState::RANDOMWAIT:  // wait 100ms for random address to generate
-        if (dali->busIdleCount() >= 255)
+        if (millis() - _adrSearch > 100) {
           _adrState = AddressingState::STARTSEARCH;
         break;
       case AddressingState::STARTSEARCH:
