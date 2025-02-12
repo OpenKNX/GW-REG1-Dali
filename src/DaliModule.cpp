@@ -485,7 +485,7 @@ void DaliModule::loopAddressing()
         _adrState = AddressingState::COMPARE;
         break;
       case AddressingState::COMPARE:
-        printf("Compare %.6X\n", _adrSearch);
+        delay(20);
         _adrResponse = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
         _adrState = AddressingState::CHECKFOUND;
         break;
@@ -493,7 +493,7 @@ void DaliModule::loopAddressing()
         {  // create scope for response variable
         int response = queue.getResponse(_adrResponse);
         if(response == -200) return;
-        printf("Resp compare %i (%i)\n", response, _adrIterations);
+        // printf("Resp compare %i (%i)\n", response, _adrIterations);
         if (response != DALI_RX_EMPTY)
           if (_adrIterations >= 24) // ballast found
           {
