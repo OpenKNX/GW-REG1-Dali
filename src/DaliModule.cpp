@@ -485,7 +485,6 @@ void DaliModule::loopAddressing()
         _adrState = AddressingState::COMPARE;
         break;
       case AddressingState::COMPARE:
-        delay(20);
         _adrResponse = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
         _adrState = AddressingState::CHECKFOUND;
         break;
