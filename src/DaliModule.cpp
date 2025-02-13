@@ -25,7 +25,7 @@ void DaliModule::setup(bool conf)
 {
     pinMode(DALI_RX, INPUT);
     queue.init();
-    
+
     if (!conf)
         return;
 
@@ -45,7 +45,6 @@ void DaliModule::setup(bool conf)
     {
         curves[i].setup(i);
     }
-
 
 #ifdef FUNC1_BUTTON_PIN
     openknx.func1Button.onShortClick([=]
@@ -144,7 +143,8 @@ void DaliModule::setup1(bool conf)
     {
         _lastDaliError = errorCode;
     });
-    dali->setActivityCallback([] {
+    dali->setActivityCallback([]
+    {
         daliActivity = millis();
     });
 }
@@ -221,7 +221,6 @@ void DaliModule::loopInitData()
     DaliChannel channel = channels[_adrFound];
     _adrFound++;
 
-    //logInfoP("CH%i %s", _adrFound, channel.isConfigured() ? "configured" : "not configured");
     if (channel.isConfigured())
     {
         if (_adrFound == 0)
@@ -257,7 +256,6 @@ void DaliModule::loopInitData()
             logDebugP("CH%i set min to %i", _adrFound - 1, resp);
         }
 
-        //sendCmd(channel.channelIndex(), DaliCmd::OFF, channel.isGroup());
         resp = getInfo(channel.channelIndex(), DaliCmd::QUERY_ACTUAL_LEVEL);
         if (resp < 0)
         {
@@ -411,12 +409,16 @@ void DaliModule::loopMessages()
 
 void DaliModule::loopAddressing()
 {
-  if (dali->busIsIdle()) { // wait until bus is idle
-    switch (_adrState) {
-      case AddressingState::INIT:
-        _adrFound = 0;
-        if(_adrOnlyNew) logInfoP("Searching unaddressed only");
-        else logInfoP("Searching all");
+    if (dali->busIsIdle())
+    { // wait until bus is idle
+        switch (_adrState)
+        {
+        case AddressingState::INIT:
+            _adrFound = 0;
+            if (_adrOnlyNew)
+                logInfoP("Searching unaddressed only");
+            else
+                logInfoP("Searching all");
 
             if (_adrRandomize)
                 logInfoP("Do Randomize");
@@ -433,98 +435,104 @@ void DaliModule::loopAddressing()
             else
                 logInfoP("Not assigning short addresses");
 
-        dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, _adrOnlyNew ? 255 : 0);
-        _adrState = AddressingState::INIT2;
-        break;
-      case AddressingState::INIT2:
-        sendCmdSpecial(DaliSpecialCmd::INITIALISE, _adrOnlyNew ? 255 : 0);
-        if(_adrDeleteAll)
-            _adrState = AddressingState::WRITE_DTR;
-        else
+            dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, _adrOnlyNew ? 255 : 0);
+            _adrState = AddressingState::INIT2;
+            break;
+        case AddressingState::INIT2:
+            sendCmdSpecial(DaliSpecialCmd::INITIALISE, _adrOnlyNew ? 255 : 0);
+            if (_adrDeleteAll)
+                _adrState = AddressingState::WRITE_DTR;
+            else
+                _adrState = (_adrRandomize ? AddressingState::RANDOM : AddressingState::STARTSEARCH);
+            break;
+        case AddressingState::WRITE_DTR:
+            sendCmdSpecial(DaliSpecialCmd::SET_DTR, 255);
+            _adrState = AddressingState::REMOVE_SHORT;
+            break;
+        case AddressingState::REMOVE_SHORT:
+            sendCmd(63, DaliCmd::DTR_AS_SHORT, DaliAddressTypes::GROUP);
+            _adrState = AddressingState::REMOVE_SHORT2;
+            break;
+        case AddressingState::REMOVE_SHORT2:
+            sendCmd(63, DaliCmd::DTR_AS_SHORT, DaliAddressTypes::GROUP);
             _adrState = (_adrRandomize ? AddressingState::RANDOM : AddressingState::STARTSEARCH);
-        break;
-      case AddressingState::WRITE_DTR:
-        sendCmdSpecial(DaliSpecialCmd::SET_DTR, 255);
-        _adrState = AddressingState::REMOVE_SHORT;
-        break;
-      case AddressingState::REMOVE_SHORT:
-        sendCmd(63, DaliCmd::DTR_AS_SHORT, DaliAddressTypes::GROUP);
-        _adrState = AddressingState::REMOVE_SHORT2;
-        break;
-      case AddressingState::REMOVE_SHORT2:
-        sendCmd(63, DaliCmd::DTR_AS_SHORT, DaliAddressTypes::GROUP);
-        _adrState = (_adrRandomize ? AddressingState::RANDOM : AddressingState::STARTSEARCH);
-        break;
-      case AddressingState::RANDOM:
-        sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
-        _adrState = AddressingState::RANDOM2;
-        break;
-      case AddressingState::RANDOM2:
-        sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
-        _adrState = AddressingState::RANDOMWAIT;
-        _adrSearch = millis();
-        break;
-      case AddressingState::RANDOMWAIT:  // wait 100ms for random address to generate
-        if (millis() - _adrSearch > 100) {
-          _adrState = AddressingState::STARTSEARCH;
-        }
-        break;
-      case AddressingState::STARTSEARCH:
-        _adrIterations = 0;
-        _adrSearch = 0xFFFFFF;
-      case AddressingState::SEARCHHIGH:
-        sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, (_adrSearch >> 16) & 0xFF);
-        _adrState = AddressingState::SEARCHMID;
-        break;
-      case AddressingState::SEARCHMID:
-        sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, (_adrSearch >> 8) & 0xFF);
-        _adrState = AddressingState::SEARCHLOW;
-        break;
-      case AddressingState::SEARCHLOW:
-        sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, (_adrSearch) & 0xFF);
-        _adrState = AddressingState::COMPARE;
-        break;
-      case AddressingState::COMPARE:
-        _adrResponse = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
-        _adrState = AddressingState::CHECKFOUND;
-        break;
-      case AddressingState::CHECKFOUND:
-        {  // create scope for response variable
-        int response = queue.getResponse(_adrResponse);
-        if(response == -200) return;
-        // printf("Resp compare %i (%i)\n", response, _adrIterations);
-        if (response != DALI_RX_EMPTY)
-          if (_adrIterations >= 24) // ballast found
-          {
-            logInfoP("Found ballast at %.6X", _adrSearch);
-            ballasts[_adrFound].high = (_adrSearch >> 16) & 0xFF;
-            ballasts[_adrFound].middle = (_adrSearch >> 8) & 0xFF;
-            ballasts[_adrFound].low = _adrSearch & 0xFF;
-            if(_adrAssign)
+            break;
+        case AddressingState::RANDOM:
+            sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
+            _adrState = AddressingState::RANDOM2;
+            break;
+        case AddressingState::RANDOM2:
+            sendCmdSpecial(DaliSpecialCmd::RANDOMISE);
+            _adrState = AddressingState::RANDOMWAIT;
+            _adrSearch = millis();
+            break;
+        case AddressingState::RANDOMWAIT: // wait 100ms for random address to generate
+            if (millis() - _adrSearch > 100)
             {
-                _adrState = AddressingState::PROGRAMSHORT;
-            } else {
-                _adrState = AddressingState::GETSHORT;
-                _adrResponse = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
+                _adrState = AddressingState::STARTSEARCH;
             }
-          }
-          else {
-            _adrSearch -= (0x800000 >> _adrIterations);
-            _adrState = AddressingState::SEARCHHIGH;
-          }
-        else
-          if (_adrIterations == 0 || _adrIterations > 24) // no device at all responded or error
-            _adrState = AddressingState::TERMINATE;
-          else if (_adrIterations == 24) {  // device responded before, but didn't now, so address is one higher
-            _adrSearch++;           // and for the device to act at upcoming commands, we need to send the actual address
-            _adrState = AddressingState::SEARCHHIGH;
-          }
-          else {  // there's a device that didn't respond anymore, increase address
-            _adrSearch += (0x800000 >> _adrIterations);
-            _adrState = AddressingState::SEARCHHIGH;
-          }
-        _adrIterations++;
-        break;
+            break;
+        case AddressingState::STARTSEARCH:
+            _adrIterations = 0;
+            _adrSearch = 0xFFFFFF;
+        case AddressingState::SEARCHHIGH:
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRH, (_adrSearch >> 16) & 0xFF);
+            _adrState = AddressingState::SEARCHMID;
+            break;
+        case AddressingState::SEARCHMID:
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRM, (_adrSearch >> 8) & 0xFF);
+            _adrState = AddressingState::SEARCHLOW;
+            break;
+        case AddressingState::SEARCHLOW:
+            sendCmdSpecial(DaliSpecialCmd::SEARCHADDRL, (_adrSearch) & 0xFF);
+            _adrState = AddressingState::COMPARE;
+            break;
+        case AddressingState::COMPARE:
+            _adrResponse = sendCmdSpecial(DaliSpecialCmd::COMPARE, 0, true);
+            _adrState = AddressingState::CHECKFOUND;
+            break;
+        case AddressingState::CHECKFOUND:
+        { // create scope for response variable
+            int response = queue.getResponse(_adrResponse);
+            if (response == -200)
+                return;
+            // printf("Resp compare %i (%i)\n", response, _adrIterations);
+            if (response != DALI_RX_EMPTY)
+                if (_adrIterations >= 24) // ballast found
+                {
+                    logInfoP("Found ballast at %.6X", _adrSearch);
+                    ballasts[_adrFound].high = (_adrSearch >> 16) & 0xFF;
+                    ballasts[_adrFound].middle = (_adrSearch >> 8) & 0xFF;
+                    ballasts[_adrFound].low = _adrSearch & 0xFF;
+                    if (_adrAssign)
+                    {
+                        _adrState = AddressingState::PROGRAMSHORT;
+                    }
+                    else
+                    {
+                        _adrState = AddressingState::GETSHORT;
+                        _adrResponse = sendCmdSpecial(DaliSpecialCmd::QUERY_SHORT, 0, true);
+                    }
+                }
+                else
+                {
+                    _adrSearch -= (0x800000 >> _adrIterations);
+                    _adrState = AddressingState::SEARCHHIGH;
+                }
+            else if (_adrIterations == 0 || _adrIterations > 24) // no device at all responded or error
+                _adrState = AddressingState::TERMINATE;
+            else if (_adrIterations == 24)
+            {                 // device responded before, but didn't now, so address is one higher
+                _adrSearch++; // and for the device to act at upcoming commands, we need to send the actual address
+                _adrState = AddressingState::SEARCHHIGH;
+            }
+            else
+            { // there's a device that didn't respond anymore, increase address
+                _adrSearch += (0x800000 >> _adrIterations);
+                _adrState = AddressingState::SEARCHHIGH;
+            }
+            _adrIterations++;
+            break;
         }
         case AddressingState::GETSHORT:
         {
@@ -542,52 +550,57 @@ void DaliModule::loopAddressing()
             else
                 logInfoP(" -> has Short Address %i", response >> 1);
 
-        ballasts[_adrFound].address = response >> 1;
-        _adrFound++;
-        _adrState = AddressingState::WITHDRAW;
+            ballasts[_adrFound].address = response >> 1;
+            _adrFound++;
+            _adrState = AddressingState::WITHDRAW;
+            break;
         }
-        break;
-      case AddressingState::PROGRAMSHORT:
-        _adrNew = 0;
-        while(addresses[_adrNew] == true)
-            _adrNew++;
-        sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, (_adrNew << 1) | 1);
-        ballasts[_adrFound].address = _adrNew;
-        addresses[_adrNew] = true;
-        _adrFound++;
-        _adrState = AddressingState::VERIFYSHORT;
-        break;
-      case AddressingState::VERIFYSHORT:
-        _adrResponse = sendCmdSpecial(DaliSpecialCmd::VERIFYSHORT, (_adrNew << 1) | 1, true);
-        _adrState = AddressingState::VERIFYSHORTRESPONSE;
-        break;
-      case AddressingState::VERIFYSHORTRESPONSE:
-        int response = queue.getResponse(_adrResponse);
-        if (response == -200)
-            return;
-        if ((response & 0xFF) == 0xFF) {
-          _adrState = AddressingState::WITHDRAW;
-          logErrorP(" -> new address %i", _adrNew);
-        } else {
-          // error, stop commissioning
-          _adrState = AddressingState::TERMINATE;
-          logErrorP(" -> error setting address %i", _adrNew);
+        case AddressingState::PROGRAMSHORT:
+            _adrNew = 0;
+            while (addresses[_adrNew] == true)
+                _adrNew++;
+            sendCmdSpecial(DaliSpecialCmd::PROGRAMSHORT, (_adrNew << 1) | 1);
+            ballasts[_adrFound].address = _adrNew;
+            addresses[_adrNew] = true;
+            _adrFound++;
+            _adrState = AddressingState::VERIFYSHORT;
+            break;
+        case AddressingState::VERIFYSHORT:
+            _adrResponse = sendCmdSpecial(DaliSpecialCmd::VERIFYSHORT, (_adrNew << 1) | 1, true);
+            _adrState = AddressingState::VERIFYSHORTRESPONSE;
+            break;
+        case AddressingState::VERIFYSHORTRESPONSE:
+        {
+            int response = queue.getResponse(_adrResponse);
+            if (response == -200)
+                return;
+            if ((response & 0xFF) == 0xFF)
+            {
+                _adrState = AddressingState::WITHDRAW;
+                logErrorP(" -> new address %i", _adrNew);
+            }
+            else
+            {
+                // error, stop commissioning
+                _adrState = AddressingState::TERMINATE;
+                logErrorP(" -> error setting address %i", _adrNew);
+            }
+            break;
         }
-        break;
-      case AddressingState::WITHDRAW:
-        sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
-        _adrState = AddressingState::STARTSEARCH;
-        break;
-      case AddressingState::TERMINATE:
-        sendCmdSpecial(DaliSpecialCmd::TERMINATE);
-        _adrState = AddressingState::OFF;
-        logInfoP("Found %i ballasts", _adrFound);
-        break;
-      case AddressingState::SEARCHSHORT:
-        sendCmd(_adrFound, DaliCmd::QUERY_ACTUAL_LEVEL, true);
-        _adrState = AddressingState::CHECKSEARCHSHORT;
-        break;
-      case AddressingState::CHECKSEARCHSHORT:
+        case AddressingState::WITHDRAW:
+            sendCmdSpecial(DaliSpecialCmd::WITHDRAW);
+            _adrState = AddressingState::STARTSEARCH;
+            break;
+        case AddressingState::TERMINATE:
+            sendCmdSpecial(DaliSpecialCmd::TERMINATE);
+            _adrState = AddressingState::OFF;
+            logInfoP("Found %i ballasts", _adrFound);
+            break;
+        case AddressingState::SEARCHSHORT:
+            sendCmd(_adrFound, DaliCmd::QUERY_ACTUAL_LEVEL, true);
+            _adrState = AddressingState::CHECKSEARCHSHORT;
+            break;
+        case AddressingState::CHECKSEARCHSHORT:
         {
             int response = dali->busGetLastResponse();
             addresses[_adrFound] = response >= 0;
@@ -601,13 +614,17 @@ void DaliModule::loopAddressing()
 
 void DaliModule::loopAssigning()
 {
-  if (dali->busIsIdle()) { // wait until bus is idle
-    switch (_assState) {
-      case AssigningState::INIT:
-        _adrFound = 0;
-        _adrAssign = false;
-        if(_adrOnlyNew) logInfoP("Searching unaddressed only");
-        else logInfoP("Searching all");
+    if (dali->busIsIdle())
+    { // wait until bus is idle
+        switch (_assState)
+        {
+        case AssigningState::INIT:
+            _adrFound = 0;
+            _adrAssign = false;
+            if (_adrOnlyNew)
+                logInfoP("Searching unaddressed only");
+            else
+                logInfoP("Searching all");
 
             if (_adrRandomize)
                 logInfoP("Do Randomize");
@@ -619,107 +636,111 @@ void DaliModule::loopAssigning()
             else
                 logInfoP("Keeping all short addresses");
 
-        dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, 0);
-        _assState = AssigningState::INIT2;
-        break;
-      case AssigningState::INIT2:
-        dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, 0);
-        _assState = AssigningState::QUERY;
-        break;
-      case AssigningState::QUERY:
-        dali->sendCmd(_adrNew, DaliCmd::QUERY_ACTUAL_LEVEL);
-        _assState = AssigningState::CHECKQUERY;
-        break;
-      case AssigningState::CHECKQUERY:
-        {  // create scope for response variable
-        int response = dali->busGetLastResponse();
-        if(response == DALI_RX_EMPTY)
-        {
-            logInfoP("Short Address is free");
-            _assState = AssigningState::STARTSEARCH;
-        } else {
-            logInfoP("Short Address is in use");
+            dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, 0);
+            _assState = AssigningState::INIT2;
+            break;
+        case AssigningState::INIT2:
+            dali->sendSpecialCmd(DaliSpecialCmd::INITIALISE, 0);
+            _assState = AssigningState::QUERY;
+            break;
+        case AssigningState::QUERY:
+            dali->sendCmd(_adrNew, DaliCmd::QUERY_ACTUAL_LEVEL);
+            _assState = AssigningState::CHECKQUERY;
+            break;
+        case AssigningState::CHECKQUERY:
+        { // create scope for response variable
+            int response = dali->busGetLastResponse();
+            if (response == DALI_RX_EMPTY)
+            {
+                logInfoP("Short Address is free");
+                _assState = AssigningState::STARTSEARCH;
+            }
+            else
+            {
+                logInfoP("Short Address is in use");
+                _assState = AssigningState::OFF;
+            }
+            break;
+        }
+        case AssigningState::STARTSEARCH:
+            _adrSearch--;
+        case AssigningState::SEARCHHIGH:
+            dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRH, (_adrSearch >> 16) & 0xFF);
+            _assState = AssigningState::SEARCHMID;
+            break;
+        case AssigningState::SEARCHMID:
+            dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRM, (_adrSearch >> 8) & 0xFF);
+            _assState = AssigningState::SEARCHLOW;
+            break;
+        case AssigningState::SEARCHLOW:
+            dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRL, (_adrSearch) & 0xFF);
+            _assState = AssigningState::COMPARE;
+            break;
+        case AssigningState::COMPARE:
+            dali->sendSpecialCmd(DaliSpecialCmd::COMPARE);
+            if (_adrAssign)
+            {
+                _assState = AssigningState::CHECKFOUND;
+            }
+            else
+            {
+                _assState = AssigningState::WITHDRAW;
+            }
+            break;
+        case AssigningState::WITHDRAW:
+            dali->sendSpecialCmd(DaliSpecialCmd::WITHDRAW);
+            if (!_adrAssign)
+            {
+                _adrSearch++;
+                _adrAssign = true;
+                _assState = AssigningState::SEARCHHIGH;
+            }
+            else
+            {
+            }
+            break;
+        case AssigningState::CHECKFOUND:
+        { // create scope for response variable
+            int response = dali->busGetLastResponse();
+            if (response == DALI_RX_EMPTY)
+            {
+                logInfoP("Long Address does not exist");
+                _assState = AssigningState::OFF;
+            }
+            else
+            {
+                logInfoP("Long Address does exist");
+                _assState = AssigningState::PROGRAMSHORT;
+            }
+            break;
+        }
+        case AssigningState::PROGRAMSHORT:
+            dali->sendSpecialCmd(DaliSpecialCmd::PROGRAMSHORT, (_adrNew << 1) | 1);
+            ballasts[_adrFound].address = _adrNew;
+            _assState = AssigningState::VERIFYSHORT;
+            break;
+        case AssigningState::VERIFYSHORT:
+            dali->sendSpecialCmd(DaliSpecialCmd::VERIFYSHORT, (_adrNew << 1) | 1);
+            _assState = AssigningState::VERIFYSHORTRESPONSE;
+            break;
+        case AssigningState::VERIFYSHORTRESPONSE:
+            if (dali->busGetLastResponse() == 0xFF)
+            {
+                logErrorP(" -> new address %i", _adrNew);
+            }
+            else
+            {
+                // error, stop commissioning
+                logErrorP(" -> error setting address %i", _adrNew);
+            }
+            _assState = AssigningState::TERMINATE;
+            break;
+        case AssigningState::TERMINATE:
+            dali->sendSpecialCmd(DaliSpecialCmd::TERMINATE);
             _assState = AssigningState::OFF;
+            break;
         }
-        break;
-        }
-      case AssigningState::STARTSEARCH:
-        _adrSearch--;
-      case AssigningState::SEARCHHIGH:
-      logInfoP("searchh");
-        dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRH, (_adrSearch >> 16) & 0xFF);
-        _assState = AssigningState::SEARCHMID;
-        break;
-      case AssigningState::SEARCHMID:
-      logInfoP("searchm");
-        dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRM, (_adrSearch >> 8) & 0xFF);
-        _assState = AssigningState::SEARCHLOW;
-        break;
-      case AssigningState::SEARCHLOW:
-      logInfoP("searchl");
-        dali->sendSpecialCmd(DaliSpecialCmd::SEARCHADDRL, (_adrSearch) & 0xFF);
-        _assState = AssigningState::COMPARE;
-        break;
-      case AssigningState::COMPARE:
-      logInfoP("compare");
-        dali->sendSpecialCmd(DaliSpecialCmd::COMPARE);
-        if(_adrAssign)
-        {
-            _assState = AssigningState::CHECKFOUND;
-        } else {
-            _assState = AssigningState::WITHDRAW;
-        }
-        break;
-      case AssigningState::WITHDRAW:
-      logInfoP("withdraw");
-        dali->sendSpecialCmd(DaliSpecialCmd::WITHDRAW);
-        if(!_adrAssign)
-        {
-            _adrSearch++;
-            _adrAssign = true;
-            _assState = AssigningState::SEARCHHIGH;
-        } else {
-
-        }
-        break;
-      case AssigningState::CHECKFOUND:
-        {  // create scope for response variable
-        int response = dali->busGetLastResponse();
-        logInfoP("resp %i", response);
-        if(response == DALI_RX_EMPTY)
-        {
-            logInfoP("Long Address does not exist");
-            _assState = AssigningState::OFF;
-        } else {
-            logInfoP("Long Address does exist");
-            _assState = AssigningState::PROGRAMSHORT;
-        }
-        break;
-        }
-      case AssigningState::PROGRAMSHORT:
-        dali->sendSpecialCmd(DaliSpecialCmd::PROGRAMSHORT, (_adrNew << 1) | 1);
-        ballasts[_adrFound].address = _adrNew;
-        _assState = AssigningState::VERIFYSHORT;
-        break;
-      case AssigningState::VERIFYSHORT:
-        dali->sendSpecialCmd(DaliSpecialCmd::VERIFYSHORT, (_adrNew << 1) | 1);
-        _assState = AssigningState::VERIFYSHORTRESPONSE;
-        break;
-      case AssigningState::VERIFYSHORTRESPONSE:
-        if (dali->busGetLastResponse() == 0xFF) {
-          logErrorP(" -> new address %i", _adrNew);
-        } else {
-          // error, stop commissioning
-          logErrorP(" -> error setting address %i", _adrNew);
-        }
-        _assState = AssigningState::TERMINATE;
-        break;
-      case AssigningState::TERMINATE:
-        dali->sendSpecialCmd(DaliSpecialCmd::TERMINATE);
-        _assState = AssigningState::OFF;
-        break;
     }
-  }
 }
 
 void DaliModule::loopBusState()
@@ -829,7 +850,7 @@ bool DaliModule::processCommand(const std::string cmd, bool diagnoseKo)
 
 void DaliModule::cmdHandleStepUp(bool hasArg, std::string arg)
 {
-    if(!hasArg || arg.length() != 3)
+    if (!hasArg || arg.length() != 3)
     {
         logErrorP("Argument is invalid!");
         logIndentUp();
@@ -847,7 +868,7 @@ void DaliModule::cmdHandleStepUp(bool hasArg, std::string arg)
 
 void DaliModule::cmdHandleStepDown(bool hasArg, std::string arg)
 {
-    if(!hasArg || arg.length() != 3)
+    if (!hasArg || arg.length() != 3)
     {
         logErrorP("Argument is invalid!");
         logIndentUp();
@@ -865,7 +886,7 @@ void DaliModule::cmdHandleStepDown(bool hasArg, std::string arg)
 
 void DaliModule::cmdHandleGetLvl(bool hasArg, std::string arg)
 {
-    if(!hasArg || arg.length() != 2)
+    if (!hasArg || arg.length() != 2)
     {
         logErrorP("Argument is invalid!");
         logIndentUp();
@@ -875,7 +896,7 @@ void DaliModule::cmdHandleGetLvl(bool hasArg, std::string arg)
         return;
     }
     uint8_t addr = std::stoi(arg);
-    if(addr > 63)
+    if (addr > 63)
     {
         logErrorP("Short Address is invalid!");
         return;
@@ -940,7 +961,7 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
     }
 
     uint8_t value = std::stoi(arg.substr(3, 3));
-    if(value > 100)
+    if (value > 100)
     {
         logErrorP("Value is invalid!");
         return;
@@ -953,7 +974,7 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
     else if (arg.at(0) == 'A')
     {
         uint8_t addr = std::stoi(arg.substr(1, 2));
-        if(addr > 63)
+        if (addr > 63)
         {
             logErrorP("Short Address is invalid!");
             return;
@@ -964,7 +985,7 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
     else if (arg.at(0) == 'G')
     {
         uint8_t addr = std::stoi(arg.substr(1, 2));
-        if(addr > 15)
+        if (addr > 15)
         {
             logErrorP("Group is invalid!");
             return;
@@ -995,7 +1016,7 @@ void DaliModule::cmdHandleSet(bool hasArg, std::string arg)
     uint8_t *data = new uint8_t[5];
     uint8_t *resultData = new uint8_t[4];
     data[1] = std::stoi(arg.substr(6, 2));
-    if(data[1] > 63 && data[1] != 99)
+    if (data[1] > 63 && data[1] != 99)
     {
         logErrorP("Short Address is invalid!");
         return;
@@ -1011,7 +1032,7 @@ void DaliModule::cmdHandleSet(bool hasArg, std::string arg)
 
 void DaliModule::processInputKo(GroupObject &ko)
 {
-    //logDebugP("Received Ko %i", ko.asap());
+    // logDebugP("Received Ko %i", ko.asap());
     if (_adrState != AddressingState::OFF || _currentLockState)
         return;
 
@@ -1019,7 +1040,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     if (koNum >= ADR_KoOffset && koNum < ADR_KoOffset + ADR_KoBlockSize * 64)
     {
         int index = floor((koNum - ADR_KoOffset) / ADR_KoBlockSize);
-        //logDebugP("For Channel %i", index);
+        // logDebugP("For Channel %i", index);
         channels[index].processInputKo(ko);
         return;
     }
@@ -1028,7 +1049,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     {
         int index = floor((koNum - GRP_KoOffset) / GRP_KoBlockSize);
         int chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
-        //logDebugP("For Group %i", index);
+        // logDebugP("For Group %i", index);
         groups[index].processInputKo(ko);
 
         if (chanIndex == GRP_Koswitch_state)
@@ -1051,7 +1072,7 @@ void DaliModule::processInputKo(GroupObject &ko)
     {
         int index = floor((koNum - HCL_KoOffset) / HCL_KoBlockSize);
         int chanIndex = (ko.asap() - GRP_KoOffset) % GRP_KoBlockSize;
-        //logDebugP("For HCL %i - Ko %i", index, chanIndex);
+        // logDebugP("For HCL %i - Ko %i", index, chanIndex);
 
         switch (chanIndex)
         {

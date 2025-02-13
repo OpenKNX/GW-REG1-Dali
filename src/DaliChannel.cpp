@@ -268,36 +268,42 @@ uint16_t DaliChannel::calcKoNumber(int asap)
 
 uint8_t DaliChannel::sendArc(byte v)
 {
+    uint8_t newid = _queue.getNextId();
     Message *msg = new Message();
-    msg->id = _queue.getNextId();
+    msg->id = newid;
     msg->type = MessageType::Arc;
     msg->para1 = _channelIndex;
     msg->para2 = v;
     msg->addrtype = _isGroup;
-    return _queue.push(msg);
+    _queue.push(msg);
+    return newid;
 }
 
 uint8_t DaliChannel::sendCmd(byte cmd, bool wait)
 {
+    uint8_t newid = _queue.getNextId();
     Message *msg = new Message();
-    msg->id = _queue.getNextId();
+    msg->id = newid;
     msg->type = MessageType::Cmd;
     msg->para1 = _channelIndex;
     msg->para2 = cmd;
     msg->addrtype = _isGroup;
     msg->wait = wait;
-    return _queue.push(msg);
+    _queue.push(msg);
+    return newid;
 }
 
 uint8_t DaliChannel::sendSpecialCmd(DaliSpecialCmd cmd, byte value)
 {
+    uint8_t newid = _queue.getNextId();
     Message *msg = new Message();
-    msg->id = _queue.getNextId();
+    msg->id = newid;
     msg->type = MessageType::SpecialCmd;
     msg->para1 = static_cast<uint8_t>(cmd);
     msg->para2 = value;
     msg->addrtype = _isGroup;
-    return _queue.push(msg);
+    _queue.push(msg);
+    return newid;
 }
 
 void DaliChannel::processInputKo(GroupObject &ko)
