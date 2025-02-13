@@ -558,11 +558,14 @@ void DaliModule::loopAddressing()
         _adrState = AddressingState::VERIFYSHORT;
         break;
       case AddressingState::VERIFYSHORT:
-        sendCmdSpecial(DaliSpecialCmd::VERIFYSHORT, (_adrNew << 1) | 1, true);
+        _adrResponse = sendCmdSpecial(DaliSpecialCmd::VERIFYSHORT, (_adrNew << 1) | 1, true);
         _adrState = AddressingState::VERIFYSHORTRESPONSE;
         break;
       case AddressingState::VERIFYSHORTRESPONSE:
-        if (dali->busGetLastResponse() == 0xFF) {
+        int response = queue.getResponse(_adrResponse);
+        if (response == -200)
+            return;
+        if ((response & 0xFF) == 0xFF) {
           _adrState = AddressingState::WITHDRAW;
           logErrorP(" -> new address %i", _adrNew);
         } else {
