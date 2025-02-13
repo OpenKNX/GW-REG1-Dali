@@ -532,7 +532,6 @@ void DaliModule::loopAddressing()
             int response = queue.getResponse(_adrResponse);
             if (response == -200)
                 return;
-            logInfoP("Resp getshort %i", response);
             if (response < 0)
             {
                 logErrorP("Dali Error %i", response);
@@ -1877,49 +1876,57 @@ void DaliModule::stateHandleFoundEVGs(uint8_t *data, uint8_t *resultData, uint8_
 
 uint8_t DaliModule::sendArc(byte addr, byte value, byte type)
 {
+    uint8_t newid = queue.getNextId();
     Message *msg = new Message();
-    msg->id = queue.getNextId();
+    msg->id = newid;
     msg->type = MessageType::Arc;
     msg->para1 = addr;
     msg->para2 = DaliHelper::percentToArc(value);
     msg->addrtype = type;
-    return queue.push(msg);
+    queue.push(msg);
+    return newid;
 }
 
 uint8_t DaliModule::sendCmd(byte addr, byte value, byte type, bool wait)
 {
+    uint8_t newid = queue.getNextId();
     Message *msg = new Message();
-    msg->id = queue.getNextId();
+    msg->id = newid;
     msg->type = MessageType::Cmd;
     msg->para1 = addr;
     msg->para2 = value;
     msg->addrtype = type;
     msg->wait = wait;
-    return queue.push(msg);
+    queue.push(msg);
+    return newid;
 }
 
 uint8_t DaliModule::sendCmdSpecial(DaliSpecialCmd command, byte value, bool wait)
 {
+    uint8_t newid = queue.getNextId();
     Message *msg = new Message();
-    msg->id = queue.getNextId();
+    msg->id = newid;
     msg->type = MessageType::SpecialCmd;
     msg->para1 = static_cast<uint8_t>(command);
     msg->para2 = value;
     msg->addrtype = 0;
     msg->wait = wait;
-    return queue.push(msg);
+    queue.push(msg);
+    return newid;
 }
 
 uint8_t DaliModule::sendMsg(MessageType t, byte p1, byte p2, byte type, bool wait)
 {
+    uint8_t newid = queue.getNextId();
     Message *msg = new Message();
-    msg->id = queue.getNextId();
+    msg->id = newid;
     msg->type = t;
     msg->para1 = p1;
     msg->para2 = p2;
     msg->addrtype = type;
     msg->wait = wait;
-    return queue.push(msg);
+    queue.push(msg);
+    return newid;
 }
 
 DaliModule openknxDaliModule;

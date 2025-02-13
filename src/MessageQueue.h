@@ -12,7 +12,7 @@ class MessageQueue
 {
 	public:
         void init();
-        uint8_t push(Message *msg);
+        void push(Message *msg);
         bool pop(Message &msg);
         uint8_t getNextId();
         void setResponse(uint8_t id, int16_t value);

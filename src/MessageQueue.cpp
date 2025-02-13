@@ -12,7 +12,7 @@ void MessageQueue::init()
     #endif
 }
 
-uint8_t MessageQueue::push(Message *msg)
+void MessageQueue::push(Message *msg)
 {
 #ifdef ARDUINO_ARCH_ESP32
     xQueueSemaphoreTake(mutex_handle, portMAX_DELAY);
@@ -20,7 +20,7 @@ uint8_t MessageQueue::push(Message *msg)
     if(!mutex_try_enter_block_until(&mutex, 1000))
     {
         logError("Queue", "Mutex timeout");
-        return -1;
+        return;
     }
 #endif
 
@@ -34,7 +34,7 @@ uint8_t MessageQueue::push(Message *msg)
 #else
         mutex_exit(&mutex);
 #endif
-        return msg->id;
+        return;
     }
 
     tail->next = msg;
@@ -46,7 +46,6 @@ uint8_t MessageQueue::push(Message *msg)
 #else
     mutex_exit(&mutex);
 #endif
-    return msg->id;
 }
 
 bool MessageQueue::pop(Message &msg)
