@@ -903,11 +903,11 @@ void DaliModule::cmdHandleGetLvl(bool hasArg, std::string arg)
     }
     int16_t resp = getInfo(addr, DaliCmd::QUERY_ACTUAL_LEVEL);
     if (resp >= 0)
-        logDebugP("EVG %i has level %i = %.2f %%", addr, resp, DaliHelper::arcToPercentFloat((uint8_t)resp));
+        logInfoP("EVG %i has level %i = %.2f %%", addr, resp, DaliHelper::arcToPercentFloat((uint8_t)resp));
     else if (resp == -1)
-        logDebugP("EVG %i antwortet nicht", addr);
+        logErrorP("EVG %i antwortet nicht", addr);
     else
-        logDebugP("Fehler beim Auslesen %i", resp);
+        logErrorP("Fehler beim Auslesen %i", resp);
 }
 
 void DaliModule::cmdHandleScan(bool hasArg, std::string arg)
