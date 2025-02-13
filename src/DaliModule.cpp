@@ -577,7 +577,7 @@ void DaliModule::loopAddressing()
             if ((response & 0xFF) == 0xFF)
             {
                 _adrState = AddressingState::WITHDRAW;
-                logErrorP(" -> new address %i", _adrNew);
+                logInfoP(" -> new address %i", _adrNew);
             }
             else
             {
@@ -726,7 +726,7 @@ void DaliModule::loopAssigning()
         case AssigningState::VERIFYSHORTRESPONSE:
             if (dali->busGetLastResponse() == 0xFF)
             {
-                logErrorP(" -> new address %i", _adrNew);
+                logInfoP(" -> new address %i", _adrNew);
             }
             else
             {
