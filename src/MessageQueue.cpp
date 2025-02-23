@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "OpenKNX.h"
 #include "MessageQueue.h"
+#include "time.h"
 
 void MessageQueue::init()
 {
@@ -17,11 +18,12 @@ void MessageQueue::push(Message *msg)
 #ifdef ARDUINO_ARCH_ESP32
     xQueueSemaphoreTake(mutex_handle, portMAX_DELAY);
 #else
-    if(!mutex_try_enter_block_until(&mutex, 1000))
-    {
-        logError("Queue", "Mutex timeout");
-        return;
-    }
+    mutex_enter_blocking(&mutex);
+    // if(!mutex_try_enter_block_until(&mutex, 1000))
+    // {
+    //     logError("Queue", "Mutex timeout");
+    //     return;
+    // }
 #endif
 
     msg->next = nullptr;
@@ -57,11 +59,12 @@ bool MessageQueue::pop(Message &msg)
 #ifdef ARDUINO_ARCH_ESP32
     xSemaphoreTake(mutex_handle, portMAX_DELAY);
 #else
-    if(!mutex_try_enter_block_until(&mutex, 1000))
-    {
-        logError("Queue", "Mutex timeout");
-        return false;
-    }
+    mutex_enter_blocking(&mutex);
+    // if(!mutex_try_enter_block_until(&mutex, 1000))
+    // {
+    //     logError("Queue", "Mutex timeout");
+    //     return false;
+    // }
 #endif
 
     if(head == nullptr)
