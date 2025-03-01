@@ -1167,10 +1167,18 @@ void DaliModule::koHandleDimm(GroupObject &ko)
     dali->sendArcBroadcast(value);
 
     for (int i = 0; i < 64; i++)
+    {
+        if(!channels[i].isConfigured())
+            continue;
         channels[i].setGroupState(0xFFFF, value);
+    }
 
     for (int i = 0; i < 16; i++)
+    {
+        if(!groups[i].isConfigured())
+            continue;
         groups[i].setGroupState(0xFFFF, value);
+    }
 }
 
 void DaliModule::koHandleDayNight(GroupObject &ko)
