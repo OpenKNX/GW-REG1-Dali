@@ -1104,33 +1104,33 @@ void DaliModule::processInputKo(GroupObject &ko)
 
     switch (koNum)
     {
-    // broadcast switch
-    case APP_Kobroadcast_switch:
-        koHandleSwitch(ko);
-        break;
+        // broadcast switch
+        case APP_Kobroadcast_switch:
+            koHandleSwitch(ko);
+            break;
 
-    // broadcast dimm absolute
-    case APP_Kobroadcast_dimm:
-        koHandleDimm(ko);
-        break;
+        // broadcast dimm absolute
+        case APP_Kobroadcast_dimm:
+            koHandleDimm(ko);
+            break;
 
-    // Tag/Nacht Objekt
-    case APP_Kodaynight:
-        koHandleDayNight(ko);
-        break;
+        // Tag/Nacht Objekt
+        case APP_Kodaynight:
+            koHandleDayNight(ko);
+            break;
 
-    // Set OnValue Day
-    case APP_KoonValue:
-        koHandleOnValue(ko);
-        break;
+        // Set OnValue Day
+        case APP_KoonValue:
+            koHandleOnValue(ko);
+            break;
 
-    case APP_Koscene:
-        koHandleScene(ko);
-        break;
+        case APP_Koscene:
+            koHandleScene(ko);
+            break;
 
-    default:
-        logDebugP("unhandled KO: %i", ko.asap());
-        break;
+        default:
+            logDebugP("unhandled KO: %i", ko.asap());
+            break;
     }
 }
 
@@ -1141,10 +1141,21 @@ void DaliModule::koHandleSwitch(GroupObject &ko)
     dali->sendArcBroadcast(value ? 0xFE : 0x00);
 
     for (int i = 0; i < 64; i++)
+    {
+        logDebugP("%i: %u - %u", i, openknx.common.freeStackMin(), openknx.common.freeMemoryMin());
+        if(!channels[i].isConfigured())
+            continue;
         channels[i].setGroupState(0xFFFF, value);
+    }
 
     for (int i = 0; i < 16; i++)
+    {
+        logDebugP("%i: %u - %u", i,  openknx.common.freeStackMin(), openknx.common.freeMemoryMin());
+        if(!groups[i].isConfigured())
+            continue;
         groups[i].setGroupState(0xFFFF, value);
+    }
+    logDebugP("Broadcast Switch set");
 }
 
 void DaliModule::koHandleDimm(GroupObject &ko)

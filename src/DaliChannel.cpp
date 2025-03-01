@@ -945,13 +945,13 @@ void DaliChannel::setSwitchState(bool value, bool isSwitchCommand)
         currentStep = toSet;
     }
 
-    logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
+    //logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
     if(!value && (_isGroup ? ParamGRP_hcl_auto_off : ParamADR_hcl_auto_off))
         _hclIsAutoMode = true;
 
-    logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
+    // logDebugP("AutoConfSwitch %i %i %i", value, ParamADR_hcl_auto_off, _hclIsAutoMode);
 
-    bool currentState = knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Koswitch_state : ADR_Koswitch_state)).value(DPT_Switch);
+    // bool currentState = knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Koswitch_state : ADR_Koswitch_state)).value(DPT_Switch);
     // if (value == currentState)
     //     return;
     knx.getGroupObject(calcKoNumber(_isGroup ? GRP_Koswitch_state : ADR_Koswitch_state)).value(value, DPT_Switch);
