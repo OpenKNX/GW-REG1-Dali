@@ -1,7 +1,7 @@
 #include "DaliChannel.h"
 #include "OpenKNX.h"
 
-DaliChannel::DaliChannel(MessageQueue &queue) : _queue(queue) {}
+DaliChannel::DaliChannel(Dali::Master &_daliMaster) : daliMaster(_daliMaster) {}
 
 DaliChannel::~DaliChannel() {}
 
@@ -120,7 +120,7 @@ void DaliChannel::loopStaircase()
         {
             logDebugP("Zeit abgelaufen");
             currentState = false;
-            sendArc(0x00);
+            daliMaster.sendArc(_channelIndex, 0x00, _isGroup);
             setSwitchState(false);
         }
     }
@@ -135,7 +135,7 @@ void DaliChannel::loopDimming()
             if (_dimmDirection == DimmDirection::Up)
             {
                 if (currentDimmType == DimmType::Brigthness)
-                    sendCmd(DaliCmd::ON_AND_STEP_UP);
+                    daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_UP, _isGroup);
                 *currentDimmValue = *currentDimmValue + 1;
                 if (*currentDimmValue == 254)
                 {
@@ -156,9 +156,9 @@ void DaliChannel::loopDimming()
                     uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
                     if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
                     {
-                        sendCmd(DaliCmd::STEP_DOWN);
+                        daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_DOWN, _isGroup);
                     } else {
-                        sendCmd(DaliCmd::STEP_DOWN_AND_OFF);
+                        daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_DOWN_AND_OFF, _isGroup);
                     }
                 }
                     
@@ -193,36 +193,47 @@ void DaliChannel::loopError()
 {
     if (!_isGroup && _getError)
     {
-        if (_errorResp != 300)
-        {
-            int16_t resp = _queue.getResponse(_errorResp);
-            if (resp == -200)
-                return;
-            if (resp == -1)
-                resp = 1;
-                logErrorP("EVG hat Anwtort %i %i", resp, _errorResp);
-            _errorResp = 300;
-            if (resp < 0)
-                return;
-
-            resp = resp & 0b11;
-            bool val = knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(Dpt(1, 1));
-            _errorState = val != 0;
-            if (val != resp)
-                knx.getGroupObject(calcKoNumber(ADR_Koerror)).value((val != 0), DPT_Switch);
-
-            if(_errorState)
-            {
-                logErrorP("EVG hat ein Fehler");
-            }
-        }
-
         if (millis() - _lastError > 60000)
         {
-            _errorResp = sendCmd(DaliCmd::QUERY_STATUS, true);
+            _errorResp = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_STATUS, false, true);
             _lastError = millis();
             logDebugP("EVG abfragen %i", _errorResp);
+            return;
         }
+        if(_errorResp == 0)
+            return; // we did not send a query
+
+        Dali::Response response = daliMaster.getResponse(_errorResp);
+        if(response.state == Dali::ResponseState::NOT_REGISTERED)
+        {
+            // There is no response we can wait for
+            _errorResp = 0;
+            return;
+        }
+        if(response.state == Dali::ResponseState::SENT || response.state == Dali::ResponseState::WAITING)
+            return; // no answer yet
+        
+        if(response.state == Dali::ResponseState::NO_ANSWER)
+        {
+            logErrorP("EVG hat nicht geantwortet");
+            _errorState = true;
+        }
+        else
+        {
+            logDebugP("EVG hat geantwortet");
+            _errorState = false;
+        }
+
+        bool val = knx.getGroupObject(calcKoNumber(ADR_Koerror)).value(Dpt(1, 1));
+        _errorState = val != 0;
+        if (val != _errorState)
+            knx.getGroupObject(calcKoNumber(ADR_Koerror)).value((val != 0), DPT_Switch);
+
+        if(_errorState)
+        {
+            logErrorP("EVG hat ein Fehler");
+        }
+        _errorResp = 0;
     }
 }
 
@@ -236,25 +247,40 @@ void DaliChannel::loopQueryLevel()
         _lastValueQuery = millis();
         if(_lastValueQuery == 0) _lastValueQuery++;
 
-        _queryId = sendCmd(DaliCmd::QUERY_ACTUAL_LEVEL, true);
+        _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, false, true);
         logDebugP("id: %i", _queryId);
         return;
     }
     if(_queryId != 0)
     {
-        int16_t resp = _queue.getResponse(_queryId);
-        if(millis() - _lastValueQuery > 500)
+        Dali::Response response = daliMaster.getResponse(_queryId);
+        if(response.state == Dali::ResponseState::NOT_REGISTERED)
         {
-            logErrorP("Got no answer %i", _queryId);
+            // There is no response we can wait for
             _queryId = 0;
             return;
         }
-        if(resp == -200) return;
-        logDebugP("answer: %i", resp);
-        _queryId = 0;
-        if(resp < 0) return;
-        logDebugP("Got new actual level %i-%i", DaliHelper::arcToPercent(resp), resp);
-        setDimmState(resp, false, true);
+        if(response.state == Dali::ResponseState::SENT || response.state == Dali::ResponseState::WAITING)
+            return; // no answer yet
+        if(response.state == Dali::ResponseState::NO_ANSWER)
+        {
+            logErrorP("EVG hat nicht geantwortet");
+            _queryId = 0;
+            return;
+        }
+        else
+        {
+            _queryId = 0;
+            if(response.frame.flags & DALI_FRAME_ERROR)
+            {
+                logErrorP("EVG hat ein Fehler");
+                return;
+            } else {
+                uint8_t data = response.frame.data & 0xFF;
+                logDebugP("Got new actual level %i%%-%i", DaliHelper::arcToPercent(data), data);
+                setDimmState(data, false, true);
+            }
+        }
     }
 }
 
@@ -264,46 +290,6 @@ uint16_t DaliChannel::calcKoNumber(int asap)
         return asap + (GRP_KoBlockSize * _channelIndex) + GRP_KoOffset;
 
     return asap + (ADR_KoBlockSize * _channelIndex) + ADR_KoOffset;
-}
-
-uint8_t DaliChannel::sendArc(byte v)
-{
-    uint8_t newid = _queue.getNextId();
-    Message *msg = new Message();
-    msg->id = newid;
-    msg->type = MessageType::Arc;
-    msg->para1 = _channelIndex;
-    msg->para2 = v;
-    msg->addrtype = _isGroup;
-    _queue.push(msg);
-    return newid;
-}
-
-uint8_t DaliChannel::sendCmd(byte cmd, bool wait)
-{
-    uint8_t newid = _queue.getNextId();
-    Message *msg = new Message();
-    msg->id = newid;
-    msg->type = MessageType::Cmd;
-    msg->para1 = _channelIndex;
-    msg->para2 = cmd;
-    msg->addrtype = _isGroup;
-    msg->wait = wait;
-    _queue.push(msg);
-    return newid;
-}
-
-uint8_t DaliChannel::sendSpecialCmd(DaliSpecialCmd cmd, byte value)
-{
-    uint8_t newid = _queue.getNextId();
-    Message *msg = new Message();
-    msg->id = newid;
-    msg->type = MessageType::SpecialCmd;
-    msg->para1 = static_cast<uint8_t>(cmd);
-    msg->para2 = value;
-    msg->addrtype = _isGroup;
-    _queue.push(msg);
-    return newid;
 }
 
 void DaliChannel::processInputKo(GroupObject &ko)
@@ -428,7 +414,7 @@ void DaliChannel::koHandleScene(GroupObject &ko)
         return;
     }
 
-    sendCmd(DaliCmd::GO_TO_SCENE | number);
+    daliMaster.sendCommand(_channelIndex, Dali::Command::GO_TO_SCENE | number, _isGroup);
 }
 
 void DaliChannel::koHandleColorRel(GroupObject &ko, uint8_t index)
@@ -519,7 +505,7 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
-        sendArc(onValue);
+        daliMaster.sendArc(_channelIndex, onValue, _isGroup);
         if(_hclCurve != 255 && _hclIsAutoMode)
             setTemperature(_hclCurrentTemp);
         setDimmState(onValue, true);
@@ -527,7 +513,7 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
     else
     {
         logDebugP("Ausschalten");
-        sendArc(0x00);
+        daliMaster.sendArc(_channelIndex, 0x00, _isGroup);
         setSwitchState(false);
     }
     currentState = value;
@@ -558,7 +544,7 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
         uint8_t onValue = isNight ? _onNight : _onDay;
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
-        sendArc(onValue);
+        daliMaster.sendArc(_channelIndex, onValue, _isGroup);
         if(_hclCurve != 255 && _hclIsAutoMode)
             setTemperature(_hclCurrentTemp);
         setDimmState(DaliHelper::percentToArc(onValue));
@@ -573,7 +559,7 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
         }
 
         logDebugP("Ausschalten");
-        sendArc(0x00);
+        daliMaster.sendArc(_channelIndex, 0x00, _isGroup);
         setSwitchState(false);
         currentState = false;
     }
@@ -643,7 +629,7 @@ void DaliChannel::koHandleDimmAbs(GroupObject &ko)
     uint8_t value = ko.value(Dpt(5, 1));
     logDebugP("Dimmen Absolut auf %i%%", value);
     uint8_t arc = DaliHelper::percentToArc(value);
-    sendArc(arc);
+    daliMaster.sendArc(_channelIndex, arc, _isGroup);
     setDimmState(arc, true, true);
 }
 
@@ -711,7 +697,7 @@ void DaliChannel::koHandleLock(GroupObject &ko)
     }
     }
     logDebugP("%i - %i", behavevalue, DaliHelper::percentToArc(behavevalue));
-    sendArc(behavevalue);
+    daliMaster.sendArc(_channelIndex, behavevalue, _isGroup);
     setDimmState(DaliHelper::percentToArc(behavevalue));
 }
 
@@ -834,26 +820,17 @@ void DaliChannel::setTemperature(uint16_t value)
     logDebugP("Set Kelvin: %i K", value);
     uint16_t mirek = 1000000.0 / value;
     //TODO check the colorType and then set RGB or TW or do nothing if it is no color Device
-    sendSpecialCmd(DaliSpecialCmd::SET_DTR, mirek & 0xFF);
-    //logDebugP("t5");
-    sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (mirek >> 8) & 0xFF);
-    //logDebugP("t4");
-    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-    //logDebugP("t3");
-    sendCmd(DaliCmdExtendedDT8::SET_TEMP_COLOUR_TEMPERATURE);
-    //logDebugP("t2");
-    sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-    //logDebugP("t1");
-    sendCmd(DaliCmdExtendedDT8::ACTIVATE);
-
+    daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, mirek & 0xFF);
+    daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (mirek >> 8) & 0xFF);
+    daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_COLOUR_TEMPERATURE);
+    daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE);
     sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(7, 600));
 }
 
 void DaliChannel::setBrightness(uint8_t value)
 {
     logDebugP("Set Brightness: %i %%", value);
-    //TODO implement it...
-    sendArc(DaliHelper::percentToArc(value));
+    daliMaster.sendArc(_channelIndex, DaliHelper::percentToArc(value), _isGroup);
     sendKoStateOnChange(ADR_Kodimm_state, value, Dpt(5, 1));
 }
 
@@ -885,13 +862,11 @@ void DaliChannel::sendColor()
     // send as rgb
     case PT_colorSpace_rgb:
     {
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR, r);
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR1, g);
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR2, b);
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::SET_TEMP_RGB_LEVEL);
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::ACTIVATE);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, r);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, g);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR2, b);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_RGB_LEVEL);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE);
         break;
     }
 
@@ -910,18 +885,15 @@ void DaliChannel::sendColor()
             ColorHelper::rgbToXY(r, g, b, x, y);
         }
 
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR, x & 0xFF);
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (x >> 8) & 0xFF);
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::SET_COORDINATE_X);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, x & 0xFF);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (x >> 8) & 0xFF);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_COORDINATE_X);
 
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR, y & 0xFF);
-        sendSpecialCmd(DaliSpecialCmd::SET_DTR1, (y >> 8) & 0xFF);
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::SET_COORDINATE_Y);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, y & 0xFF);
+        daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (y >> 8) & 0xFF);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_COORDINATE_Y);
 
-        sendSpecialCmd(DaliSpecialCmd::ENABLE_DT, 8);
-        sendCmd(DaliCmdExtendedDT8::ACTIVATE);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE);
         break;
     }
     }

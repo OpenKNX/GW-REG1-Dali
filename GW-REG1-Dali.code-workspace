@@ -4,7 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "lib/arduino-dali"
+			"path": "lib/dali"
 		},
 		{
 			"path": "lib/knx"
@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "lib/OFM-TimerModule"
+		},
+		{
+			"path": "lib/OGM-HardwareConfig"
 		}
 	],
 	"settings": {

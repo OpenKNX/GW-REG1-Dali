@@ -1,10 +1,9 @@
 #pragma once
 
 #include "OpenKNX.h"
-#include "Dali.h"
-#include "MessageQueue.h"
+#include "dali/Master.h"
+#include "dali/Commands.h"
 #include "colorhelper.h"
-#include "DaliCommands.h"
 #include "DaliHelper.h"
 
 #define DimmInterval 100
@@ -13,7 +12,7 @@
 class DaliChannel : public OpenKNX::Channel
 {
 	public:
-        DaliChannel(MessageQueue &queue);
+        DaliChannel(Dali::Master &master);
         ~DaliChannel();
 
 		void loop() override;
@@ -54,7 +53,7 @@ class DaliChannel : public OpenKNX::Channel
 			Color
 		};
 
-		MessageQueue &_queue;
+		Dali::Master &daliMaster;
 
 		//relatives Dimmen
 		DimmDirection _dimmDirection = DimmDirection::None;
@@ -86,7 +85,7 @@ class DaliChannel : public OpenKNX::Channel
 		//EVG Fehler auslesen
 		bool _getError = false;
 		bool _errorState = false;
-		uint16_t _errorResp = 300;
+		uint32_t _errorResp = 0;
 		unsigned long _lastError = 40000;
 		//Aktueller Status
 		bool currentState = false;
@@ -98,7 +97,7 @@ class DaliChannel : public OpenKNX::Channel
 		uint8_t currentColor[4];
 
 		//Aktueller Status abfragen
-		uint8_t _queryId = 0;
+		uint32_t _queryId = 0;
 		uint16_t _queryInterval = 0;
 		unsigned long _lastValueQuery = 0;
 
@@ -114,9 +113,6 @@ class DaliChannel : public OpenKNX::Channel
 		void loopStaircase();
 		void loopQueryLevel();
 		uint16_t calcKoNumber(int asap);
-		uint8_t sendArc(byte value);
-		uint8_t sendCmd(byte cmd, bool wait = false);
-		uint8_t sendSpecialCmd(DaliSpecialCmd cmd, byte value);
 		void setSwitchState(bool value, bool isSwitchCommand = true);
 		void setDimmState(uint8_t value, bool isDimmCommand = true, bool isLastCommand = false);
 		void updateCurrentDimmValue();
