@@ -1,6 +1,6 @@
 ------- Built with -------
 80c79e9 v1dev lib/knx https://github.com/OpenKNX/knx.git
-2669301 v1 lib/OFM-FileTransferModule https://github.com/OpenKNX/OFM-FileTransferModule.git
+2669301 v1dev lib/OFM-FileTransferModule https://github.com/OpenKNX/OFM-FileTransferModule.git
 eb510dd master lib/OFM-TimerModule https://github.com/thewhobox/OFM-TimerModule
 fee07dc v1dev lib/OGM-Common https://github.com/OpenKNX/OGM-Common.git
 1234567 app-layer lib/dali https://github.com/OpenKNX/dali.git
