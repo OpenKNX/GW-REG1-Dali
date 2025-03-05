@@ -185,7 +185,6 @@ void DaliModule::loop(bool configured)
 
 void DaliModule::loop1(bool configured)
 {
-    loopMessages();
     if (_adrState != AddressingState::OFF)
         return;
 

@@ -85,7 +85,6 @@ class DaliModule : public OpenKNX::Module
 		
 		void loopAddressing();
 		void loopAssigning();
-		void loopMessages();
 		void loopBusState();
 		void loopInitData();
 		void loopGroupState();
