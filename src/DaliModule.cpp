@@ -144,6 +144,7 @@ bool __isr __time_critical_func(daliTimerInterruptCallback)(repeating_timer *t)
 
 void DaliModule::loop(bool configured)
 {
+    daliMaster.process();
     if (openknxTimerModule.minuteChanged())
     {
         openknxTimerModule.clearMinuteChanged();
