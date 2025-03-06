@@ -124,8 +124,8 @@ bool __isr __time_critical_func(daliTimerInterruptCallback)(repeating_timer *t)
 }
 #endif
 
-void DaliModule::setup1(bool conf)
-{
+// void DaliModule::setup1(bool conf)
+// {
 //     dali = new DaliClass();
 //     dali->begin(DALI_TX, DALI_RX);
 // #ifdef DALI_NO_TIMER
@@ -140,7 +140,7 @@ void DaliModule::setup1(bool conf)
 //     {
 //         daliActivity = millis();
 //     });
-}
+// }
 
 void DaliModule::loop(bool configured)
 {
@@ -161,6 +161,8 @@ void DaliModule::loop(bool configured)
         loopAssigning();
         return;
     }
+    
+    loopBusState();
 
     // TODO remove if scan moved to core1
     if (!configured)
@@ -176,37 +178,38 @@ void DaliModule::loop(bool configured)
     for (int i = 0; i < 64; i++)
     {
         channels[i].loop();
-    }
-    for (int i = 0; i < 16; i++)
-    {
-        groups[i].loop();
-    }
-}
-
-void DaliModule::loop1(bool configured)
-{
-    if (_adrState != AddressingState::OFF)
-        return;
-
-    loopBusState();
-
-    if (!configured)
-        return;
-
-    loopGroupState();
-#ifdef INFO2_LED_PIN
-    loopError();
-#endif
-
-    for (int i = 0; i < 64; i++)
-    {
         channels[i].loop1();
     }
     for (int i = 0; i < 16; i++)
     {
+        groups[i].loop();
         groups[i].loop1();
     }
 }
+
+// void DaliModule::loop1(bool configured)
+// {
+//     if (_adrState != AddressingState::OFF)
+//         return;
+
+
+//     if (!configured)
+//         return;
+
+//     loopGroupState();
+// #ifdef INFO2_LED_PIN
+//     loopError();
+// #endif
+
+//     for (int i = 0; i < 64; i++)
+//     {
+//         channels[i].loop1();
+//     }
+//     for (int i = 0; i < 16; i++)
+//     {
+//         groups[i].loop1();
+//     }
+// }
 
 void DaliModule::loopInitData()
 {

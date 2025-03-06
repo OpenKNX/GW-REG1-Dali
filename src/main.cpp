@@ -23,12 +23,12 @@ void setup()
 	openknx.addModule(3, openknxFileTransferModule);
 	openknx.setup();
 
-#ifdef ARDUINO_ARCH_RP2040
-	setup0ready = true;
+// #ifdef ARDUINO_ARCH_RP2040
+// 	setup0ready = true;
 
-	while(!setup1ready)
-		delay(1);
-#endif
+// 	while(!setup1ready)
+// 		delay(1);
+// #endif
 }
 
 void loop()
@@ -36,27 +36,27 @@ void loop()
 	openknx.loop();
 }
 
-#ifdef ARDUINO_ARCH_RP2040
-void setup1()
-{
-	while(!setup0ready)
-		delay(1);
-	openknxDaliModule.setup1(knx.configured());
-	setup1ready = true;
-}
+// #ifdef ARDUINO_ARCH_RP2040
+// void setup1()
+// {
+// 	while(!setup0ready)
+// 		delay(1);
+// 	openknxDaliModule.setup1(knx.configured());
+// 	setup1ready = true;
+// }
 
-void loop1()
-{
-	openknxDaliModule.loop1(knx.configured());
-}
-#elif defined(ARDUINO_ARCH_ESP32)
-void setup1()
-{
-	openknx.setup1();
-}
+// void loop1()
+// {
+// 	openknxDaliModule.loop1(knx.configured());
+// }
+// #elif defined(ARDUINO_ARCH_ESP32)
+// void setup1()
+// {
+// 	openknx.setup1();
+// }
 
-void loop1()
-{
-	openknx.loop1();
-}
-#endif
+// void loop1()
+// {
+// 	openknx.loop1();
+// }
+// #endif
