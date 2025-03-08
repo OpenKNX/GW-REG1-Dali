@@ -320,6 +320,7 @@ int16_t DaliModule::getInfo(byte address, uint8_t command, uint8_t additional)
 
     while (resp.state == Dali::ResponseState::WAITING || resp.state == Dali::ResponseState::SENT)
     {
+        daliMaster.process();
         resp = daliMaster.getResponse(respId);
 
         if(resp.state == Dali::ResponseState::NO_ANSWER)
@@ -371,6 +372,7 @@ void DaliModule::loopAddressing()
                 logInfoP("Not assigning short addresses");
 
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::INITIALISE, _adrOnlyNew ? 255 : 0);
+
             _adrState = AddressingState::INIT2;
             break;
         case AddressingState::INIT2:
@@ -971,6 +973,7 @@ void DaliModule::cmdHandleArc(bool hasArg, std::string arg)
         logErrorP("Value is invalid!");
         return;
     }
+    value = DaliHelper::percentToArc(value);
     if (arg.at(0) == 'B')
     {
         logInfoP("Sending Arc %i to Broadcast", value);
