@@ -372,11 +372,6 @@ void DaliModule::loopAddressing()
                 logInfoP("Not assigning short addresses");
 
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::INITIALISE, _adrOnlyNew ? 255 : 0);
-
-            _adrState = AddressingState::INIT2;
-            break;
-        case AddressingState::INIT2:
-            daliMaster.sendSpecialCommand(Dali::SpecialCommand::INITIALISE, _adrOnlyNew ? 255 : 0);
             if (_adrDeleteAll)
                 _adrState = AddressingState::WRITE_DTR;
             else
@@ -395,10 +390,6 @@ void DaliModule::loopAddressing()
             _adrState = (_adrRandomize ? AddressingState::RANDOM : AddressingState::STARTSEARCH);
             break;
         case AddressingState::RANDOM:
-            daliMaster.sendSpecialCommand(Dali::SpecialCommand::RANDOMISE);
-            _adrState = AddressingState::RANDOM2;
-            break;
-        case AddressingState::RANDOM2:
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::RANDOMISE);
             _adrState = AddressingState::RANDOMWAIT;
             _adrSearch = millis();
@@ -623,10 +614,6 @@ void DaliModule::loopAssigning()
             else
                 logInfoP("Keeping all short addresses");
 
-            daliMaster.sendSpecialCommand(Dali::SpecialCommand::INITIALISE);
-            _assState = AssigningState::INIT2;
-            break;
-        case AssigningState::INIT2:
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::INITIALISE);
             _assState = AssigningState::QUERY;
             break;

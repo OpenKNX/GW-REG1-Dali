@@ -47,7 +47,6 @@ class DaliModule : public OpenKNX::Module
 			REMOVE_SHORT,
 			REMOVE_SHORT2,
 			RANDOM,
-			RANDOM2,
 			RANDOMWAIT,
 			STARTSEARCH,
 			SEARCHHIGH,
@@ -67,7 +66,6 @@ class DaliModule : public OpenKNX::Module
 		enum class AssigningState {
 			OFF,
 			INIT,
-			INIT2,
 			QUERY,
 			CHECKQUERY,
 			STARTSEARCH,
