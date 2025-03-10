@@ -599,21 +599,6 @@ void DaliModule::loopAssigning()
         case AssigningState::INIT:
             _adrFound = 0;
             _adrAssign = false;
-            if (_adrOnlyNew)
-                logInfoP("Searching unaddressed only");
-            else
-                logInfoP("Searching all");
-
-            if (_adrRandomize)
-                logInfoP("Do Randomize");
-            else
-                logInfoP("Don't Randomize");
-
-            if (_adrDeleteAll)
-                logInfoP("Delete all short addresses");
-            else
-                logInfoP("Keeping all short addresses");
-
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::INITIALISE);
             _assState = AssigningState::QUERY;
             break;
@@ -633,25 +618,19 @@ void DaliModule::loopAssigning()
             {
                 logInfoP("Short Address is in use");
                 _assState = AssigningState::OFF;
+                _assResponse = AssigningResponse::NOT_FREE;
             }
             else
             {
                 logInfoP("Short Address is free");
+                _adrSearch--;
                 _assState = AssigningState::STARTSEARCH;
             }
             break;
         }
         case AssigningState::STARTSEARCH:
-            _adrSearch--;
-        case AssigningState::SEARCHHIGH:
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::SEARCHADDRH, (_adrSearch >> 16) & 0xFF);
-            _assState = AssigningState::SEARCHMID;
-            break;
-        case AssigningState::SEARCHMID:
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::SEARCHADDRM, (_adrSearch >> 8) & 0xFF);
-            _assState = AssigningState::SEARCHLOW;
-            break;
-        case AssigningState::SEARCHLOW:
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::SEARCHADDRL, (_adrSearch) & 0xFF);
             _assState = AssigningState::COMPARE;
             break;
@@ -669,16 +648,9 @@ void DaliModule::loopAssigning()
             break;
         case AssigningState::WITHDRAW:
             daliMaster.sendSpecialCommand(Dali::SpecialCommand::WITHDRAW);
-            if (!_adrAssign)
-            {
-                _adrSearch++;
-                _adrAssign = true;
-                _assState = AssigningState::SEARCHHIGH;
-            }
-            else
-            {
-                // TODO which state?
-            }
+            _adrSearch++;
+            _adrAssign = true;
+            _assState = AssigningState::STARTSEARCH;
             break;
         case AssigningState::CHECKFOUND:
         { // create scope for response variable
@@ -690,13 +662,14 @@ void DaliModule::loopAssigning()
             }
             else if(response.state == Dali::ResponseState::RECEIVED)
             {
-                logInfoP("Short Address does exist");
+                logInfoP("Long Address does exist");
                 _assState = AssigningState::PROGRAMSHORT;
             }
             else
             {
-                logInfoP("Short Address does not exist");
+                logInfoP("Long Address does not exist");
                 _assState = AssigningState::OFF;
+                _assResponse = AssigningResponse::NO_RESPONSE_LONG;
             }
             break;
         }
@@ -720,11 +693,13 @@ void DaliModule::loopAssigning()
             else if(response.state == Dali::ResponseState::RECEIVED)
             {
                 logInfoP(" -> new address %i", _adrNew);
+                _assResponse = AssigningResponse::SUCCESS;
             }
             else
             {
                 // error, stop commissioning
                 logErrorP(" -> error setting address %i", _adrNew);
+                _assResponse = AssigningResponse::FAILED;
             }
             _assState = AssigningState::TERMINATE;
             break;
@@ -1839,7 +1814,8 @@ bool DaliModule::processFunctionPropertyState(uint8_t objectIndex, uint8_t prope
 void DaliModule::stateHandleAssign(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)
 {
     resultData[0] = (uint8_t)(_adrState == AddressingState::OFF); // ? AssigningState::Success : AssigningState::Working);
-    resultLength = 1;
+    resultData[1] = (uint8_t)_assResponse;
+    resultLength = 2;
 }
 
 void DaliModule::stateHandleScanAndAddress(uint8_t *data, uint8_t *resultData, uint8_t &resultLength)

@@ -69,9 +69,6 @@ class DaliModule : public OpenKNX::Module
 			QUERY,
 			CHECKQUERY,
 			STARTSEARCH,
-			SEARCHHIGH,
-			SEARCHMID,
-			SEARCHLOW,
 			COMPARE,
 			CHECKFOUND,
 			WITHDRAW,
@@ -79,6 +76,13 @@ class DaliModule : public OpenKNX::Module
 			VERIFYSHORT,
 			VERIFYSHORTRESPONSE,
 			TERMINATE
+		};
+		enum class AssigningResponse {
+			SUCCESS,
+			NOT_FREE,
+			NO_RESPONSE,
+			NO_RESPONSE_LONG,
+			FAILED
 		};
 		
 		void loopAddressing();
@@ -99,6 +103,7 @@ class DaliModule : public OpenKNX::Module
 	
 		AddressingState _adrState = AddressingState::OFF;
 		AssigningState _assState = AssigningState::OFF;
+		AssigningResponse _assResponse = AssigningResponse::SUCCESS;
 		Ballast ballasts[64];
 		bool addresses[64];
 		int _adrFound = 0;
