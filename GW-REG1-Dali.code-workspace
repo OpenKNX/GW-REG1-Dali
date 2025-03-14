@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "lib/OGM-HardwareConfig"
+		},
+		{
+			"path": "lib/OFM-Network"
 		}
 	],
 	"settings": {

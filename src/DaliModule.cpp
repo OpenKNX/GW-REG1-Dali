@@ -1688,7 +1688,7 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
                 logDebugP("mirek %i", mirek);
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, mirek & 0xFF);
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (mirek >> 8) & 0xFF);
-                daliMaster.sendExtendedCommand(addr, 0x08, Dali::ExtendedCommandDT8::STORE_COLOUR_TEMPERATURE_LIMIT, type);
+                daliMaster.sendExtendedCommand(addr, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_COLOUR_TEMPERATURE, type);
             }
             else
             { // it is RGB

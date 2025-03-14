@@ -55,10 +55,10 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x07
+#define MAIN_ApplicationVersion 0x08
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 2106
-#define MAIN_MaxKoNumber 1602
+#define MAIN_ParameterSize 2200
+#define MAIN_MaxKoNumber 1609
 
 
 #define APP_daynight		0x0000
@@ -100,23 +100,27 @@
 //-----Module specific starts
 #define BASE_Share_ParamBlockOffset 2
 #define BASE_Share_ParamBlockSize 45
-#define SCE_ParamBlockOffset 47
+#define NET_Share_ParamBlockOffset 47
+#define NET_Share_ParamBlockSize 94
+#define SCE_ParamBlockOffset 141
 #define SCE_ParamBlockSize 4
-#define ADR_ParamBlockOffset 303
+#define ADR_ParamBlockOffset 397
 #define ADR_ParamBlockSize 23
-#define GRP_ParamBlockOffset 1775
+#define GRP_ParamBlockOffset 1869
 #define GRP_ParamBlockSize 19
-#define HCL_ParamBlockOffset 2079
+#define HCL_ParamBlockOffset 2173
 #define HCL_ParamBlockSize 9
 #define BASE_Share_KoOffset 6
-#define BASE_Share_KoBlockSize 6
-#define SCE_KoOffset 12
+#define BASE_Share_KoBlockSize 13
+#define NET_Share_KoOffset 19
+#define NET_Share_KoBlockSize 0
+#define SCE_KoOffset 19
 #define SCE_KoBlockSize 0
-#define ADR_KoOffset 12
+#define ADR_KoOffset 19
 #define ADR_KoBlockSize 20
-#define GRP_KoOffset 1292
+#define GRP_KoOffset 1299
 #define GRP_KoBlockSize 19
-#define HCL_KoOffset 1596
+#define HCL_KoOffset 1603
 #define HCL_KoBlockSize 2
 
 //-----Module: adresse
@@ -730,7 +734,7 @@
 #define KoHCL_bri_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + HCL_Kobri_state)
 #define KoHCL_bri_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + HCL_Kobri_state)
 
-//-----Module: Common Share
+//-----Module: COmmon Share
 #define BASE_StartupDelayBase		0x0000
 #define BASE_StartupDelayBase_Shift	6
 #define BASE_StartupDelayBase_Mask	0x0003
@@ -793,6 +797,9 @@
 #define BASE_HeartbeatExtended		0x000D
 // UnionOffset: 13, ParaOffset: 0, BitOffset: 3, Size: 1 Bit, Text: Erweitertes "In Betrieb"
 #define ParamBASE_HeartbeatExtended knx.paramBit((BASE_Share_ParamBlockOffset + BASE_HeartbeatExtended), 3)
+#define BASE_InternalTime		0x000D
+// UnionOffset: 13, ParaOffset: 0, BitOffset: 4, Size: 1 Bit, Text: InternalTime
+#define ParamBASE_InternalTime knx.paramBit((BASE_Share_ParamBlockOffset + BASE_InternalTime), 4)
 #define BASE_ManualSave		0x000D
 #define BASE_ManualSave_Mask	0x0007
 // UnionOffset: 13, ParaOffset: 0, BitOffset: 5, Size: 3 Bit, Text: Manuelles speichern
@@ -800,22 +807,70 @@
 #define BASE_PeriodicSave		0x000E
 // UnionOffset: 13, ParaOffset: 1, Size: 8 Bit (1 Byte), Text: Zyklisches speichern
 #define ParamBASE_PeriodicSave ((uint32_t)((knx.paramByte((BASE_Share_ParamBlockOffset + BASE_PeriodicSave)))))
-//!< Number: 0, Text: In Betrieb, Function: Zyklisch
-#define BASE_KoHeartbeat 0
+//!< Number: 1, Text: In Betrieb, Function: Zyklisch
+#define BASE_KoHeartbeat 1
 #define KoBASE_Heartbeat knx.getGroupObject(BASE_KoHeartbeat + BASE_Share_KoOffset)
-//!< Number: 1, Text: Uhrzeit/Datum, Function: Eingang
-#define BASE_KoTime 1
+//!< Number: 2, Text: Uhrzeit/Datum, Function: Eingang
+#define BASE_KoTime 2
 #define KoBASE_Time knx.getGroupObject(BASE_KoTime + BASE_Share_KoOffset)
-//!< Number: 2, Text: Datum, Function: Eingang
-#define BASE_KoDate 2
+//!< Number: 3, Text: Datum, Function: Eingang
+#define BASE_KoDate 3
 #define KoBASE_Date knx.getGroupObject(BASE_KoDate + BASE_Share_KoOffset)
-//!< Number: 3, Text: Diagnose, Function: Diagnoseobjekt
-#define BASE_KoDiagnose 3
+//!< Number: 7, Text: Diagnose, Function: Diagnoseobjekt
+#define BASE_KoDiagnose 7
 #define KoBASE_Diagnose knx.getGroupObject(BASE_KoDiagnose + BASE_Share_KoOffset)
-//!< Number: 4, Text: Sommerzeit aktiv, Function: Eingang
-#define BASE_KoIsSummertime 4
+//!< Number: 10, Text: Sommerzeit aktiv, Function: Eingang
+#define BASE_KoIsSummertime 10
 #define KoBASE_IsSummertime knx.getGroupObject(BASE_KoIsSummertime + BASE_Share_KoOffset)
-//!< Number: 5, Text: Speichern, Function: Eingang
-#define BASE_KoManualSave 5
+//!< Number: 11, Text: Speichern, Function: Eingang
+#define BASE_KoManualSave 11
 #define KoBASE_ManualSave knx.getGroupObject(BASE_KoManualSave + BASE_Share_KoOffset)
+//!< Number: 12, Text: Uhrzeit/Datum, Function: Ausgang
+#define BASE_KoDateTime 12
+#define KoBASE_DateTime knx.getGroupObject(BASE_KoDateTime + BASE_Share_KoOffset)
+
+//-----Module: Network Share
+#define NET_HostName		0x0000
+// Offset: 0, Size: 192 Bit (24 Byte), Text: Hostname
+#define ParamNET_HostName knx.paramData((NET_Share_ParamBlockOffset + NET_HostName))
+#define NET_HostAddress		0x0018
+// UnionOffset: 24, ParaOffset: 0, Size: 32 Bit (4 Byte), Text: IP-Adresse
+#define ParamNET_HostAddress knx.paramInt((NET_Share_ParamBlockOffset + NET_HostAddress))
+#define NET_SubnetMask		0x001C
+// UnionOffset: 24, ParaOffset: 4, Size: 32 Bit (4 Byte), Text: Subnetzsmaske
+#define ParamNET_SubnetMask knx.paramInt((NET_Share_ParamBlockOffset + NET_SubnetMask))
+#define NET_GatewayAddress		0x0020
+// UnionOffset: 24, ParaOffset: 8, Size: 32 Bit (4 Byte), Text: Standardgateway
+#define ParamNET_GatewayAddress knx.paramInt((NET_Share_ParamBlockOffset + NET_GatewayAddress))
+#define NET_NameserverAddress		0x0024
+// UnionOffset: 24, ParaOffset: 12, Size: 32 Bit (4 Byte), Text: Nameserver
+#define ParamNET_NameserverAddress knx.paramInt((NET_Share_ParamBlockOffset + NET_NameserverAddress))
+#define NET_CustomHostname		0x0028
+// UnionOffset: 40, ParaOffset: 0, Size: 1 Bit, Text: Hostname anpassen
+#define ParamNET_CustomHostname knx.paramBit((NET_Share_ParamBlockOffset + NET_CustomHostname), 0)
+#define NET_StaticIP		0x0028
+// UnionOffset: 40, ParaOffset: 0, BitOffset: 1, Size: 1 Bit, Text: DHCP
+#define ParamNET_StaticIP knx.paramBit((NET_Share_ParamBlockOffset + NET_StaticIP), 1)
+#define NET_mDNS		0x0029
+// UnionOffset: 41, ParaOffset: 0, Size: 1 Bit, Text: mDNS
+#define ParamNET_mDNS knx.paramBit((NET_Share_ParamBlockOffset + NET_mDNS), 0)
+#define NET_HTTP		0x0029
+// UnionOffset: 41, ParaOffset: 0, BitOffset: 1, Size: 1 Bit, Text: Weberver
+#define ParamNET_HTTP knx.paramBit((NET_Share_ParamBlockOffset + NET_HTTP), 1)
+#define NET_NTP		0x0029
+// UnionOffset: 41, ParaOffset: 0, BitOffset: 2, Size: 1 Bit, Text: NTP-Client
+#define ParamNET_NTP knx.paramBit((NET_Share_ParamBlockOffset + NET_NTP), 2)
+#define NET_OTAUpdate		0x0029
+#define NET_OTAUpdate_Shift	3
+#define NET_OTAUpdate_Mask	0x0003
+// UnionOffset: 41, ParaOffset: 0, BitOffset: 3, Size: 2 Bit, Text: OTA-Update
+#define ParamNET_OTAUpdate ((uint32_t)((knx.paramByte((NET_Share_ParamBlockOffset + NET_OTAUpdate)) >> NET_OTAUpdate_Shift) & NET_OTAUpdate_Mask))
+#define NET_LanMode		0x002A
+#define NET_LanMode_Shift	4
+#define NET_LanMode_Mask	0x000F
+// UnionOffset: 42, ParaOffset: 0, Size: 4 Bit, Text: LAN-Modus
+#define ParamNET_LanMode ((uint32_t)((knx.paramByte((NET_Share_ParamBlockOffset + NET_LanMode)) >> NET_LanMode_Shift) & NET_LanMode_Mask))
+#define NET_NTPServer		0x002B
+// UnionOffset: 43, ParaOffset: 0, Size: 400 Bit (50 Byte), Text: Zeitserver
+#define ParamNET_NTPServer knx.paramData((NET_Share_ParamBlockOffset + NET_NTPServer))
 
