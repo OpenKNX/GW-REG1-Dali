@@ -37,6 +37,8 @@ class DaliModule : public OpenKNX::Module
 
 		bool processFunctionProperty(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
 		bool processFunctionPropertyState(uint8_t objectIndex, uint8_t propertyId, uint8_t length, uint8_t *data, uint8_t *resultData, uint8_t &resultLength) override;
+
+		Dali::Master daliMaster;
 		
 	private:
 		enum class AddressingState {
@@ -125,7 +127,6 @@ class DaliModule : public OpenKNX::Module
 		bool _daliBusState = true;
 		bool _daliBusStateToSet = true;
 		unsigned long _daliStateLast = 1;
-		Dali::Master daliMaster;
 		DaliChannel channels[64] {daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster};
 		DaliChannel groups[16] {daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster,daliMaster};
 		HclCurve curves[3];
