@@ -7,6 +7,9 @@
 			"path": "lib/dali"
 		},
 		{
+			"path": "lib/dali-iot-gateway"
+		},
+		{
 			"path": "lib/knx"
 		},
 		{
