@@ -34,7 +34,4 @@ void setup()
 void loop()
 {
 	openknx.loop();
-	#ifdef ARDUINO_ARCH_ESP32
-	daliGateway.loop();
-	#endif
 }
