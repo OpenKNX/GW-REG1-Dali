@@ -6,11 +6,10 @@
 #ifdef ARDUINO_ARCH_ESP32
 #include "NetworkModule.h"
 #include "DaliGateway.h"
-
+DaliGateway daliGateway;
 #endif
 
 
-DaliGateway daliGateway;
 
 void setup()
 {

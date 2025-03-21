@@ -7,3 +7,4 @@ ebeaf9c main lib/dali-iot-gateway https://github.com/thewhobox/dali-iot-gateway.
 eb510dd master lib/OFM-TimerModule https://github.com/thewhobox/OFM-TimerModule
 eca83b6 v1dev-BASE lib/OGM-Common https://github.com/OpenKNX/OGM-Common.git
 1e1dda2 v1dev lib/OGM-HardwareConfig https://github.com/OpenKNX/OGM-HardwareConfig.git
+1e1dda2 v1dev lib/OFM-WebUI https://github.com/OpenKNX/OFM-WebUI.git
