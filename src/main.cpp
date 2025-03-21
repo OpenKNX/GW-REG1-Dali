@@ -21,6 +21,7 @@ void setup()
 	openknx.addModule(3, openknxFileTransferModule);
 	#ifdef ARDUINO_ARCH_ESP32
 	openknx.addModule(4, openknxNetwork);
+	openknx.addModule(5, openknxWebUI);
 	#endif
 
 	openknx.setup();
