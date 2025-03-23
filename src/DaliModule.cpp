@@ -11,7 +11,7 @@ const std::string DaliModule::name()
 // will be displayed in Command Infos
 const std::string DaliModule::version()
 {
-    return "";
+    return openknx.info.humanFirmwareVersion(true);
 }
 
 // will be called once
