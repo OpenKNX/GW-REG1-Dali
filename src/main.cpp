@@ -5,11 +5,9 @@
 #include "FileTransferModule.h"
 #ifdef ARDUINO_ARCH_ESP32
 #include "NetworkModule.h"
-#include "DaliGateway.h"
-DaliGateway daliGateway;
+#include "IotGateway.h"
+IotGateway iotGateway;
 #endif
-
-
 
 void setup()
 {
@@ -26,8 +24,8 @@ void setup()
 	openknx.setup();
 
 	#ifdef ARDUINO_ARCH_ESP32
-	daliGateway.setup();
-	daliGateway.addMaster(&openknxDaliModule.daliMaster);
+	iotGateway.setup();
+	iotGateway.addMaster(&openknxDaliModule.daliMaster);
 	#endif
 }
 
