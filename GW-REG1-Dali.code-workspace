@@ -100,7 +100,8 @@
 			"variant": "cpp",
 			"queue": "cpp",
 			"stack": "cpp",
-			"xiosbase": "cpp"
+			"xiosbase": "cpp",
+			"format": "cpp"
 		}
 	}
 }
