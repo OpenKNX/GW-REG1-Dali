@@ -26,9 +26,6 @@
 		},
 		{
 			"path": "lib/OFM-Network"
-		},
-		{
-			"path": "lib/OFM-WebUI"
 		}
 	],
 	"settings": {
