@@ -25,6 +25,10 @@ void DaliModule::setup(bool conf)
     pinMode(DALI_RX, INPUT);
     daliMaster.init(DALI_TX, DALI_RX);
 
+    #ifdef ARDUINO_ARCH_ESP32
+        openknxNetwork.webserver.addLink("Dali Wiki", "https://github.com/OpenKNX/GW-REG1-Dali/wiki");
+    #endif
+
     if (!conf)
         return;
 
@@ -61,10 +65,6 @@ void DaliModule::setup(bool conf)
         logDebugP("Func Button pressed double");
         uint8_t sett = ParamAPP_funcBtnDbl;
         handleFunc(sett); });
-#endif
-
-#ifdef ARDUINO_ARCH_ESP32
-    openknxNetwork.webserver.addLink("Dali Wiki", "https://github.com/OpenKNX/GW-REG1-Dali/wiki");
 #endif
 }
 
