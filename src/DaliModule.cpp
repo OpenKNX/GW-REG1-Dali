@@ -1,5 +1,9 @@
 #include "DaliModule.h"
 
+#ifdef ARDUINO_ARCH_ESP32
+#include "NetworkModule.h"
+#endif
+
 uint32_t daliActivity = 0;
 
 const std::string DaliModule::name()
@@ -57,6 +61,10 @@ void DaliModule::setup(bool conf)
         logDebugP("Func Button pressed double");
         uint8_t sett = ParamAPP_funcBtnDbl;
         handleFunc(sett); });
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+    openknxNetwork.webserver.addLink("Dali Wiki", "https://github.com/OpenKNX/GW-REG1-Dali/wiki");
 #endif
 }
 
