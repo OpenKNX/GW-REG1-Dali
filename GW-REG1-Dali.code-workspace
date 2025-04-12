@@ -98,7 +98,9 @@
 			"queue": "cpp",
 			"stack": "cpp",
 			"xiosbase": "cpp",
-			"format": "cpp"
+			"format": "cpp",
+			"xlocinfo": "cpp",
+			"xstring": "cpp"
 		}
 	}
 }

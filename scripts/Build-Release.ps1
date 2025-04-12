@@ -32,10 +32,10 @@ if (!$?) { exit 1 }
 
 # build firmware based on generated headerfile 
 
-lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V0 firmware-REG1-v0 uf2
+lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1 firmware-REG1-rp2040-v1 uf2
 if (!$?) { exit 1 }
 
-lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1 firmware-REG1-v1 uf2
+lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1-ESP firmware-REG1-esp32 esp32
 if (!$?) { exit 1 }
 
 # TEMPORARY: We use our own generic updload files for this version
