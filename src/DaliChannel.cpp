@@ -797,13 +797,15 @@ void DaliChannel::koHandleColor(GroupObject &ko)
 
             sendColor();
             
+            knx.getGroupObject(calcKoNumber(ADR_Kocolor_rgb_state)).value(data, Dpt(242, 600));
             //TODO implement in Stack
             //sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(242, 600), true);
             break;
         }
     }
 
-    setDimmState(254, true, true); // TODO get real
+    if(!currentState)
+        setDimmState(_onDay, true, true); // TODO get real
     
     logDebugP("AutoConf %i %i %i", _isGroup, _isGroup ? ParamADR_hcl_manu_col : ParamGRP_hcl_manu_col, _hclIsAutoMode);
 }
@@ -822,8 +824,8 @@ void DaliChannel::setTemperature(uint16_t value)
     //TODO check the colorType and then set RGB or TW or do nothing if it is no color Device
     daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, mirek & 0xFF);
     daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (mirek >> 8) & 0xFF);
-    daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_COLOUR_TEMPERATURE);
-    daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE);
+    daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_COLOUR_TEMPERATURE, _isGroup);
+    daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE, _isGroup);
     sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(7, 600));
 }
 

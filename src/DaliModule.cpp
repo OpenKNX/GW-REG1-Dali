@@ -22,8 +22,8 @@ const std::string DaliModule::version()
 // only if knx.configured == true
 void DaliModule::setup(bool conf)
 {
-    pinMode(DALI_RX, INPUT);
-    daliMaster.init(DALI_TX, DALI_RX);
+    pinMode(REG1_APP_PIN7, INPUT);
+    daliMaster.init(REG1_APP_PIN6, REG1_APP_PIN7);
 
     #ifdef ARDUINO_ARCH_ESP32
         openknxNetwork.webserver.addLink("Dali Wiki", "https://github.com/OpenKNX/GW-REG1-Dali/wiki");
@@ -568,7 +568,6 @@ void DaliModule::loopAddressing()
             logInfoP("Found %i ballasts", _adrFound);
             break;
         case AddressingState::SEARCHSHORT:
-            // TODO save response here
             _adrResponse = daliMaster.sendCommand(_adrFound, Dali::Command::QUERY_ACTUAL_LEVEL, false, true);
             _adrState = AddressingState::CHECKSEARCHSHORT;
             break;
@@ -722,7 +721,7 @@ void DaliModule::loopAssigning()
 
 void DaliModule::loopBusState()
 {
-    bool state = !digitalRead(DALI_RX);
+    bool state = !digitalRead(REG1_APP_PIN7);
 #ifdef INFO3_LED_PIN
     if (_lastBusState != state)
     {
@@ -1674,8 +1673,7 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
         0  b
     ];
     */
-    uint8_t addr = data[1] & 0b1111;
-    uint8_t type = data[1] >> 7;
+    uint8_t addr = data[1] & 0b111111;
 
     // scene is enabled
     if (data[3])
@@ -1696,14 +1694,14 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
                 logDebugP("mirek %i", mirek);
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, mirek & 0xFF);
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (mirek >> 8) & 0xFF);
-                daliMaster.sendExtendedCommand(addr, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_COLOUR_TEMPERATURE, type);
+                daliMaster.sendExtendedCommand(addr, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_COLOUR_TEMPERATURE);
             }
             else
             { // it is RGB
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, data[8]);
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, data[9]);
                 daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR2, data[10]);
-                daliMaster.sendExtendedCommand(addr, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_RGB_LEVEL, type);
+                daliMaster.sendExtendedCommand(addr, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_RGB_LEVEL);
                 logDebugP("RGB %.2X%.2X%.2X", data[8], data[9], data[10]);
             }
         }
@@ -1716,12 +1714,12 @@ void DaliModule::funcHandleSetScene(uint8_t *data, uint8_t *resultData, uint8_t 
             logDebugP("bri %.2f%%", ColorHelper::getFloat(tempValue) * 100);
 
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, (tempValue == 0xFFFF) ? 255 : DaliHelper::percentToArc(ColorHelper::getFloat(tempValue) * 100));
-        daliMaster.sendCommand(addr, Dali::Command::DTR_AS_SCENE | data[2], type);
+        daliMaster.sendCommand(addr, Dali::Command::DTR_AS_SCENE | data[2]);
         logIndentDown();
     }
     else
     {
-        daliMaster.sendCommand(addr, Dali::Command::REMOVE_FROM_SCENE | data[2], type);
+        daliMaster.sendCommand(addr, Dali::Command::REMOVE_FROM_SCENE | data[2]);
         logDebugP("Scene %i disabled", data[2]);
     }
 
