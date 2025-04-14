@@ -2,10 +2,8 @@
 
 #ifdef ARDUINO_ARCH_RP2040
     #include "OpenKnxHardware.h"
-    #define DALI_TX 17
-    #define DALI_RX 16
+    #define REG1_APP_PIN6 17
+    #define REG1_APP_PIN7 16
 #elif defined(ARDUINO_ARCH_ESP32)
-    #define DALI_TX 7
-    #define DALI_RX 20
     #include "HardwareConfig.h"
 #endif
