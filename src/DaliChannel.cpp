@@ -135,7 +135,17 @@ void DaliChannel::loopDimming()
             if (_dimmDirection == DimmDirection::Up)
             {
                 if (currentDimmType == DimmType::Brigthness)
-                    daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_UP, _isGroup);
+                {
+                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+                    {
+                        daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_UP, _isGroup);
+                    } else {
+                        daliMaster.sendCommand(_channelIndex, Dali::Command::ON_AND_STEP_UP, _isGroup);
+                    }
+                    // TODO if it was off, set min value
+                }
+
                 *currentDimmValue = *currentDimmValue + 1;
                 if (*currentDimmValue == 254)
                 {
@@ -154,7 +164,7 @@ void DaliChannel::loopDimming()
                 if (currentDimmType == DimmType::Brigthness)
                 {
                     uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOff)
                     {
                         daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_DOWN, _isGroup);
                     } else {
