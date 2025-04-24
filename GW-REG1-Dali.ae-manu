@@ -12177,8 +12177,8 @@
               "CultureCode": "en-US",
               "Text": "Englisch"
             },
-            "Text": "Delete short addresses",
-            "Preview": "Delete short addresses"
+            "Text": "Delete addresses",
+            "Preview": "Delete addresses"
           }
         ],
         "TranslationText": false,
@@ -18090,6 +18090,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": true,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -45030,6 +45031,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": true,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -55449,6 +55451,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": false,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -56549,6 +56552,7 @@
         "IsParameterRefAuto": true,
         "IsComObjectRefAuto": true,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -59037,10 +59041,11 @@
         "Id": 5,
         "SizeNeeded": 0,
         "Prefix": "",
-        "Name": "COmmon Share",
+        "Name": "Common Share",
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": false,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": true,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -65795,6 +65800,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": false,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": true,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -70601,9 +70607,9 @@
       {
         "$type": "Kaenx.Creator.Models.OpenKnxModule, Kaenx.Creator.Share",
         "UId": 1,
-        "Name": "COmmon",
+        "Name": "Common",
         "Prefix": "BASE",
-        "Url": "https://github.com/OpenKNX/OGM-COmmon",
+        "Url": "https://github.com/OpenKNX/OGM-Common",
         "Branch": "v1dev",
         "Commit": "9186f38",
         "HasShare": true,
