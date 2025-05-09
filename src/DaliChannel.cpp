@@ -877,8 +877,8 @@ void DaliChannel::sendColor()
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, r);
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, g);
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR2, b);
-        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_RGB_LEVEL);
-        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_TEMP_RGB_LEVEL, _isGroup);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE, _isGroup);
         break;
     }
 
@@ -899,13 +899,13 @@ void DaliChannel::sendColor()
 
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, x & 0xFF);
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (x >> 8) & 0xFF);
-        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_COORDINATE_X);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_COORDINATE_X, _isGroup);
 
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR, y & 0xFF);
         daliMaster.sendSpecialCommand(Dali::SpecialCommand::SET_DTR1, (y >> 8) & 0xFF);
-        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_COORDINATE_Y);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::SET_COORDINATE_Y, _isGroup);
 
-        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE);
+        daliMaster.sendExtendedCommand(_channelIndex, 0x08, Dali::ExtendedCommandDT8::ACTIVATE, _isGroup);
         break;
     }
     }
