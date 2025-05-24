@@ -57,7 +57,6 @@ void DaliChannel::setup()
         _onDay = DaliHelper::percentToArc((float)ParamGRP_onDay);
         _onNight = DaliHelper::percentToArc((float)ParamGRP_onNight);
         _dimmStatusInterval = ParamGRP_dimmStateInterval;
-        _dimmInterval = (uint8_t)(ParamGRP_dimmRelDuration / 2.55);
         if(ParamGRP_hcl)
         {
             _hclCurve = ParamGRP_hclCurve;
@@ -80,7 +79,6 @@ void DaliChannel::setup()
         _getError = ParamADR_error;
         _queryInterval = ParamADR_queryTime;
         _dimmStatusInterval = ParamADR_dimmStateInterval;
-        _dimmInterval = (uint8_t)(ParamADR_dimmRelDuration / 2.55);
         if(ParamADR_hcl)
         {
             _hclCurve = ParamADR_hclCurve;
@@ -89,7 +87,7 @@ void DaliChannel::setup()
     }
     _min = DaliHelper::percentToArc(_min);
     _max = DaliHelper::percentToArc(_max);
-    logDebugP("Min/Max %i/%i | D/N %i/%i (%.2f/%.2f) | TRH %is | Err %i | Q %is | Dimm %i/%i", _min, _max, _onDay, _onNight, DaliHelper::arcToPercentFloat(_onDay), DaliHelper::arcToPercentFloat(_onNight), interval, _getError, _queryInterval, _dimmInterval, _dimmStatusInterval);
+    logDebugP("Min/Max %i/%i | D/N %i/%i (%.2f/%.2f) | TRH %is | Err %i | Q %is | Dimm %i", _min, _max, _onDay, _onNight, DaliHelper::arcToPercentFloat(_onDay), DaliHelper::arcToPercentFloat(_onNight), interval, _getError, _queryInterval, _dimmStatusInterval);
 }
 
 void DaliChannel::loop()
@@ -130,20 +128,22 @@ void DaliChannel::loopDimming()
 {
     if (_dimmDirection != DimmDirection::None)
     {
-        if(millis() - _dimmLast > _dimmInterval)
+        if(millis() - _dimmLast > DimmInterval)
         {
             if (_dimmDirection == DimmDirection::Up)
             {
                 if (currentDimmType == DimmType::Brigthness)
                 {
                     uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+                    if(!currentState && (dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn))
                     {
-                        daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_UP, _isGroup);
-                    } else {
-                        daliMaster.sendCommand(_channelIndex, Dali::Command::ON_AND_STEP_UP, _isGroup);
+                        logDebugP("Dimm on is locked");
+                        _dimmDirection = DimmDirection::None;
+                        updateCurrentDimmValue();
+                        return;
                     }
-                    // TODO if it was off, set min value
+                    _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
+                    daliMaster.sendCommand(_channelIndex, Dali::Command::UP, _isGroup);
                 }
 
                 *currentDimmValue = *currentDimmValue + 1;
@@ -164,14 +164,15 @@ void DaliChannel::loopDimming()
                 if (currentDimmType == DimmType::Brigthness)
                 {
                     uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOff)
+                    if(currentState)
                     {
-                        daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_DOWN, _isGroup);
+                        daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
                     } else {
-                        daliMaster.sendCommand(_channelIndex, Dali::Command::STEP_DOWN_AND_OFF, _isGroup);
+                        if(dimmLock != PT_dimmLock_noBoth && dimmLock != PT_dimmLock_noOff)
+                            daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
                     }
                 }
-                    
+
                 *currentDimmValue = *currentDimmValue - 1;
 
                 if (*currentDimmValue == 0)
@@ -196,6 +197,8 @@ void DaliChannel::loopDimming()
             _dimmLastStatus = millis();
             updateCurrentDimmValue();
         }
+    } else if(_dimmLast > 0) {
+
     }
 }
 
@@ -249,9 +252,7 @@ void DaliChannel::loopError()
 
 void DaliChannel::loopQueryLevel()
 {
-    if(_queryInterval == 0) return;
-
-    if(_queryId == 0 && (millis() - _lastValueQuery) > (_queryInterval*1000))
+    if(_queryInterval > 0 && _queryId == 0 && (millis() - _lastValueQuery) > (_queryInterval*1000))
     {
         logDebugP("Query actual level");
         _lastValueQuery = millis();
