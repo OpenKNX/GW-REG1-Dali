@@ -80,7 +80,7 @@ class DaliModule : public OpenKNX::Module
 			TERMINATE
 		};
 		enum class AssigningResponse {
-			SUCCESS,
+			AR_SUCCESS,
 			NOT_FREE,
 			NO_RESPONSE,
 			NO_RESPONSE_LONG,
@@ -105,7 +105,7 @@ class DaliModule : public OpenKNX::Module
 	
 		AddressingState _adrState = AddressingState::OFF;
 		AssigningState _assState = AssigningState::OFF;
-		AssigningResponse _assResponse = AssigningResponse::SUCCESS;
+		AssigningResponse _assResponse = AssigningResponse::AR_SUCCESS;
 		Ballast ballasts[64];
 		bool addresses[64];
 		int _adrFound = 0;

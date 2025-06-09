@@ -55,9 +55,9 @@
 //--------------------Allgemein---------------------------
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 0x01
-#define MAIN_ApplicationVersion 0x08
+#define MAIN_ApplicationVersion 0x09
 #define MAIN_OrderNumber "REG1-Dali"
-#define MAIN_ParameterSize 2200
+#define MAIN_ParameterSize 2120
 #define MAIN_MaxKoNumber 1609
 
 
@@ -105,10 +105,10 @@
 #define SCE_ParamBlockOffset 141
 #define SCE_ParamBlockSize 4
 #define ADR_ParamBlockOffset 397
-#define ADR_ParamBlockSize 23
-#define GRP_ParamBlockOffset 1869
-#define GRP_ParamBlockSize 19
-#define HCL_ParamBlockOffset 2173
+#define ADR_ParamBlockSize 22
+#define GRP_ParamBlockOffset 1805
+#define GRP_ParamBlockSize 18
+#define HCL_ParamBlockOffset 2093
 #define HCL_ParamBlockSize 9
 #define BASE_Share_KoOffset 6
 #define BASE_Share_KoBlockSize 13
@@ -255,11 +255,6 @@
 #define ParamADR_dimmStateIntervalIndex(X) ((uint32_t)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmStateInterval)) >> ADR_dimmStateInterval_Shift) & ADR_dimmStateInterval_Mask))
 // Offset: 20, Size: 4 Bit, Text: Dimmstatus Interval bei relativ
 #define ParamADR_dimmStateInterval ((uint32_t)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmStateInterval)) >> ADR_dimmStateInterval_Shift) & ADR_dimmStateInterval_Mask))
-#define ADR_dimmRelDuration		0x0015
-// Offset: 21, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
-#define ParamADR_dimmRelDurationIndex(X) ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmRelDuration)))))
-// Offset: 21, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100 % bei relativ
-#define ParamADR_dimmRelDuration ((uint)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmRelDuration)))))
 #define ADR_hclCurve		0x0014
 #define ADR_hclCurve_Shift	2
 #define ADR_hclCurve_Mask	0x0003
@@ -272,113 +267,113 @@
 #define ParamADR_hclStartIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hclStart), 6)
 // Offset: 20, BitOffset: 6, Size: 1 Bit, Text: HCL anwenden
 #define ParamADR_hclStart knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hclStart), 6)
-#define ADR_dimmLock		0x0016
+#define ADR_dimmLock		0x0015
 #define ADR_dimmLock_Shift	6
 #define ADR_dimmLock_Mask	0x0003
-// Offset: 22, Size: 2 Bit, Text: Einschalten bei relativ
+// Offset: 21, Size: 2 Bit, Text: Einschalten bei relativ
 #define ParamADR_dimmLockIndex(X) ((uint32_t)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_dimmLock)) >> ADR_dimmLock_Shift) & ADR_dimmLock_Mask))
-// Offset: 22, Size: 2 Bit, Text: Einschalten bei relativ
+// Offset: 21, Size: 2 Bit, Text: Einschalten bei relativ
 #define ParamADR_dimmLock ((uint32_t)((knx.paramByte((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_dimmLock)) >> ADR_dimmLock_Shift) & ADR_dimmLock_Mask))
 #define ADR_hcl_manu_bri		0x0014
 // Offset: 20, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
 #define ParamADR_hcl_manu_briIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_manu_bri), 7)
 // Offset: 20, BitOffset: 7, Size: 1 Bit, Text: Helligkeit geändert wird
 #define ParamADR_hcl_manu_bri knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_manu_bri), 7)
-#define ADR_hcl_manu_col		0x0016
-// Offset: 22, BitOffset: 2, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+#define ADR_hcl_manu_col		0x0015
+// Offset: 21, BitOffset: 2, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
 #define ParamADR_hcl_manu_colIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_manu_col), 2)
-// Offset: 22, BitOffset: 2, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
+// Offset: 21, BitOffset: 2, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
 #define ParamADR_hcl_manu_col knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_manu_col), 2)
-#define ADR_hcl_auto_off		0x0016
-// Offset: 22, BitOffset: 3, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define ADR_hcl_auto_off		0x0015
+// Offset: 21, BitOffset: 3, Size: 1 Bit, Text: das EVG ausgeschaltet wird
 #define ParamADR_hcl_auto_offIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_auto_off), 3)
-// Offset: 22, BitOffset: 3, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+// Offset: 21, BitOffset: 3, Size: 1 Bit, Text: das EVG ausgeschaltet wird
 #define ParamADR_hcl_auto_off knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_auto_off), 3)
-#define ADR_hcl_auto_day		0x0016
-// Offset: 22, BitOffset: 4, Size: 1 Bit, Text: der Tag vorbei ist
+#define ADR_hcl_auto_day		0x0015
+// Offset: 21, BitOffset: 4, Size: 1 Bit, Text: der Tag vorbei ist
 #define ParamADR_hcl_auto_dayIndex(X) knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * X + ADR_hcl_auto_day), 4)
-// Offset: 22, BitOffset: 4, Size: 1 Bit, Text: der Tag vorbei ist
+// Offset: 21, BitOffset: 4, Size: 1 Bit, Text: der Tag vorbei ist
 #define ParamADR_hcl_auto_day knx.paramBit((ADR_ParamBlockOffset + ADR_ParamBlockSize * channelIndex() + ADR_hcl_auto_day), 4)
 //!< Number: 0, Text: A{{argChan}} {{0}}, Function: Schalten
 #define ADR_Koswitch 0
-#define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koswitch)
-#define KoADR_switch knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Koswitch)
+#define KoADR_switchIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Koswitch + ADR_KoOffset)
+#define KoADR_switch knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Koswitch + ADR_KoOffset)
 //!< Number: 1, Text: A{{argChan}} {{0}}, Function: Schalten Status
 #define ADR_Koswitch_state 1
-#define KoADR_switch_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koswitch_state)
-#define KoADR_switch_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Koswitch_state)
+#define KoADR_switch_stateIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Koswitch_state + ADR_KoOffset)
+#define KoADR_switch_state knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Koswitch_state + ADR_KoOffset)
 //!< Number: 2, Text: A{{argChan}} {{0}}, Function: Dimmen Relativ
 #define ADR_Kodimm_relative 2
-#define KoADR_dimm_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kodimm_relative)
-#define KoADR_dimm_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kodimm_relative)
+#define KoADR_dimm_relativeIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kodimm_relative + ADR_KoOffset)
+#define KoADR_dimm_relative knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kodimm_relative + ADR_KoOffset)
 //!< Number: 3, Text: A{{argChan}} {{0}}, Function: Dimmen Absolut
 #define ADR_Kodimm_absolute 3
-#define KoADR_dimm_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kodimm_absolute)
-#define KoADR_dimm_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kodimm_absolute)
+#define KoADR_dimm_absoluteIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kodimm_absolute + ADR_KoOffset)
+#define KoADR_dimm_absolute knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kodimm_absolute + ADR_KoOffset)
 //!< Number: 4, Text: A{{argChan}} {{0}}, Function: Dimmen Status
 #define ADR_Kodimm_state 4
-#define KoADR_dimm_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kodimm_state)
-#define KoADR_dimm_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kodimm_state)
+#define KoADR_dimm_stateIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kodimm_state + ADR_KoOffset)
+#define KoADR_dimm_state knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kodimm_state + ADR_KoOffset)
 //!< Number: 5, Text: A{{argChan}} {{0}}, Function: Sperren
 #define ADR_Kolock 5
-#define KoADR_lockIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kolock)
-#define KoADR_lock knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kolock)
+#define KoADR_lockIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kolock + ADR_KoOffset)
+#define KoADR_lock knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kolock + ADR_KoOffset)
 //!< Number: 19, Text: A{{argChan}} {{0}}, Function: Fehler
 #define ADR_Koerror 19
-#define KoADR_errorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koerror)
-#define KoADR_error knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Koerror)
+#define KoADR_errorIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Koerror + ADR_KoOffset)
+#define KoADR_error knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Koerror + ADR_KoOffset)
 //!< Number: 6, Text: A{{argChan}} {{0}}, Function: RGB Farbe
 #define ADR_Kocolor 6
-#define KoADR_colorIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor)
-#define KoADR_color knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor)
+#define KoADR_colorIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor + ADR_KoOffset)
+#define KoADR_color knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor + ADR_KoOffset)
 //!< Number: 7, Text: A{{argChan}} {{0}}, Function: RGB Farbe Status
 #define ADR_Kocolor_rgb_state 7
-#define KoADR_color_rgb_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_rgb_state)
-#define KoADR_color_rgb_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_rgb_state)
+#define KoADR_color_rgb_stateIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_rgb_state + ADR_KoOffset)
+#define KoADR_color_rgb_state knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_rgb_state + ADR_KoOffset)
 //!< Number: 8, Text: A{{argChan}} {{0}}, Function: Rot Relativ
 #define ADR_Kocolor_red_relative 8
-#define KoADR_color_red_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_red_relative)
-#define KoADR_color_red_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_red_relative)
+#define KoADR_color_red_relativeIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_red_relative + ADR_KoOffset)
+#define KoADR_color_red_relative knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_red_relative + ADR_KoOffset)
 //!< Number: 9, Text: A{{argChan}} {{0}}, Function: Rot Absolut
 #define ADR_Kocolor_red_absolute 9
-#define KoADR_color_red_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_red_absolute)
-#define KoADR_color_red_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_red_absolute)
+#define KoADR_color_red_absoluteIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_red_absolute + ADR_KoOffset)
+#define KoADR_color_red_absolute knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_red_absolute + ADR_KoOffset)
 //!< Number: 10, Text: A{{argChan}} {{0}}, Function: Rot Status
 #define ADR_Kocolor_red_state 10
-#define KoADR_color_red_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_red_state)
-#define KoADR_color_red_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_red_state)
+#define KoADR_color_red_stateIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_red_state + ADR_KoOffset)
+#define KoADR_color_red_state knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_red_state + ADR_KoOffset)
 //!< Number: 11, Text: A{{argChan}} {{0}}, Function: Grün Relativ
 #define ADR_Kocolor_green_relative 11
-#define KoADR_color_green_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_green_relative)
-#define KoADR_color_green_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_green_relative)
+#define KoADR_color_green_relativeIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_green_relative + ADR_KoOffset)
+#define KoADR_color_green_relative knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_green_relative + ADR_KoOffset)
 //!< Number: 12, Text: A{{argChan}} {{0}}, Function: Grün Absolut
 #define ADR_Kocolor_green_absolute 12
-#define KoADR_color_green_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_green_absolute)
-#define KoADR_color_green_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_green_absolute)
+#define KoADR_color_green_absoluteIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_green_absolute + ADR_KoOffset)
+#define KoADR_color_green_absolute knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_green_absolute + ADR_KoOffset)
 //!< Number: 13, Text: A{{argChan}} {{0}}, Function: Grün Status
 #define ADR_Kocolor_green_state 13
-#define KoADR_color_green_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_green_state)
-#define KoADR_color_green_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_green_state)
+#define KoADR_color_green_stateIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_green_state + ADR_KoOffset)
+#define KoADR_color_green_state knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_green_state + ADR_KoOffset)
 //!< Number: 14, Text: A{{argChan}} {{0}}, Function: Blau Relativ
 #define ADR_Kocolor_blue_relative 14
-#define KoADR_color_blue_relativeIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_blue_relative)
-#define KoADR_color_blue_relative knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_relative)
+#define KoADR_color_blue_relativeIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_blue_relative + ADR_KoOffset)
+#define KoADR_color_blue_relative knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_relative + ADR_KoOffset)
 //!< Number: 15, Text: A{{argChan}} {{0}}, Function: Blau Absolut
 #define ADR_Kocolor_blue_absolute 15
-#define KoADR_color_blue_absoluteIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_blue_absolute)
-#define KoADR_color_blue_absolute knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_absolute)
+#define KoADR_color_blue_absoluteIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_blue_absolute + ADR_KoOffset)
+#define KoADR_color_blue_absolute knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_absolute + ADR_KoOffset)
 //!< Number: 16, Text: A{{argChan}} {{0}}, Function: Blau Status
 #define ADR_Kocolor_blue_state 16
-#define KoADR_color_blue_stateIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kocolor_blue_state)
-#define KoADR_color_blue_state knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_state)
+#define KoADR_color_blue_stateIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kocolor_blue_state + ADR_KoOffset)
+#define KoADR_color_blue_state knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kocolor_blue_state + ADR_KoOffset)
 //!< Number: 17, Text: A{{argChan}} {{0}}, Function: HCL Kurve
 #define ADR_Kohcl_curve 17
-#define KoADR_hcl_curveIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Kohcl_curve)
-#define KoADR_hcl_curve knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Kohcl_curve)
+#define KoADR_hcl_curveIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Kohcl_curve + ADR_KoOffset)
+#define KoADR_hcl_curve knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Kohcl_curve + ADR_KoOffset)
 //!< Number: 18, Text: A{{argChan}} {{0}}, Function: Szene
 #define ADR_Koscene 18
-#define KoADR_sceneIndex(X) knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * X + ADR_Koscene)
-#define KoADR_scene knx.getGroupObject(ADR_KoOffset + ADR_KoBlockSize * channelIndex() + ADR_Koscene)
+#define KoADR_sceneIndex(X) knx.getGroupObject(ADR_KoBlockSize * X + ADR_Koscene + ADR_KoOffset)
+#define KoADR_scene knx.getGroupObject(ADR_KoBlockSize * channelIndex() + ADR_Koscene + ADR_KoOffset)
 
 //-----Module: group
 #define GRP_deviceType		0x0000
@@ -497,11 +492,6 @@
 #define ParamGRP_queryTimeIndex(X) ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_queryTime)))))
 // Offset: 15, Size: 16 Bit (2 Byte), Text: Dimmwert abfragen (0 = deaktiviert)
 #define ParamGRP_queryTime ((uint)((knx.paramWord((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_queryTime)))))
-#define GRP_dimmRelDuration		0x0011
-// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
-#define ParamGRP_dimmRelDurationIndex(X) ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_dimmRelDuration)))))
-// Offset: 17, Size: 8 Bit (1 Byte), Text: Dimmzeit von 0-100% bei relativ
-#define ParamGRP_dimmRelDuration ((uint)((knx.paramByte((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_dimmRelDuration)))))
 #define GRP_hclCurve		0x0004
 #define GRP_hclCurve_Mask	0x0003
 // Offset: 4, BitOffset: 6, Size: 2 Bit, Text: Verwende
@@ -530,92 +520,92 @@
 #define ParamGRP_hcl_manu_colIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_manu_col), 7)
 // Offset: 14, BitOffset: 7, Size: 1 Bit, Text: Farbe/Temperatur geändert wird
 #define ParamGRP_hcl_manu_col knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_manu_col), 7)
-#define GRP_hcl_auto_off		0x0012
-// Offset: 18, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+#define GRP_hcl_auto_off		0x0011
+// Offset: 17, Size: 1 Bit, Text: das EVG ausgeschaltet wird
 #define ParamGRP_hcl_auto_offIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_auto_off), 0)
-// Offset: 18, Size: 1 Bit, Text: das EVG ausgeschaltet wird
+// Offset: 17, Size: 1 Bit, Text: das EVG ausgeschaltet wird
 #define ParamGRP_hcl_auto_off knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_auto_off), 0)
-#define GRP_hcl_auto_day		0x0012
-// Offset: 18, BitOffset: 1, Size: 1 Bit, Text: der Tag vorbei ist
+#define GRP_hcl_auto_day		0x0011
+// Offset: 17, BitOffset: 1, Size: 1 Bit, Text: der Tag vorbei ist
 #define ParamGRP_hcl_auto_dayIndex(X) knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * X + GRP_hcl_auto_day), 1)
-// Offset: 18, BitOffset: 1, Size: 1 Bit, Text: der Tag vorbei ist
+// Offset: 17, BitOffset: 1, Size: 1 Bit, Text: der Tag vorbei ist
 #define ParamGRP_hcl_auto_day knx.paramBit((GRP_ParamBlockOffset + GRP_ParamBlockSize * channelIndex() + GRP_hcl_auto_day), 1)
 //!< Number: 0, Text: G{{argChan}} {{0}}, Function: Schalten
 #define GRP_Koswitch 0
-#define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Koswitch)
-#define KoGRP_switch knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Koswitch)
+#define KoGRP_switchIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Koswitch + GRP_KoOffset)
+#define KoGRP_switch knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Koswitch + GRP_KoOffset)
 //!< Number: 1, Text: G{{argChan}} {{0}}, Function: Schalten Status
 #define GRP_Koswitch_state 1
-#define KoGRP_switch_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Koswitch_state)
-#define KoGRP_switch_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Koswitch_state)
+#define KoGRP_switch_stateIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Koswitch_state + GRP_KoOffset)
+#define KoGRP_switch_state knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Koswitch_state + GRP_KoOffset)
 //!< Number: 2, Text: G{{argChan}} {{0}}, Function: Dimmen Relativ
 #define GRP_Kodimm_relative 2
-#define KoGRP_dimm_relativeIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kodimm_relative)
-#define KoGRP_dimm_relative knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kodimm_relative)
+#define KoGRP_dimm_relativeIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kodimm_relative + GRP_KoOffset)
+#define KoGRP_dimm_relative knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kodimm_relative + GRP_KoOffset)
 //!< Number: 3, Text: G{{argChan}} {{0}}, Function: Dimmen Absolut
 #define GRP_Kodimm_absolute 3
-#define KoGRP_dimm_absoluteIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kodimm_absolute)
-#define KoGRP_dimm_absolute knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kodimm_absolute)
+#define KoGRP_dimm_absoluteIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kodimm_absolute + GRP_KoOffset)
+#define KoGRP_dimm_absolute knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kodimm_absolute + GRP_KoOffset)
 //!< Number: 4, Text: G{{argChan}} {{0}}, Function: Dimmen Status
 #define GRP_Kodimm_state 4
-#define KoGRP_dimm_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kodimm_state)
-#define KoGRP_dimm_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kodimm_state)
+#define KoGRP_dimm_stateIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kodimm_state + GRP_KoOffset)
+#define KoGRP_dimm_state knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kodimm_state + GRP_KoOffset)
 //!< Number: 5, Text: G{{argChan}} {{0}}, Function: Sperren
 #define GRP_Kolock 5
-#define KoGRP_lockIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kolock)
-#define KoGRP_lock knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kolock)
+#define KoGRP_lockIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kolock + GRP_KoOffset)
+#define KoGRP_lock knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kolock + GRP_KoOffset)
 //!< Number: 6, Text: G{{argChan}} {{0}}, Function: RGB Farbe
 #define GRP_Kocolor 6
-#define KoGRP_colorIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor)
-#define KoGRP_color knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor)
+#define KoGRP_colorIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor + GRP_KoOffset)
+#define KoGRP_color knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor + GRP_KoOffset)
 //!< Number: 7, Text: G{{argChan}} {{0}}, Function: RGB Farbe Status
 #define GRP_Kocolor_state 7
-#define KoGRP_color_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_state)
-#define KoGRP_color_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_state)
+#define KoGRP_color_stateIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_state + GRP_KoOffset)
+#define KoGRP_color_state knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_state + GRP_KoOffset)
 //!< Number: 8, Text: G{{argChan}} {{0}}, Function: Rot Relativ
 #define GRP_Kocolor_red_rel 8
-#define KoGRP_color_red_relIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_red_rel)
-#define KoGRP_color_red_rel knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_red_rel)
+#define KoGRP_color_red_relIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_red_rel + GRP_KoOffset)
+#define KoGRP_color_red_rel knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_red_rel + GRP_KoOffset)
 //!< Number: 9, Text: G{{argChan}} {{0}}, Function: Rot Absolut
 #define GRP_Kocolor_red_abs 9
-#define KoGRP_color_red_absIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_red_abs)
-#define KoGRP_color_red_abs knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_red_abs)
+#define KoGRP_color_red_absIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_red_abs + GRP_KoOffset)
+#define KoGRP_color_red_abs knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_red_abs + GRP_KoOffset)
 //!< Number: 10, Text: G{{argChan}} {{0}}, Function: Rot Status
 #define GRP_Kocolor_red_state 10
-#define KoGRP_color_red_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_red_state)
-#define KoGRP_color_red_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_red_state)
+#define KoGRP_color_red_stateIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_red_state + GRP_KoOffset)
+#define KoGRP_color_red_state knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_red_state + GRP_KoOffset)
 //!< Number: 11, Text: G{{argChan}} {{0}}, Function: Grün Relativ
 #define GRP_Kocolor_green_rel 11
-#define KoGRP_color_green_relIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_green_rel)
-#define KoGRP_color_green_rel knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_green_rel)
+#define KoGRP_color_green_relIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_green_rel + GRP_KoOffset)
+#define KoGRP_color_green_rel knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_green_rel + GRP_KoOffset)
 //!< Number: 12, Text: G{{argChan}} {{0}}, Function: Grün Absolut
 #define GRP_Kocolor_green_abs 12
-#define KoGRP_color_green_absIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_green_abs)
-#define KoGRP_color_green_abs knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_green_abs)
+#define KoGRP_color_green_absIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_green_abs + GRP_KoOffset)
+#define KoGRP_color_green_abs knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_green_abs + GRP_KoOffset)
 //!< Number: 13, Text: G{{argChan}} {{0}}, Function: Grün Status
 #define GRP_Kocolor_green_state 13
-#define KoGRP_color_green_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_green_state)
-#define KoGRP_color_green_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_green_state)
+#define KoGRP_color_green_stateIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_green_state + GRP_KoOffset)
+#define KoGRP_color_green_state knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_green_state + GRP_KoOffset)
 //!< Number: 14, Text: G{{argChan}} {{0}}, Function: Blau Relativ
 #define GRP_Kocolor_blue_rel 14
-#define KoGRP_color_blue_relIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_blue_rel)
-#define KoGRP_color_blue_rel knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_rel)
+#define KoGRP_color_blue_relIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_blue_rel + GRP_KoOffset)
+#define KoGRP_color_blue_rel knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_rel + GRP_KoOffset)
 //!< Number: 15, Text: G{{argChan}} {{0}}, Function: Blau Absolut
 #define GRP_Kocolor_blue_abs 15
-#define KoGRP_color_blue_absIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_blue_abs)
-#define KoGRP_color_blue_abs knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_abs)
+#define KoGRP_color_blue_absIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_blue_abs + GRP_KoOffset)
+#define KoGRP_color_blue_abs knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_abs + GRP_KoOffset)
 //!< Number: 16, Text: G{{argChan}} {{0}}, Function: Blau Status
 #define GRP_Kocolor_blue_state 16
-#define KoGRP_color_blue_stateIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kocolor_blue_state)
-#define KoGRP_color_blue_state knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_state)
+#define KoGRP_color_blue_stateIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kocolor_blue_state + GRP_KoOffset)
+#define KoGRP_color_blue_state knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kocolor_blue_state + GRP_KoOffset)
 //!< Number: 17, Text: G{{argChan}} {{0}}, Function: HCL Kurve
 #define GRP_Kohcl_curve 17
-#define KoGRP_hcl_curveIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Kohcl_curve)
-#define KoGRP_hcl_curve knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Kohcl_curve)
+#define KoGRP_hcl_curveIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Kohcl_curve + GRP_KoOffset)
+#define KoGRP_hcl_curve knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Kohcl_curve + GRP_KoOffset)
 //!< Number: 18, Text: G{{argChan}} {{0}}, Function: Szene
 #define GRP_Koscene 18
-#define KoGRP_sceneIndex(X) knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * X + GRP_Koscene)
-#define KoGRP_scene knx.getGroupObject(GRP_KoOffset + GRP_KoBlockSize * channelIndex() + GRP_Koscene)
+#define KoGRP_sceneIndex(X) knx.getGroupObject(GRP_KoBlockSize * X + GRP_Koscene + GRP_KoOffset)
+#define KoGRP_scene knx.getGroupObject(GRP_KoBlockSize * channelIndex() + GRP_Koscene + GRP_KoOffset)
 
 //-----Module: scene
 #define SCE_type		0x0000
@@ -727,14 +717,14 @@
 #define ParamHCL_checkBrightness knx.paramBit((HCL_ParamBlockOffset + HCL_ParamBlockSize * channelIndex() + HCL_checkBrightness), 7)
 //!< Number: 0, Text: HCL Kurve {{argChan}}, Function: Farbtemperatur
 #define HCL_Kohcl_state 0
-#define KoHCL_hcl_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + HCL_Kohcl_state)
-#define KoHCL_hcl_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + HCL_Kohcl_state)
+#define KoHCL_hcl_stateIndex(X) knx.getGroupObject(HCL_KoBlockSize * X + HCL_Kohcl_state + HCL_KoOffset)
+#define KoHCL_hcl_state knx.getGroupObject(HCL_KoBlockSize * channelIndex() + HCL_Kohcl_state + HCL_KoOffset)
 //!< Number: 1, Text: HCL Kurve {{argChan}}, Function: Helligkeit
 #define HCL_Kobri_state 1
-#define KoHCL_bri_stateIndex(X) knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * X + HCL_Kobri_state)
-#define KoHCL_bri_state knx.getGroupObject(HCL_KoOffset + HCL_KoBlockSize * channelIndex() + HCL_Kobri_state)
+#define KoHCL_bri_stateIndex(X) knx.getGroupObject(HCL_KoBlockSize * X + HCL_Kobri_state + HCL_KoOffset)
+#define KoHCL_bri_state knx.getGroupObject(HCL_KoBlockSize * channelIndex() + HCL_Kobri_state + HCL_KoOffset)
 
-//-----Module: COmmon Share
+//-----Module: Common Share
 #define BASE_StartupDelayBase		0x0000
 #define BASE_StartupDelayBase_Shift	6
 #define BASE_StartupDelayBase_Mask	0x0003
@@ -855,7 +845,7 @@
 // UnionOffset: 41, ParaOffset: 0, Size: 1 Bit, Text: mDNS
 #define ParamNET_mDNS knx.paramBit((NET_Share_ParamBlockOffset + NET_mDNS), 0)
 #define NET_HTTP		0x0029
-// UnionOffset: 41, ParaOffset: 0, BitOffset: 1, Size: 1 Bit, Text: Weberver
+// UnionOffset: 41, ParaOffset: 0, BitOffset: 1, Size: 1 Bit, Text: Webserver
 #define ParamNET_HTTP knx.paramBit((NET_Share_ParamBlockOffset + NET_HTTP), 1)
 #define NET_NTP		0x0029
 // UnionOffset: 41, ParaOffset: 0, BitOffset: 2, Size: 1 Bit, Text: NTP-Client

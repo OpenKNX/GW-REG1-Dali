@@ -135,11 +135,18 @@ void DaliChannel::loopDimming()
                 if (currentDimmType == DimmType::Brigthness)
                 {
                     uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-                    if(!currentState && (dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn))
+                    if(!currentState)
                     {
-                        logDebugP("Dimm on is locked");
-                        _dimmDirection = DimmDirection::None;
-                        updateCurrentDimmValue();
+                        if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
+                        {
+                            logDebugP("Dimm on is locked");
+                            _dimmDirection = DimmDirection::None;
+                            updateCurrentDimmValue();
+                            return;
+                        }
+                        daliMaster.sendCommand(_channelIndex, Dali::Command::RECALL_MIN, _isGroup, true);
+                        _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
+                        currentState = true;
                         return;
                     }
                     _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
@@ -157,20 +164,22 @@ void DaliChannel::loopDimming()
                     logDebugP("Dimm Stop at max %i (%i)", _max, *currentDimmValue);
                     _dimmDirection = DimmDirection::None;
                     updateCurrentDimmValue();
+
+                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOff)
+                    {
+                        logDebugP("Dimm off is locked");
+                        return;
+                    }
+                    daliMaster.sendCommand(_channelIndex, Dali::Command::OFF, _isGroup);
                 }
             }
             else if (_dimmDirection == DimmDirection::Down)
             {
                 if (currentDimmType == DimmType::Brigthness)
                 {
-                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-                    if(currentState)
-                    {
-                        daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
-                    } else {
-                        if(dimmLock != PT_dimmLock_noBoth && dimmLock != PT_dimmLock_noOff)
-                            daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
-                    }
+                    _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
+                    daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
                 }
 
                 *currentDimmValue = *currentDimmValue - 1;
@@ -180,6 +189,14 @@ void DaliChannel::loopDimming()
                     logDebugP("Dimm Stop at 0");
                     _dimmDirection = DimmDirection::None;
                     updateCurrentDimmValue();
+
+                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOff)
+                    {
+                        logDebugP("Dimm off is locked");
+                        return;
+                    }
+                    daliMaster.sendCommand(_channelIndex, Dali::Command::OFF, _isGroup);
                 }
                 if (*currentDimmValue <= _min)
                 {
@@ -290,6 +307,9 @@ void DaliChannel::loopQueryLevel()
                 uint8_t data = response.frame.data & 0xFF;
                 logDebugP("Got new actual level %i%%-%i", DaliHelper::arcToPercent(data), data);
                 setDimmState(data, false, true);
+
+                if(currentDimmType == DimmType::Brigthness)
+                    *currentDimmValue = data;
             }
         }
     }

@@ -61,7 +61,9 @@
             "label": "Build-Beta",
             "type": "shell",
             "command": "scripts/Build-Release.ps1",
-            "args": [],
+            "args": [
+                "Beta"
+            ],
             "problemMatcher": [],
             "group": "test"
         },

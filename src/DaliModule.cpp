@@ -700,7 +700,7 @@ void DaliModule::loopAssigning()
             else if(response.state == Dali::ResponseState::RECEIVED)
             {
                 logInfoP(" -> new address %i", _adrNew);
-                _assResponse = AssigningResponse::SUCCESS;
+                _assResponse = AssigningResponse::AR_SUCCESS;
             }
             else
             {
