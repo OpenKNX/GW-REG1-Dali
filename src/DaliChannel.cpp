@@ -164,14 +164,6 @@ void DaliChannel::loopDimming()
                     logDebugP("Dimm Stop at max %i (%i)", _max, *currentDimmValue);
                     _dimmDirection = DimmDirection::None;
                     updateCurrentDimmValue();
-
-                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOff)
-                    {
-                        logDebugP("Dimm off is locked");
-                        return;
-                    }
-                    daliMaster.sendCommand(_channelIndex, Dali::Command::OFF, _isGroup);
                 }
             }
             else if (_dimmDirection == DimmDirection::Down)
@@ -203,6 +195,14 @@ void DaliChannel::loopDimming()
                     logDebugP("Dimm Stop at min %i", _min);
                     _dimmDirection = DimmDirection::None;
                     updateCurrentDimmValue();
+
+                    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
+                    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOff)
+                    {
+                        logDebugP("Dimm off is locked");
+                        return;
+                    }
+                    daliMaster.sendCommand(_channelIndex, Dali::Command::OFF, _isGroup);
                 }
             }
             

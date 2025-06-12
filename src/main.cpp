@@ -11,7 +11,7 @@ IotGateway iotGateway;
 
 void setup()
 {
-	const uint8_t firmwareRevision = 0;
+	const uint8_t firmwareRevision = 1;
 	openknx.init(firmwareRevision);
 	openknx.addModule(1, openknxDaliModule);
 	openknx.addModule(2, openknxTimerModule);
