@@ -535,7 +535,13 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
         uint8_t onValue = isNight ? _onNight : _onDay;
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
-        logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+        if(_hclCurve != 255 && _hclIsAutoMode)
+        {
+            onValue = _hclCurrentBri;
+            logDebugP("Einschalten HCL");
+        } else {
+            logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+        }
         daliMaster.sendArc(_channelIndex, onValue, _isGroup);
         if(_hclCurve != 255 && _hclIsAutoMode)
             setTemperature(_hclCurrentTemp);
@@ -567,7 +573,6 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
             }
             return;
         }
-        logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
         currentState = true;
         startTime = millis();
         logDebugP("interval %i", interval);
@@ -575,6 +580,13 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
         uint8_t onValue = isNight ? _onNight : _onDay;
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
+        if(_hclCurve != 255 && _hclIsAutoMode)
+        {
+            onValue = _hclCurrentBri;
+            logDebugP("Einschalten HCL");
+        } else {
+            logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
+        }
         daliMaster.sendArc(_channelIndex, onValue, _isGroup);
         if(_hclCurve != 255 && _hclIsAutoMode)
             setTemperature(_hclCurrentTemp);
