@@ -50,21 +50,21 @@ void DaliModule::setup(bool conf)
     }
 
 #ifdef FUNC1_BUTTON_PIN
-    openknx.func1Button.onShortClick([=]
-                                     { 
+    openknx.func1Button.onShortClick([this] { 
         logDebugP("Func Button pressed short");
         uint8_t sett = ParamAPP_funcBtn;
-        handleFunc(sett); });
-    openknx.func1Button.onLongClick([=]
-                                    { 
+        handleFunc(sett);
+    });
+    openknx.func1Button.onLongClick([this] { 
         logDebugP("Func Button pressed long");
         uint8_t sett = ParamAPP_funcBtnLong;
-        handleFunc(sett); });
-    openknx.func1Button.onDoubleClick([=]
-                                      {
+        handleFunc(sett);
+    });
+    openknx.func1Button.onDoubleClick([this] {
         logDebugP("Func Button pressed double");
         uint8_t sett = ParamAPP_funcBtnDbl;
-        handleFunc(sett); });
+        handleFunc(sett);
+    });
 #endif
 }
 
