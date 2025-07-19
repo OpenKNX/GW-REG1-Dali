@@ -1,13 +1,21 @@
-$toolsExist = Test-Path -PathType Leaf ~/bin/Kaenx.Creator.Console.exe
-
+$checkVersion = "2.1.10"
+$toolsExist = Test-Path -PathType Leaf ~/bin/OpenKNXproducer.exe
+if ($toolsExist) {
+    $toolsExist = [System.Version]((~/bin/OpenKNXproducer version) -split ' ')[1] -ge [System.Version]$checkVersion
+}
+if ($toolsExist) {
+    $toolsExist = Test-Path -PathType Leaf ~/bin/bossac.exe
+}
 if (!$toolsExist) {
     Write-Host "
         Fuer das Setup fehlen die notwendigen OpenKNX-Tools oder sie sind veraltet..
-        Bitte das neuste Paket herunterladen (mindestens Version $checkVersion)
+        Bitte das neuste Paket herunterladen
 
-            https://github.com/OpenKNX/Kaenx-Creator-Console/releases
+            https://github.com/OpenKNX/OpenKNXproducer/releases
         
-        entpacken und das Readme befolgen.
+        entpacken und das Readme befolgen. Weitere Informationen hierzu gibt es im OpenKNX-Wiki
+
+            https://github.com/OpenKNX/OpenKNX/wiki/Installation-of-OpenKNX-tools
 
         Danach bitte dieses Script erneut starten.
 
@@ -20,7 +28,8 @@ if (!$toolsExist) {
 }
 
 if ($toolsExist) {
-    $files = Get-ChildItem -Path data/*.ae-manu
-    ~/bin/Kaenx.Creator.Console publish data/$($files[0].Name)
+    $xml = Get-ChildItem data/*.xml
+    $filename = [System.IO.Path]::GetFileNameWithoutExtension($xml)
+    ~/bin/OpenKNXproducer.exe knxprod --NoXsd --Output="./$filename.knxprod" "data/$filename.xml"
     timeout /T 20 
 }

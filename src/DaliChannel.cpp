@@ -537,7 +537,7 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         if(_hclCurve != 255 && _hclIsAutoMode)
         {
-            onValue = _hclCurrentBri;
+            onValue = DaliHelper::percentToArc(_hclCurrentBri);
             logDebugP("Einschalten HCL");
         } else {
             logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
@@ -582,7 +582,7 @@ void DaliChannel::handleSwitchStaircase(GroupObject &ko)
             onValue = isNight ? _lastNightValue : _lastDayValue;
         if(_hclCurve != 255 && _hclIsAutoMode)
         {
-            onValue = _hclCurrentBri;
+            onValue = DaliHelper::percentToArc(_hclCurrentBri);
             logDebugP("Einschalten HCL");
         } else {
             logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
