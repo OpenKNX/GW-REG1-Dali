@@ -840,9 +840,8 @@ void DaliChannel::koHandleColor(GroupObject &ko)
 
             sendColor();
             
-            knx.getGroupObject(calcKoNumber(ADR_Kocolor_rgb_state)).value(data, Dpt(242, 600));
-            //TODO implement in Stack
-            //sendKoStateOnChange(ADR_Kocolor_rgb_state, value, Dpt(242, 600), true);
+            // use 7.600 to send 2 byte unsigned int
+            sendKoStateOnChange(ADR_Kocolor_rgb_state, data, Dpt(7, 600));
             break;
         }
     }
