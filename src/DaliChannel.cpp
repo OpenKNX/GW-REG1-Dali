@@ -145,11 +145,11 @@ void DaliChannel::loopDimming()
                             return;
                         }
                         daliMaster.sendCommand(_channelIndex, Dali::Command::RECALL_MIN, _isGroup, true);
-                        _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
+                        _queryId = daliMaster.sendCommand(_isGroup ? _dimmReferenceAddress : _channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
                         currentState = true;
                         return;
                     }
-                    _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
+                    _queryId = daliMaster.sendCommand(_isGroup ? _dimmReferenceAddress : _channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
                     daliMaster.sendCommand(_channelIndex, Dali::Command::UP, _isGroup);
                 }
 
@@ -170,7 +170,7 @@ void DaliChannel::loopDimming()
             {
                 if (currentDimmType == DimmType::Brigthness)
                 {
-                    _queryId = daliMaster.sendCommand(_channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
+                    _queryId = daliMaster.sendCommand(_isGroup ? _dimmReferenceAddress : _channelIndex, Dali::Command::QUERY_ACTUAL_LEVEL, _isGroup, true);
                     daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
                 }
 
@@ -1047,6 +1047,20 @@ void DaliChannel::setOnValue(uint8_t value)
 void DaliChannel::setGroups(uint16_t groups)
 {
     _groups = groups;
+
+    // Set Reference Address to get current value from evg
+    // when relative dimming a group
+    if(_isGroup && _dimmReferenceAddress == 255)
+    {
+        for(int i = 0; i < 16; i++)
+        {
+            if((groups >> i) & 1)
+            {
+                _dimmReferenceAddress = i;
+                return;
+            }
+        }
+    }
 }
 
 void DaliChannel::setGroupState(uint16_t group, bool state)
