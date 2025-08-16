@@ -798,26 +798,26 @@
 // UnionOffset: 13, ParaOffset: 1, Size: 8 Bit (1 Byte), Text: Zyklisches speichern
 #define ParamBASE_PeriodicSave ((uint32_t)((knx.paramByte((BASE_Share_ParamBlockOffset + BASE_PeriodicSave)))))
 //!< Number: 1, Text: In Betrieb, Function: Zyklisch
-#define BASE_KoHeartbeat 1
-#define KoBASE_Heartbeat knx.getGroupObject(BASE_KoHeartbeat + BASE_Share_KoOffset)
+#define BASE_KoHeartbeat 1 + BASE_Share_KoOffset
+#define KoBASE_Heartbeat knx.getGroupObject(BASE_KoHeartbeat)
 //!< Number: 2, Text: Uhrzeit/Datum, Function: Eingang
-#define BASE_KoTime 2
-#define KoBASE_Time knx.getGroupObject(BASE_KoTime + BASE_Share_KoOffset)
+#define BASE_KoTime 2 + BASE_Share_KoOffset
+#define KoBASE_Time knx.getGroupObject(BASE_KoTime)
 //!< Number: 3, Text: Datum, Function: Eingang
-#define BASE_KoDate 3
-#define KoBASE_Date knx.getGroupObject(BASE_KoDate + BASE_Share_KoOffset)
+#define BASE_KoDate 3 + BASE_Share_KoOffset
+#define KoBASE_Date knx.getGroupObject(BASE_KoDate)
 //!< Number: 7, Text: Diagnose, Function: Diagnoseobjekt
-#define BASE_KoDiagnose 7
-#define KoBASE_Diagnose knx.getGroupObject(BASE_KoDiagnose + BASE_Share_KoOffset)
+#define BASE_KoDiagnose 7 + BASE_Share_KoOffset
+#define KoBASE_Diagnose knx.getGroupObject(BASE_KoDiagnose)
 //!< Number: 10, Text: Sommerzeit aktiv, Function: Eingang
-#define BASE_KoIsSummertime 10
-#define KoBASE_IsSummertime knx.getGroupObject(BASE_KoIsSummertime + BASE_Share_KoOffset)
+#define BASE_KoIsSummertime 10 + BASE_Share_KoOffset
+#define KoBASE_IsSummertime knx.getGroupObject(BASE_KoIsSummertime)
 //!< Number: 11, Text: Speichern, Function: Eingang
-#define BASE_KoManualSave 11
-#define KoBASE_ManualSave knx.getGroupObject(BASE_KoManualSave + BASE_Share_KoOffset)
+#define BASE_KoManualSave 11 + BASE_Share_KoOffset
+#define KoBASE_ManualSave knx.getGroupObject(BASE_KoManualSave)
 //!< Number: 12, Text: Uhrzeit/Datum, Function: Ausgang
-#define BASE_KoDateTime 12
-#define KoBASE_DateTime knx.getGroupObject(BASE_KoDateTime + BASE_Share_KoOffset)
+#define BASE_KoDateTime 12 + BASE_Share_KoOffset
+#define KoBASE_DateTime knx.getGroupObject(BASE_KoDateTime)
 
 //-----Module: Network Share
 #define NET_HostName		0x0000

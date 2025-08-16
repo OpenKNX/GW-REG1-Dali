@@ -18070,7 +18070,7 @@
         "UId": 1,
         "Name": "parameter",
         "Address": 0,
-        "Size": 2200,
+        "Size": 2120,
         "Offset": 0,
         "IsAutoPara": true,
         "IsAutoOrder": true,
@@ -18090,6 +18090,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": true,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -25235,7 +25236,7 @@
             "Value": "0",
             "IsInUnion": false,
             "IsUnionDefault": false,
-            "Offset": 22,
+            "Offset": 21,
             "OffsetBit": 0,
             "Text": [
               {
@@ -25359,7 +25360,7 @@
             "Value": "1",
             "IsInUnion": false,
             "IsUnionDefault": false,
-            "Offset": 22,
+            "Offset": 21,
             "OffsetBit": 2,
             "Text": [
               {
@@ -25421,7 +25422,7 @@
             "Value": "1",
             "IsInUnion": false,
             "IsUnionDefault": false,
-            "Offset": 22,
+            "Offset": 21,
             "OffsetBit": 3,
             "Text": [
               {
@@ -25483,7 +25484,7 @@
             "Value": "1",
             "IsInUnion": false,
             "IsUnionDefault": false,
-            "Offset": 22,
+            "Offset": 21,
             "OffsetBit": 4,
             "Text": [
               {
@@ -38402,7 +38403,7 @@
             "$type": "Kaenx.Creator.Models.Argument, Kaenx.Creator.Share",
             "UId": 1,
             "Id": 1,
-            "Allocates": 23,
+            "Allocates": 22,
             "Name": "argParas",
             "Type": 1
           },
@@ -44894,6 +44895,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": true,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -46583,7 +46585,7 @@
             "Value": "1",
             "IsInUnion": false,
             "IsUnionDefault": false,
-            "Offset": 18,
+            "Offset": 17,
             "OffsetBit": 0,
             "Text": [
               {
@@ -46645,7 +46647,7 @@
             "Value": "1",
             "IsInUnion": false,
             "IsUnionDefault": false,
-            "Offset": 18,
+            "Offset": 17,
             "OffsetBit": 1,
             "Text": [
               {
@@ -53705,7 +53707,7 @@
             "$type": "Kaenx.Creator.Models.Argument, Kaenx.Creator.Share",
             "UId": 1,
             "Id": 1,
-            "Allocates": 19,
+            "Allocates": 18,
             "Name": "argParas",
             "Type": 1
           },
@@ -55177,6 +55179,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": false,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -56277,6 +56280,7 @@
         "IsParameterRefAuto": true,
         "IsComObjectRefAuto": true,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -58769,6 +58773,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": false,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": true,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -65523,6 +65528,7 @@
         "IsParameterRefAuto": false,
         "IsComObjectRefAuto": false,
         "IsComObjectBaseNumberAuto": true,
+        "IncludeOffsetInKoHeader": false,
         "ParameterBaseOffsetUId": 1,
         "ComObjectBaseNumberUId": 2,
         "Parameters": [
@@ -70202,7 +70208,7 @@
         "Id": 1,
         "Name": "paraAddr",
         "Start": 397,
-        "Max": 1869
+        "Max": 1805
       },
       {
         "$type": "Kaenx.Creator.Models.Allocator, Kaenx.Creator.Share",
@@ -70225,8 +70231,8 @@
         "UId": 4,
         "Id": 4,
         "Name": "paraGrp",
-        "Start": 1869,
-        "Max": 2173
+        "Start": 1805,
+        "Max": 2093
       },
       {
         "$type": "Kaenx.Creator.Models.Allocator, Kaenx.Creator.Share",
@@ -70273,8 +70279,8 @@
         "UId": 10,
         "Id": 10,
         "Name": "paraHCL",
-        "Start": 2173,
-        "Max": 2200
+        "Start": 2093,
+        "Max": 2120
       },
       {
         "$type": "Kaenx.Creator.Models.Allocator, Kaenx.Creator.Share",
@@ -72134,7 +72140,7 @@
                       {
                         "$type": "Kaenx.Creator.Models.Dynamic.DynModuleArg, Kaenx.Creator.Share",
                         "ArgumentId": 1,
-                        "Value": "1846",
+                        "Value": "1783",
                         "UseAllocator": true,
                         "AllocatorId": 1
                       },
@@ -72212,7 +72218,7 @@
                       {
                         "$type": "Kaenx.Creator.Models.Dynamic.DynModuleArg, Kaenx.Creator.Share",
                         "ArgumentId": 1,
-                        "Value": "2154",
+                        "Value": "2075",
                         "UseAllocator": true,
                         "AllocatorId": 4
                       },
@@ -72290,7 +72296,7 @@
                       {
                         "$type": "Kaenx.Creator.Models.Dynamic.DynModuleArg, Kaenx.Creator.Share",
                         "ArgumentId": 1,
-                        "Value": "2191",
+                        "Value": "2111",
                         "UseAllocator": true,
                         "AllocatorId": 10
                       },
@@ -72367,8 +72373,9 @@
     "IsSecureActive": false,
     "HasBusInterfaceRouter": false,
     "BusInterfaceCounter": 4,
-    "Procedure": "<LoadProcedures>\r\n  <LoadProcedure MergeId=\"1\">\r\n    <LdCtrlCompareProp InlineData=\"00FA\" ObjIdx=\"0\" PropId=\"12\">\r\n      <OnError Cause=\"CompareMismatch\" MessageRef=\"loadErrorManu\" />\r\n    </LdCtrlCompareProp>\r\n    <LdCtrlCompareProp InlineData=\"0000A4010800\" ObjIdx=\"0\" PropId=\"78\">\r\n      <OnError Cause=\"CompareMismatch\" MessageRef=\"loadErrorApp\" />\r\n    </LdCtrlCompareProp>\r\n  </LoadProcedure>\r\n  <LoadProcedure MergeId=\"2\">\r\n    <LdCtrlRelSegment LsmIdx=\"4\" Size=\"2200\" Mode=\"1\" Fill=\"0\" AppliesTo=\"full\" />\r\n    <LdCtrlRelSegment LsmIdx=\"4\" Size=\"2200\" Mode=\"0\" Fill=\"0\" AppliesTo=\"par\" />\r\n  </LoadProcedure>\r\n  <LoadProcedure MergeId=\"4\">\r\n    <LdCtrlWriteRelMem ObjIdx=\"4\" Offset=\"0\" Size=\"2200\" Verify=\"true\" AppliesTo=\"full,par\" />\r\n  </LoadProcedure>\r\n  <LoadProcedure MergeId=\"7\">\r\n    <LdCtrlLoadImageProp ObjIdx=\"1\" PropId=\"27\" />\r\n    <LdCtrlLoadImageProp ObjIdx=\"2\" PropId=\"27\" />\r\n    <LdCtrlLoadImageProp ObjIdx=\"3\" PropId=\"27\" />\r\n    <LdCtrlLoadImageProp ObjIdx=\"4\" PropId=\"27\" />\r\n  </LoadProcedure>\r\n</LoadProcedures>",
+    "Procedure": "<LoadProcedures>\r\n  <LoadProcedure MergeId=\"1\">\r\n    <LdCtrlCompareProp InlineData=\"00FA\" ObjIdx=\"0\" PropId=\"12\">\r\n      <OnError Cause=\"CompareMismatch\" MessageRef=\"loadErrorManu\" />\r\n    </LdCtrlCompareProp>\r\n    <LdCtrlCompareProp InlineData=\"0000A4010800\" ObjIdx=\"0\" PropId=\"78\">\r\n      <OnError Cause=\"CompareMismatch\" MessageRef=\"loadErrorApp\" />\r\n    </LdCtrlCompareProp>\r\n  </LoadProcedure>\r\n  <LoadProcedure MergeId=\"2\">\r\n    <LdCtrlRelSegment LsmIdx=\"4\" Size=\"2120\" Mode=\"1\" Fill=\"0\" AppliesTo=\"full\" />\r\n    <LdCtrlRelSegment LsmIdx=\"4\" Size=\"2120\" Mode=\"0\" Fill=\"0\" AppliesTo=\"par\" />\r\n  </LoadProcedure>\r\n  <LoadProcedure MergeId=\"4\">\r\n    <LdCtrlWriteRelMem ObjIdx=\"4\" Offset=\"0\" Size=\"2120\" Verify=\"true\" AppliesTo=\"full,par\" />\r\n  </LoadProcedure>\r\n  <LoadProcedure MergeId=\"7\">\r\n    <LdCtrlLoadImageProp ObjIdx=\"1\" PropId=\"27\" />\r\n    <LdCtrlLoadImageProp ObjIdx=\"2\" PropId=\"27\" />\r\n    <LdCtrlLoadImageProp ObjIdx=\"3\" PropId=\"27\" />\r\n    <LdCtrlLoadImageProp ObjIdx=\"4\" PropId=\"27\" />\r\n  </LoadProcedure>\r\n</LoadProcedures>",
     "IsPreETS4": false,
+    "IpConfig": "Tool",
     "LastParameterId": 83,
     "LastParameterRefId": 83,
     "LastDynModuleId": 0,
