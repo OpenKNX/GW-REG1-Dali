@@ -535,16 +535,32 @@ void DaliChannel::handleSwitchNormal(GroupObject &ko)
         uint8_t onValue = isNight ? _onNight : _onDay;
         if (onValue == 0)
             onValue = isNight ? _lastNightValue : _lastDayValue;
+    
+        bool hclBriActivated = false;
         if(_hclCurve != 255 && _hclIsAutoMode)
         {
-            onValue = DaliHelper::percentToArc(_hclCurrentBri);
-            logDebugP("Einschalten HCL");
-        } else {
+            hclBriActivated = ParamHCL_checkBrightnessIndex(_hclCurve);
+            if(hclBriActivated)
+            {
+                onValue = DaliHelper::percentToArc(_hclCurrentBri);
+                logDebugP("Einschalten HCL");
+            }
+        }
+        if(!hclBriActivated) {
             logDebugP(isNight ? "Einschalten Nacht" : "Einschalten Tag");
         }
         daliMaster.sendArc(_channelIndex, onValue, _isGroup);
+
+        bool hclTempActivated = false;
         if(_hclCurve != 255 && _hclIsAutoMode)
-            setTemperature(_hclCurrentTemp);
+        {
+            hclTempActivated = ParamHCL_checkTemperatureIndex(_hclCurve);
+            if(hclTempActivated)
+            {
+                logDebugP("Setze Temperatur auf %iK", _hclCurrentTemp);
+                setTemperature(_hclCurrentTemp);
+            }
+        }
         setDimmState(onValue, true);
     }
     else
