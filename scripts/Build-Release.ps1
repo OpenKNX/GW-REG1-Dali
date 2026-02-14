@@ -35,7 +35,7 @@ if (!$?) { exit 1 }
 lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1 firmware-REG1-Dali uf2
 if (!$?) { exit 1 }
 
-lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1-ESP firmware-REG1-LAN-TP-2xDali esp32
+lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_REG1_LAN_TP_DALI firmware-REG1-LAN-TP-Dali esp32
 if (!$?) { exit 1 }
 
 # TEMPORARY: We use our own generic updload files for this version
