@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<KNX xmlns="http://knx.org/xml/project/20" xmlns:op="http://github.com/OpenKNX/OpenKNXproducer">
+
+  <op:config name="%BTN_NumChannelsDefault%" value="5" />
+  <op:config name="%LOG_NumChannelsDefault%" value="5" />
+
+  <op:ETS
+    OpenKnxId="0xA4"
+    ApplicationNumber="1"
+    ApplicationVersion="0.3"
+    ReplacesVersions="0.2 0.1"
+    ApplicationRevision="0"
+    ProductName="Dali-Gateway"
+    BusCurrent="10"
+    BuildSuffix=""
+    BuildSuffixText=""
+    OrderNumber="DaliGateway" />
+
+  <op:define prefix="BASE" ModuleType="10"
+    share="../lib/OGM-Common/src/Common.share.xml">
+    <op:verify File="../lib/OGM-Common/library.json" ModuleVersion="1.7" />
+  </op:define>
+
+  <op:define prefix="OAM" ModuleType="99"
+    share="../src/DaliGateway.base.xml">
+  </op:define>
+
+  <op:define prefix="UCT" ModuleType="19"
+      share="../lib/OFM-ConfigTransfer/src/ConfigTransfer.share.xml">
+      <op:verify File="../lib/OFM-ConfigTransfer/library.json" ModuleVersion="0.4" />
+  </op:define>
+
+  <op:define prefix="DGW" ModuleType="41"
+    share="../lib/OFM-Dali/src/DaliModule.share.xml"
+    template="../lib/OFM-Dali/src/DaliModule.templ.xml"
+    NumChannels="20" KoOffset="201">
+    <op:verify File="../lib/OFM-Dali/library.json" ModuleVersion="0.0" /> 
+  </op:define>
+
+  <op:define prefix="BTN" ModuleType="30"
+    share="../lib/OFM-VirtualButton/src/VirtualButton.share.xml"
+    template="../lib/OFM-VirtualButton/src/VirtualButton.templ.xml"
+    NumChannels="5" KoOffset="300">
+    <op:verify File="../lib/OFM-VirtualButton/library.json" ModuleVersion="0.5" /> 
+  </op:define>
+
+  <op:define prefix="LOG" ModuleType="10"
+    share="../lib/OFM-LogicModule/src/Logikmodul.share.xml"
+    template="../lib/OFM-LogicModule/src/Logikmodul.templ.xml"
+    NumChannels="5" KoOffset="100">
+    <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="3.10" /> 
+  </op:define>
+
+  <generate />
+</KNX>

@@ -21,8 +21,6 @@
 #     "group": "test"
 # }
 
-
-
 # set product names, allows mapping of (devel) name in Project to a more consistent name in release
 # $settings = scripts/OpenKNX-Build-Settings.ps1
 
@@ -31,26 +29,25 @@ lib/OGM-Common/scripts/setup/reusable/Build-Release-Preprocess.ps1 $args[0]
 if (!$?) { exit 1 }
 
 # build firmware based on generated headerfile 
+# the following build steps are project specific and must be adopted accordingly
+# see comment in Build-Step.ps1 for argument description
 
-lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1 firmware-REG1-Dali uf2
+
+# Example call, the following 2 lines might be there multiple times for each firmware which should be built
+../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_DEVICE_UP1_GW_IR UP1-GW-IR uf2
 if (!$?) { exit 1 }
 
-lib/OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_REG1_LAN_TP_DALI firmware-REG1-LAN-TP-Dali esp32
-if (!$?) { exit 1 }
+# build firmware based on generated headerfile for SAMD
+# ../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_SAMD_v31 firmware-v31 bin
+# if (!$?) { exit 1 }
 
-# TEMPORARY: We use our own generic updload files for this version
-# Copy-Item scripts/data/* release/data -Force
-$projectDir = Get-Location
-
-$files = Get-ChildItem -Path $projectDir/*.ae-manu
-# $filePath = $projectDir/$files[0].Name
-$files
-Copy-Item $projectDir/$($files[0].Name) release/data/$($files[0].Name) -Force
+# ../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_SAMD_v30 firmware-v30 bin
+# if (!$?) { exit 1 }
 
 # execute generic post-build steps
 lib/OGM-Common/scripts/setup/reusable/Build-Release-Postprocess.ps1 $args[0]
 if (!$?) { exit 1 }
 
 if (Test-Path -Path release-collection -PathType Container) {
-    Copy-Item release/* release-collection/
+  Copy-Item release/* release-collection/
 }

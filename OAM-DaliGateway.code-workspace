@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../OGM-Common"
+		},
+		{
+			"path": "lib/OFM-Dali"
+		}
+	],
+	"settings": {}
+}

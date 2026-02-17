@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+  <ManufacturerData>
+    <Manufacturer>
+      <ApplicationPrograms>
+        <ApplicationProgram>
+          <Static>
+            <Parameters>
+                <Parameter Id="%AID%_P-%TT%%CC%000" Name="Channel%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
+            </Parameters>
+            <ParameterRefs>
+                <ParameterRef Id="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_P-%TT%%CC%000" />
+            </ParameterRefs>
+            <ComObjectTable>
+            </ComObjectTable>
+            <ComObjectRefs>
+            </ComObjectRefs>
+          </Static>
+          <Dynamic>
+            <ChannelIndependentBlock> 
+                  <ParameterBlock Id="%AID%_PB-nnn" Name="Channel%C%Page" Text="IR-Taste %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" HelpContext="DGW-Dokumentation" ShowInComObjectTree="true" Icon="remote">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="IR-Taste %C%" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" HelpContext="BASE-ChannelName" IndentLevel="1"/>
+                  </ParameterBlock>
+            </ChannelIndependentBlock>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>

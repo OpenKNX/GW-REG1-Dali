@@ -4,39 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build-and-Upload",
+            "label": "OpenKNXproducer",
             "type": "shell",
-            "command": "scripts/Upload-Firmware.ps1",
+            "command": "~/bin/OpenKNXproducer.exe",
             "args": [
-                //Todo change to release_REG1_V1
-                "develop_REG1_USB_V1"
+                "create",
+                "--Debug",
+                "-h",
+                "include/knxprod.h",
+                "src/DaliGateway"
             ],
-            "group": "build",
             "problemMatcher": [],
-            "dependsOn": ["Gen. Dependencies.txt"]
-        },
-        {
-            "label": "Restore-Project Branch",
-            "type": "shell",
-            "command": "scripts/Restore-Project.ps1",
-            "args": [
-                "-wait",
-                "$false"
-            ],
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Restore-Project Hash",
-            "type": "shell",
-            "command": "scripts/Restore-Project.ps1",
-            "args": [
-                "-checkoutHash",
-                "-wait",
-                "$false"
-            ],
-            "group": "build",
-            "problemMatcher": []
+            "group": "test"
         },
         {
             "label": "Gen. Dependencies.txt",
@@ -48,24 +27,51 @@
             "group": "test"
         },
         {
+            "label": "Develop: GW-UP1-DG",
+            "type": "shell",
+            "command": "scripts/OpenKNX-Build.ps1",
+            "args": [
+                "develop_RP2040"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Develop: GW-UP1-DG (JLINK)",
+            "type": "shell",
+            "command": "scripts/OpenKNX-Build.ps1",
+            "args": [
+                "develop_RP2040_JLINK",
+                "upload"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "Build-Release",
             "type": "shell",
-            "command": "scripts/Build-Release.ps1",
+            "command": "scripts/Build-Release.ps1", 
             "args": [
-                "Release"
+                ""
             ],
             "problemMatcher": [],
             "group": "test"
         },
         {
-            "label": "Build-Beta",
+            "label": "Restore-Project Branch",
             "type": "shell",
-            "command": "scripts/Build-Release.ps1",
-            "args": [
-                "Beta"
-            ],
-            "problemMatcher": [],
-            "group": "test"
+            "command": "restore/Restore-Dependencies-Branch.ps1",
+            "args": [ ],
+            "group": "build",
+            "problemMatcher": []
         },
+        {
+            "label": "Restore-Project Hash",
+            "type": "shell",
+            "command": "restore/Restore-Dependencies.ps1",
+            "args": [ ],
+            "group": "build",
+            "problemMatcher": []
+        }
     ]
 }
