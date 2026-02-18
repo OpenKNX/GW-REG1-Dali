@@ -18,6 +18,20 @@
             "group": "test"
         },
         {
+            "label": "OpenKNXproducer2",
+            "type": "shell",
+            "command": "C:\\Users\\Mike\\sources\\Openknxproducer\\bin\\Debug\\net9.0\\OpenKNXproducer.exe",
+            "args": [
+                "create",
+                "--Debug",
+                "-h",
+                "include/knxprod.h",
+                "src/DaliGateway"
+            ],
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
             "label": "Gen. Dependencies.txt",
             "type": "shell",
             "command": "lib/OGM-Common/scripts/setup/reusable/Build-Dependencies.ps1",

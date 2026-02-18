@@ -8,8 +8,8 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="0.3"
-    ReplacesVersions="0.2 0.1"
+    ApplicationVersion="0.12"
+    ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
     BusCurrent="10"
@@ -34,7 +34,7 @@
   <op:define prefix="DGW" ModuleType="41"
     share="../lib/OFM-Dali/src/DaliModule.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.templ.xml"
-    NumChannels="20" KoOffset="201">
+    NumChannels="20" KoOffset="200" KoSingleOffset="20">
     <op:verify File="../lib/OFM-Dali/library.json" ModuleVersion="0.0" /> 
   </op:define>
 

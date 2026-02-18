@@ -220,12 +220,24 @@
               </ParameterType>
             </ParameterTypes>
             <Parameters>
+              <Parameter Id="%AID%_P-%TT%00078" Name="isEtsFix" ParameterType="%AID%_PT-noyes" Text="ETS Version &gt;= 6.1.1" Value="0" />
             </Parameters>
             <ParameterRefs>
+              <ParameterRef Id="%AID%_P-%TT%00078_R-78" RefId="%AID%_P-%TT%00078" Name="isEtsFix" />
             </ParameterRefs>
             <ComObjectTable>
+              <ComObject Id="%AID%_O-%TT%00001" Name="broadcast_switch" Text="Dali: Broadcast" Number="1" FunctionText="Schalten" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%00002" Name="broadcast_dimm" Text="Dali: Broadcast" Number="2" FunctionText="Dimmen Absolut" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              <ComObject Id="%AID%_O-%TT%00003" Name="daynight" Text="Dali: Allgemein" Number="3" FunctionText="Tag/Nacht" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%00004" Name="onValue" Text="Dali: Allgemein" Number="4" FunctionText="Einschaltwert Tag" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              <ComObject Id="%AID%_O-%TT%00005" Name="scene" Text="Dali: Allgemein" Number="5" FunctionText="Szene" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-17-1" />
             </ComObjectTable>
             <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%00001_R-%TT%0000101" RefId="%AID%_O-%TT%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%00002_R-%TT%0000201" RefId="%AID%_O-%TT%00002" />
+              <ComObjectRef Id="%AID%_O-%TT%00003_R-%TT%0000301" RefId="%AID%_O-%TT%00003" />
+              <ComObjectRef Id="%AID%_O-%TT%00004_R-%TT%0000401" RefId="%AID%_O-%TT%00004" />
+              <ComObjectRef Id="%AID%_O-%TT%00005_R-1" RefId="%AID%_O-%TT%00005" />
             </ComObjectRefs>
             <Script>
               <!-- <op:include href="DaliModule.script.js" prefix="DG" type="script" /> -->
@@ -239,6 +251,22 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Version: %ModuleVersion%" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                
+                <ComObjectRefRef RefId="%AID%_O-%TT%00001_R-%TT%0000101" />
+                <ComObjectRefRef RefId="%AID%_O-%TT%00002_R-%TT%0000201" />
+                <ComObjectRefRef RefId="%AID%_O-%TT%00003_R-%TT%0000301" />
+                <ComObjectRefRef RefId="%AID%_O-%TT%00005_R-1" />
+                <ParameterRefRef RefId="%AID%_P-%TT%00078_R-78" />
+                <!-- <ParameterRefRef RefId="%AID%_P-73_R-73" />
+                <ParameterRefRef RefId="%AID%_P-74_R-74" />
+                <choose ParamRefId="%AID%_P-74_R-74">
+                  <when test="1">
+                    <ComObjectRefRef RefId="%AID%_O-4_R-3" />
+                  </when>
+                </choose>
+                <ParameterRefRef RefId="%AID%_P-79_R-79" />
+                <ParameterRefRef RefId="%AID%_P-81_R-81" />
+                <ParameterRefRef RefId="%AID%_P-80_R-80" /> -->
               </ParameterBlock>
               
               <op:include href="DaliModule.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/*" type="template" prefix="DG" IsInner="true" />

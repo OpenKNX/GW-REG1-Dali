@@ -18,7 +18,7 @@
 #define MAIN_FirmwareName "Dali-Gateway"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 12
+#define MAIN_ApplicationVersion 10
 #define MAIN_ApplicationEncoding iso-8859-15
 #define MAIN_ParameterSize 3825
 #define MAIN_MaxKoNumber 359
@@ -62,7 +62,6 @@
 #define     BASE_SummertimeKOMask 0x03
 #define     BASE_SummertimeKOShift 0
 #define BASE_TimezoneCustom                       5      // char*, 63 Byte
-#define     BASE_TimezoneCustomLength 63
 #define BASE_Latitude                            69      // float
 #define BASE_Longitude                           73      // float
 #define BASE_Diagnose                            78      // 1 Bit, Bit 7
@@ -133,7 +132,6 @@
 #define ParamBASE_SummertimeKO                        (knx.paramByte(BASE_SummertimeKO) & BASE_SummertimeKOMask)
 // POSIX TZ-String
 #define ParamBASE_TimezoneCustom                      (knx.paramData(BASE_TimezoneCustom))
-#define ParamBASE_TimezoneCustomStr                   (knx.paramString(BASE_TimezoneCustom, BASE_TimezoneCustomLength))
 // Breitengrad
 #define ParamBASE_Latitude                            (knx.paramFloat(BASE_Latitude, Float_Enc_IEEE754Single))
 // Längengrad
@@ -869,152 +867,122 @@
 #define     LOG_WeltkindertagMask 0x20
 #define     LOG_WeltkindertagShift 5
 #define LOG_UserFormula1                        390      // char*, 99 Byte
-#define     LOG_UserFormula1Length 99
 #define LOG_UserFormula1Active                  489      // 1 Bit, Bit 7
 #define     LOG_UserFormula1ActiveMask 0x80
 #define     LOG_UserFormula1ActiveShift 7
 #define LOG_UserFormula2                        490      // char*, 99 Byte
-#define     LOG_UserFormula2Length 99
 #define LOG_UserFormula2Active                  589      // 1 Bit, Bit 7
 #define     LOG_UserFormula2ActiveMask 0x80
 #define     LOG_UserFormula2ActiveShift 7
 #define LOG_UserFormula3                        590      // char*, 99 Byte
-#define     LOG_UserFormula3Length 99
 #define LOG_UserFormula3Active                  689      // 1 Bit, Bit 7
 #define     LOG_UserFormula3ActiveMask 0x80
 #define     LOG_UserFormula3ActiveShift 7
 #define LOG_UserFormula4                        690      // char*, 99 Byte
-#define     LOG_UserFormula4Length 99
 #define LOG_UserFormula4Active                  789      // 1 Bit, Bit 7
 #define     LOG_UserFormula4ActiveMask 0x80
 #define     LOG_UserFormula4ActiveShift 7
 #define LOG_UserFormula5                        790      // char*, 99 Byte
-#define     LOG_UserFormula5Length 99
 #define LOG_UserFormula5Active                  889      // 1 Bit, Bit 7
 #define     LOG_UserFormula5ActiveMask 0x80
 #define     LOG_UserFormula5ActiveShift 7
 #define LOG_UserFormula6                        890      // char*, 99 Byte
-#define     LOG_UserFormula6Length 99
 #define LOG_UserFormula6Active                  989      // 1 Bit, Bit 7
 #define     LOG_UserFormula6ActiveMask 0x80
 #define     LOG_UserFormula6ActiveShift 7
 #define LOG_UserFormula7                        990      // char*, 99 Byte
-#define     LOG_UserFormula7Length 99
 #define LOG_UserFormula7Active                  1089      // 1 Bit, Bit 7
 #define     LOG_UserFormula7ActiveMask 0x80
 #define     LOG_UserFormula7ActiveShift 7
 #define LOG_UserFormula8                        1090      // char*, 99 Byte
-#define     LOG_UserFormula8Length 99
 #define LOG_UserFormula8Active                  1189      // 1 Bit, Bit 7
 #define     LOG_UserFormula8ActiveMask 0x80
 #define     LOG_UserFormula8ActiveShift 7
 #define LOG_UserFormula9                        1190      // char*, 99 Byte
-#define     LOG_UserFormula9Length 99
 #define LOG_UserFormula9Active                  1289      // 1 Bit, Bit 7
 #define     LOG_UserFormula9ActiveMask 0x80
 #define     LOG_UserFormula9ActiveShift 7
 #define LOG_UserFormula10                       1290      // char*, 99 Byte
-#define     LOG_UserFormula10Length 99
 #define LOG_UserFormula10Active                 1389      // 1 Bit, Bit 7
 #define     LOG_UserFormula10ActiveMask 0x80
 #define     LOG_UserFormula10ActiveShift 7
 #define LOG_UserFormula11                       1390      // char*, 99 Byte
-#define     LOG_UserFormula11Length 99
 #define LOG_UserFormula11Active                 1489      // 1 Bit, Bit 7
 #define     LOG_UserFormula11ActiveMask 0x80
 #define     LOG_UserFormula11ActiveShift 7
 #define LOG_UserFormula12                       1490      // char*, 99 Byte
-#define     LOG_UserFormula12Length 99
 #define LOG_UserFormula12Active                 1589      // 1 Bit, Bit 7
 #define     LOG_UserFormula12ActiveMask 0x80
 #define     LOG_UserFormula12ActiveShift 7
 #define LOG_UserFormula13                       1590      // char*, 99 Byte
-#define     LOG_UserFormula13Length 99
 #define LOG_UserFormula13Active                 1689      // 1 Bit, Bit 7
 #define     LOG_UserFormula13ActiveMask 0x80
 #define     LOG_UserFormula13ActiveShift 7
 #define LOG_UserFormula14                       1690      // char*, 99 Byte
-#define     LOG_UserFormula14Length 99
 #define LOG_UserFormula14Active                 1789      // 1 Bit, Bit 7
 #define     LOG_UserFormula14ActiveMask 0x80
 #define     LOG_UserFormula14ActiveShift 7
 #define LOG_UserFormula15                       1790      // char*, 99 Byte
-#define     LOG_UserFormula15Length 99
 #define LOG_UserFormula15Active                 1889      // 1 Bit, Bit 7
 #define     LOG_UserFormula15ActiveMask 0x80
 #define     LOG_UserFormula15ActiveShift 7
 #define LOG_UserFormula16                       1890      // char*, 99 Byte
-#define     LOG_UserFormula16Length 99
 #define LOG_UserFormula16Active                 1989      // 1 Bit, Bit 7
 #define     LOG_UserFormula16ActiveMask 0x80
 #define     LOG_UserFormula16ActiveShift 7
 #define LOG_UserFormula17                       1990      // char*, 99 Byte
-#define     LOG_UserFormula17Length 99
 #define LOG_UserFormula17Active                 2089      // 1 Bit, Bit 7
 #define     LOG_UserFormula17ActiveMask 0x80
 #define     LOG_UserFormula17ActiveShift 7
 #define LOG_UserFormula18                       2090      // char*, 99 Byte
-#define     LOG_UserFormula18Length 99
 #define LOG_UserFormula18Active                 2189      // 1 Bit, Bit 7
 #define     LOG_UserFormula18ActiveMask 0x80
 #define     LOG_UserFormula18ActiveShift 7
 #define LOG_UserFormula19                       2190      // char*, 99 Byte
-#define     LOG_UserFormula19Length 99
 #define LOG_UserFormula19Active                 2289      // 1 Bit, Bit 7
 #define     LOG_UserFormula19ActiveMask 0x80
 #define     LOG_UserFormula19ActiveShift 7
 #define LOG_UserFormula20                       2290      // char*, 99 Byte
-#define     LOG_UserFormula20Length 99
 #define LOG_UserFormula20Active                 2389      // 1 Bit, Bit 7
 #define     LOG_UserFormula20ActiveMask 0x80
 #define     LOG_UserFormula20ActiveShift 7
 #define LOG_UserFormula21                       2390      // char*, 99 Byte
-#define     LOG_UserFormula21Length 99
 #define LOG_UserFormula21Active                 2489      // 1 Bit, Bit 7
 #define     LOG_UserFormula21ActiveMask 0x80
 #define     LOG_UserFormula21ActiveShift 7
 #define LOG_UserFormula22                       2490      // char*, 99 Byte
-#define     LOG_UserFormula22Length 99
 #define LOG_UserFormula22Active                 2589      // 1 Bit, Bit 7
 #define     LOG_UserFormula22ActiveMask 0x80
 #define     LOG_UserFormula22ActiveShift 7
 #define LOG_UserFormula23                       2590      // char*, 99 Byte
-#define     LOG_UserFormula23Length 99
 #define LOG_UserFormula23Active                 2689      // 1 Bit, Bit 7
 #define     LOG_UserFormula23ActiveMask 0x80
 #define     LOG_UserFormula23ActiveShift 7
 #define LOG_UserFormula24                       2690      // char*, 99 Byte
-#define     LOG_UserFormula24Length 99
 #define LOG_UserFormula24Active                 2789      // 1 Bit, Bit 7
 #define     LOG_UserFormula24ActiveMask 0x80
 #define     LOG_UserFormula24ActiveShift 7
 #define LOG_UserFormula25                       2790      // char*, 99 Byte
-#define     LOG_UserFormula25Length 99
 #define LOG_UserFormula25Active                 2889      // 1 Bit, Bit 7
 #define     LOG_UserFormula25ActiveMask 0x80
 #define     LOG_UserFormula25ActiveShift 7
 #define LOG_UserFormula26                       2890      // char*, 99 Byte
-#define     LOG_UserFormula26Length 99
 #define LOG_UserFormula26Active                 2989      // 1 Bit, Bit 7
 #define     LOG_UserFormula26ActiveMask 0x80
 #define     LOG_UserFormula26ActiveShift 7
 #define LOG_UserFormula27                       2990      // char*, 99 Byte
-#define     LOG_UserFormula27Length 99
 #define LOG_UserFormula27Active                 3089      // 1 Bit, Bit 7
 #define     LOG_UserFormula27ActiveMask 0x80
 #define     LOG_UserFormula27ActiveShift 7
 #define LOG_UserFormula28                       3090      // char*, 99 Byte
-#define     LOG_UserFormula28Length 99
 #define LOG_UserFormula28Active                 3189      // 1 Bit, Bit 7
 #define     LOG_UserFormula28ActiveMask 0x80
 #define     LOG_UserFormula28ActiveShift 7
 #define LOG_UserFormula29                       3190      // char*, 99 Byte
-#define     LOG_UserFormula29Length 99
 #define LOG_UserFormula29Active                 3289      // 1 Bit, Bit 7
 #define     LOG_UserFormula29ActiveMask 0x80
 #define     LOG_UserFormula29ActiveShift 7
 #define LOG_UserFormula30                       3290      // char*, 99 Byte
-#define     LOG_UserFormula30Length 99
 #define LOG_UserFormula30Active                 3389      // 1 Bit, Bit 7
 #define     LOG_UserFormula30ActiveMask 0x80
 #define     LOG_UserFormula30ActiveShift 7
@@ -1101,152 +1069,122 @@
 #define ParamLOG_Weltkindertag                       ((bool)(knx.paramByte(LOG_Weltkindertag) & LOG_WeltkindertagMask))
 // Formeldefinition
 #define ParamLOG_UserFormula1                        (knx.paramData(LOG_UserFormula1))
-#define ParamLOG_UserFormula1Str                     (knx.paramString(LOG_UserFormula1, LOG_UserFormula1Length))
 // Benutzerformel 1 aktiv
 #define ParamLOG_UserFormula1Active                  ((bool)(knx.paramByte(LOG_UserFormula1Active) & LOG_UserFormula1ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula2                        (knx.paramData(LOG_UserFormula2))
-#define ParamLOG_UserFormula2Str                     (knx.paramString(LOG_UserFormula2, LOG_UserFormula2Length))
 // Benutzerformel 2 aktiv
 #define ParamLOG_UserFormula2Active                  ((bool)(knx.paramByte(LOG_UserFormula2Active) & LOG_UserFormula2ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula3                        (knx.paramData(LOG_UserFormula3))
-#define ParamLOG_UserFormula3Str                     (knx.paramString(LOG_UserFormula3, LOG_UserFormula3Length))
 // Benutzerformel 3 aktiv
 #define ParamLOG_UserFormula3Active                  ((bool)(knx.paramByte(LOG_UserFormula3Active) & LOG_UserFormula3ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula4                        (knx.paramData(LOG_UserFormula4))
-#define ParamLOG_UserFormula4Str                     (knx.paramString(LOG_UserFormula4, LOG_UserFormula4Length))
 // Benutzerformel 4 aktiv
 #define ParamLOG_UserFormula4Active                  ((bool)(knx.paramByte(LOG_UserFormula4Active) & LOG_UserFormula4ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula5                        (knx.paramData(LOG_UserFormula5))
-#define ParamLOG_UserFormula5Str                     (knx.paramString(LOG_UserFormula5, LOG_UserFormula5Length))
 // Benutzerformel 5 aktiv
 #define ParamLOG_UserFormula5Active                  ((bool)(knx.paramByte(LOG_UserFormula5Active) & LOG_UserFormula5ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula6                        (knx.paramData(LOG_UserFormula6))
-#define ParamLOG_UserFormula6Str                     (knx.paramString(LOG_UserFormula6, LOG_UserFormula6Length))
 // Benutzerformel 6 aktiv
 #define ParamLOG_UserFormula6Active                  ((bool)(knx.paramByte(LOG_UserFormula6Active) & LOG_UserFormula6ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula7                        (knx.paramData(LOG_UserFormula7))
-#define ParamLOG_UserFormula7Str                     (knx.paramString(LOG_UserFormula7, LOG_UserFormula7Length))
 // Benutzerformel 7 aktiv
 #define ParamLOG_UserFormula7Active                  ((bool)(knx.paramByte(LOG_UserFormula7Active) & LOG_UserFormula7ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula8                        (knx.paramData(LOG_UserFormula8))
-#define ParamLOG_UserFormula8Str                     (knx.paramString(LOG_UserFormula8, LOG_UserFormula8Length))
 // Benutzerformel 8 aktiv
 #define ParamLOG_UserFormula8Active                  ((bool)(knx.paramByte(LOG_UserFormula8Active) & LOG_UserFormula8ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula9                        (knx.paramData(LOG_UserFormula9))
-#define ParamLOG_UserFormula9Str                     (knx.paramString(LOG_UserFormula9, LOG_UserFormula9Length))
 // Benutzerformel 9 aktiv
 #define ParamLOG_UserFormula9Active                  ((bool)(knx.paramByte(LOG_UserFormula9Active) & LOG_UserFormula9ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula10                       (knx.paramData(LOG_UserFormula10))
-#define ParamLOG_UserFormula10Str                    (knx.paramString(LOG_UserFormula10, LOG_UserFormula10Length))
 // Benutzerformel 10 aktiv
 #define ParamLOG_UserFormula10Active                 ((bool)(knx.paramByte(LOG_UserFormula10Active) & LOG_UserFormula10ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula11                       (knx.paramData(LOG_UserFormula11))
-#define ParamLOG_UserFormula11Str                    (knx.paramString(LOG_UserFormula11, LOG_UserFormula11Length))
 // Benutzerformel 11 aktiv
 #define ParamLOG_UserFormula11Active                 ((bool)(knx.paramByte(LOG_UserFormula11Active) & LOG_UserFormula11ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula12                       (knx.paramData(LOG_UserFormula12))
-#define ParamLOG_UserFormula12Str                    (knx.paramString(LOG_UserFormula12, LOG_UserFormula12Length))
 // Benutzerformel 12 aktiv
 #define ParamLOG_UserFormula12Active                 ((bool)(knx.paramByte(LOG_UserFormula12Active) & LOG_UserFormula12ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula13                       (knx.paramData(LOG_UserFormula13))
-#define ParamLOG_UserFormula13Str                    (knx.paramString(LOG_UserFormula13, LOG_UserFormula13Length))
 // Benutzerformel 13 aktiv
 #define ParamLOG_UserFormula13Active                 ((bool)(knx.paramByte(LOG_UserFormula13Active) & LOG_UserFormula13ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula14                       (knx.paramData(LOG_UserFormula14))
-#define ParamLOG_UserFormula14Str                    (knx.paramString(LOG_UserFormula14, LOG_UserFormula14Length))
 // Benutzerformel 14 aktiv
 #define ParamLOG_UserFormula14Active                 ((bool)(knx.paramByte(LOG_UserFormula14Active) & LOG_UserFormula14ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula15                       (knx.paramData(LOG_UserFormula15))
-#define ParamLOG_UserFormula15Str                    (knx.paramString(LOG_UserFormula15, LOG_UserFormula15Length))
 // Benutzerformel 15 aktiv
 #define ParamLOG_UserFormula15Active                 ((bool)(knx.paramByte(LOG_UserFormula15Active) & LOG_UserFormula15ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula16                       (knx.paramData(LOG_UserFormula16))
-#define ParamLOG_UserFormula16Str                    (knx.paramString(LOG_UserFormula16, LOG_UserFormula16Length))
 // Benutzerformel 16 aktiv
 #define ParamLOG_UserFormula16Active                 ((bool)(knx.paramByte(LOG_UserFormula16Active) & LOG_UserFormula16ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula17                       (knx.paramData(LOG_UserFormula17))
-#define ParamLOG_UserFormula17Str                    (knx.paramString(LOG_UserFormula17, LOG_UserFormula17Length))
 // Benutzerformel 17 aktiv
 #define ParamLOG_UserFormula17Active                 ((bool)(knx.paramByte(LOG_UserFormula17Active) & LOG_UserFormula17ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula18                       (knx.paramData(LOG_UserFormula18))
-#define ParamLOG_UserFormula18Str                    (knx.paramString(LOG_UserFormula18, LOG_UserFormula18Length))
 // Benutzerformel 18 aktiv
 #define ParamLOG_UserFormula18Active                 ((bool)(knx.paramByte(LOG_UserFormula18Active) & LOG_UserFormula18ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula19                       (knx.paramData(LOG_UserFormula19))
-#define ParamLOG_UserFormula19Str                    (knx.paramString(LOG_UserFormula19, LOG_UserFormula19Length))
 // Benutzerformel 19 aktiv
 #define ParamLOG_UserFormula19Active                 ((bool)(knx.paramByte(LOG_UserFormula19Active) & LOG_UserFormula19ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula20                       (knx.paramData(LOG_UserFormula20))
-#define ParamLOG_UserFormula20Str                    (knx.paramString(LOG_UserFormula20, LOG_UserFormula20Length))
 // Benutzerformel 20 aktiv
 #define ParamLOG_UserFormula20Active                 ((bool)(knx.paramByte(LOG_UserFormula20Active) & LOG_UserFormula20ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula21                       (knx.paramData(LOG_UserFormula21))
-#define ParamLOG_UserFormula21Str                    (knx.paramString(LOG_UserFormula21, LOG_UserFormula21Length))
 // Benutzerformel 21 aktiv
 #define ParamLOG_UserFormula21Active                 ((bool)(knx.paramByte(LOG_UserFormula21Active) & LOG_UserFormula21ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula22                       (knx.paramData(LOG_UserFormula22))
-#define ParamLOG_UserFormula22Str                    (knx.paramString(LOG_UserFormula22, LOG_UserFormula22Length))
 // Benutzerformel 22 aktiv
 #define ParamLOG_UserFormula22Active                 ((bool)(knx.paramByte(LOG_UserFormula22Active) & LOG_UserFormula22ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula23                       (knx.paramData(LOG_UserFormula23))
-#define ParamLOG_UserFormula23Str                    (knx.paramString(LOG_UserFormula23, LOG_UserFormula23Length))
 // Benutzerformel 23 aktiv
 #define ParamLOG_UserFormula23Active                 ((bool)(knx.paramByte(LOG_UserFormula23Active) & LOG_UserFormula23ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula24                       (knx.paramData(LOG_UserFormula24))
-#define ParamLOG_UserFormula24Str                    (knx.paramString(LOG_UserFormula24, LOG_UserFormula24Length))
 // Benutzerformel 24 aktiv
 #define ParamLOG_UserFormula24Active                 ((bool)(knx.paramByte(LOG_UserFormula24Active) & LOG_UserFormula24ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula25                       (knx.paramData(LOG_UserFormula25))
-#define ParamLOG_UserFormula25Str                    (knx.paramString(LOG_UserFormula25, LOG_UserFormula25Length))
 // Benutzerformel 25 aktiv
 #define ParamLOG_UserFormula25Active                 ((bool)(knx.paramByte(LOG_UserFormula25Active) & LOG_UserFormula25ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula26                       (knx.paramData(LOG_UserFormula26))
-#define ParamLOG_UserFormula26Str                    (knx.paramString(LOG_UserFormula26, LOG_UserFormula26Length))
 // Benutzerformel 26 aktiv
 #define ParamLOG_UserFormula26Active                 ((bool)(knx.paramByte(LOG_UserFormula26Active) & LOG_UserFormula26ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula27                       (knx.paramData(LOG_UserFormula27))
-#define ParamLOG_UserFormula27Str                    (knx.paramString(LOG_UserFormula27, LOG_UserFormula27Length))
 // Benutzerformel 27 aktiv
 #define ParamLOG_UserFormula27Active                 ((bool)(knx.paramByte(LOG_UserFormula27Active) & LOG_UserFormula27ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula28                       (knx.paramData(LOG_UserFormula28))
-#define ParamLOG_UserFormula28Str                    (knx.paramString(LOG_UserFormula28, LOG_UserFormula28Length))
 // Benutzerformel 28 aktiv
 #define ParamLOG_UserFormula28Active                 ((bool)(knx.paramByte(LOG_UserFormula28Active) & LOG_UserFormula28ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula29                       (knx.paramData(LOG_UserFormula29))
-#define ParamLOG_UserFormula29Str                    (knx.paramString(LOG_UserFormula29, LOG_UserFormula29Length))
 // Benutzerformel 29 aktiv
 #define ParamLOG_UserFormula29Active                 ((bool)(knx.paramByte(LOG_UserFormula29Active) & LOG_UserFormula29ActiveMask))
 // Formeldefinition
 #define ParamLOG_UserFormula30                       (knx.paramData(LOG_UserFormula30))
-#define ParamLOG_UserFormula30Str                    (knx.paramString(LOG_UserFormula30, LOG_UserFormula30Length))
 // Benutzerformel 30 aktiv
 #define ParamLOG_UserFormula30Active                 ((bool)(knx.paramByte(LOG_UserFormula30Active) & LOG_UserFormula30ActiveMask))
 
@@ -2093,7 +2031,6 @@
 #define LOG_fOOnDpt13                           58      // int32_t
 #define LOG_fOOnDpt14                           58      // float
 #define LOG_fOOnDpt16                           58      // char*, 14 Byte
-#define     LOG_fOOnDpt16Length 14
 #define LOG_fOOnDpt17                           58      // 8 Bits, Bit 7-0
 #define LOG_fOOnRGB                             58      // 24 Bits, Bit 31-8
 #define     LOG_fOOnRGBMask 0xFFFFFF00
@@ -2143,7 +2080,6 @@
 #define LOG_fOOffDpt13                          73      // int32_t
 #define LOG_fOOffDpt14                          73      // float
 #define LOG_fOOffDpt16                          73      // char*, 14 Byte
-#define     LOG_fOOffDpt16Length 14
 #define LOG_fOOffDpt17                          73      // 8 Bits, Bit 7-0
 #define LOG_fOOffRGB                            73      // 24 Bits, Bit 31-8
 #define     LOG_fOOffRGBMask 0xFFFFFF00
@@ -3019,7 +2955,6 @@
 #define ParamLOG_fOOnDpt14                           (knx.paramFloat(LOG_ParamCalcIndex(LOG_fOOnDpt14), Float_Enc_IEEE754Single))
 //     Wert für EIN senden als 
 #define ParamLOG_fOOnDpt16                           (knx.paramData(LOG_ParamCalcIndex(LOG_fOOnDpt16)))
-#define ParamLOG_fOOnDpt16Str                        (knx.paramString(LOG_ParamCalcIndex(LOG_fOOnDpt16), LOG_fOOnDpt16Length))
 //     Wert für EIN senden als 
 #define ParamLOG_fOOnDpt17                           (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnDpt17)))
 //     Wert für EIN senden als (3-Byte-RGB)
@@ -3082,7 +3017,6 @@
 #define ParamLOG_fOOffDpt14                          (knx.paramFloat(LOG_ParamCalcIndex(LOG_fOOffDpt14), Float_Enc_IEEE754Single))
 //     Wert für AUS senden als
 #define ParamLOG_fOOffDpt16                          (knx.paramData(LOG_ParamCalcIndex(LOG_fOOffDpt16)))
-#define ParamLOG_fOOffDpt16Str                       (knx.paramString(LOG_ParamCalcIndex(LOG_fOOffDpt16), LOG_fOOffDpt16Length))
 //     Wert für AUS senden als 
 #define ParamLOG_fOOffDpt17                          (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffDpt17)))
 //     Wert für AUS senden als (3-Byte-RGB)
@@ -3150,66 +3084,6 @@
 #define BASE_KommentarModuleCalcIndex(index, m1) (index + BASE_KommentarModuleParamOffset + _channelIndex * BASE_KommentarModuleCount * BASE_KommentarModuleParamSize + m1 * BASE_KommentarModuleParamSize)
 
 
-
-
-
-// Header generation for Module 'DG_hcl'
-
-#define DG_hclCount 1
-#define DG_hclModuleParamSize 0
-#define DG_hclSubmodulesParamSize 0
-#define DG_hclParamSize 0
-#define DG_hclParamOffset 3825
-#define DG_hclCalcIndex(index, m1) (index + DG_hclParamOffset + _channelIndex * DG_hclCount * DG_hclParamSize + m1 * DG_hclParamSize)
-
-#define DG_type                              0      // 2 Bits, Bit 7-6
-#define     DG_typeMask 0xC0
-#define     DG_typeShift 6
-#define DG_min                               1      // uint16_t
-#define DG_max                               3      // uint16_t
-#define DG_offsetRiseType                    0      // 2 Bits, Bit 5-4
-#define     DG_offsetRiseTypeMask 0x30
-#define     DG_offsetRiseTypeShift 4
-#define DG_offsetRiseMin                     5      // 8_t
-#define DG_offsetSetType                     0      // 2 Bits, Bit 3-2
-#define     DG_offsetSetTypeMask 0x0C
-#define     DG_offsetSetTypeShift 2
-#define DG_offsetSetMin                      6      // 8_t
-#define DG_briMin                            7      // 7 Bits, Bit 7-1
-#define     DG_briMinMask 0xFE
-#define     DG_briMinShift 1
-#define DG_briMax                            8      // 7 Bits, Bit 7-1
-#define     DG_briMaxMask 0xFE
-#define     DG_briMaxShift 1
-#define DG_checkTemperature                  0      // 1 Bit, Bit 1
-#define     DG_checkTemperatureMask 0x02
-#define     DG_checkTemperatureShift 1
-#define DG_checkBrightness                   0      // 1 Bit, Bit 0
-#define     DG_checkBrightnessMask 0x01
-#define     DG_checkBrightnessShift 0
-
-// Ansteuerung über
-#define ParamDG_type(m1)                         ((knx.paramByte(DG_type) & DG_typeMask) >> DG_typeShift)
-// Farbtemperatur Min
-#define ParamDG_min(m1)                          (knx.paramWord(DG_min))
-// Farbtemperatur Max
-#define ParamDG_max(m1)                          (knx.paramWord(DG_max))
-// Verschiebe Sonnenaufgang
-#define ParamDG_offsetRiseType(m1)               ((knx.paramByte(DG_offsetRiseType) & DG_offsetRiseTypeMask) >> DG_offsetRiseTypeShift)
-// 
-#define ParamDG_offsetRiseMin(m1)                ()
-// Verschiebe Sonnenuntergang
-#define ParamDG_offsetSetType(m1)                ((knx.paramByte(DG_offsetSetType) & DG_offsetSetTypeMask) >> DG_offsetSetTypeShift)
-// 
-#define ParamDG_offsetSetMin(m1)                 ()
-// Helligkeit Min
-#define ParamDG_briMin(m1)                       ((knx.paramByte(DG_briMin) & DG_briMinMask) >> DG_briMinShift)
-// Helligkeit Max
-#define ParamDG_briMax(m1)                       ((knx.paramByte(DG_briMax) & DG_briMaxMask) >> DG_briMaxShift)
-// Farbtemperatur aktivieren
-#define ParamDG_checkTemperature(m1)             ((bool)(knx.paramByte(DG_checkTemperature) & DG_checkTemperatureMask))
-// Helligkeit aktivieren
-#define ParamDG_checkBrightness(m1)              ((bool)(knx.paramByte(DG_checkBrightness) & DG_checkBrightnessMask))
 
 #ifdef MAIN_FirmwareRevision
 #ifndef FIRMWARE_REVISION
