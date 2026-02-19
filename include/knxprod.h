@@ -17,7 +17,7 @@
 #define MAIN_FirmwareName "Dali-Gateway"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 16
+#define MAIN_ApplicationVersion 18
 #define MAIN_ApplicationEncoding iso-8859-15
 #define MAIN_ParameterSize 5233
 #define MAIN_MaxKoNumber 1579

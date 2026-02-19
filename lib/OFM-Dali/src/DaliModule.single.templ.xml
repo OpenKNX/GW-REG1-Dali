@@ -372,11 +372,11 @@
             <ParameterBlock Id="%AID%_PB-nnn" Text="A%C%: {{0:---}}" TextParameterRefId="%AID%_P-%TT%%CC%002_R-%TT%%CC%00201" ShowInComObjectTree="true">
               <ParameterRefRef RefId="%AID%_P-%TT%%CC%002_R-%TT%%CC%00201" />
               <ParameterRefRef RefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" />
-              <!-- <choose ParamRefId="GLOBAL_P-78_R-78">
+              <choose ParamRefId="%AID%_P-%TT%00078_R-%TT%0007801">
                 <when test="1">
-                  <Button Id="%AID%_B-%TT%%CC%001" Text="Auslesen" Name="read" EventHandler="buttonread" EventHandlerParameters="{ Channel: %C% }" EventHandlerOnline="ConnectionOriented" />
+                  <Button Id="%AID%_B-%TT%%CC%001" Text="Auslesen" Name="read" EventHandler="dali_read" EventHandlerParameters="{ Channel: %C% }" EventHandlerOnline="ConnectionOriented" />
                 </when>
-              </choose> -->
+              </choose>
               <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
               <choose ParamRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101">
                 <when test="!=0">
@@ -501,13 +501,13 @@
                       </choose>
                     </when>
                   </choose>
-                  <!-- <choose ParamRefId="GLOBAL_P-78_R-78">
+                  <choose ParamRefId="%AID%_P-%TT%00078_R-%TT%0007801">
                     <when test="1">
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="" />
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="Einstellungen für das EVG bitte links im Tab &quot;DALI Einstellungen&quot; vornehmen." UIHint="Information" />
                       <ParameterBlock Id="%AID%_PB-nnn" Text="DALI Einstellungen" Name="evg" Icon="idea">
-                        <Button Id="%AID%_B-%TT%%CC%002" Text="Aus Gerät lesen" Name="settingsRead" EventHandler="buttonsettingsRead" EventHandlerParameters="{ &quot;Channel&quot;: %C% }" EventHandlerOnline="ConnectionOriented" />
-                        <Button Id="%AID%_B-%TT%%CC%003" Text="Auf Gerät übertragen" Name="settingsWrite" EventHandler="buttonsettingsWrite" EventHandlerParameters="{ &quot;Channel&quot;: %C% }" EventHandlerOnline="ConnectionOriented" />
+                        <Button Id="%AID%_B-%TT%%CC%002" Text="Aus Gerät lesen" Name="settingsRead" EventHandler="dali_settingsRead" EventHandlerParameters="{ &quot;Channel&quot;: %C% }" EventHandlerOnline="ConnectionOriented" />
+                        <Button Id="%AID%_B-%TT%%CC%003" Text="Auf Gerät übertragen" Name="settingsWrite" EventHandler="dali_settingsWrite" EventHandlerParameters="{ &quot;Channel&quot;: %C% }" EventHandlerOnline="ConnectionOriented" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="EVG Einstellungen" UIHint="Headline" Icon="cog-outline" />
                         <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                           <Rows>
@@ -979,7 +979,7 @@
                         </ParameterBlock>
                       </ParameterBlock>
                     </when>
-                  </choose> -->
+                  </choose>
                   <choose ParamRefId="%AID%_P-%TT%%CC%086_R-%TT%%CC%08601">
                     <when test="1">
                       <ParameterBlock Id="%AID%_PB-nnn" Text="HCL Einstellungen" Icon="sun-clock">
