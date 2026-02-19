@@ -2,9 +2,9 @@
 <?xml-model href="../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
   <ManufacturerData>
-    <Manufacturer>
+    <Manufacturer RefId="M-00FA">
       <ApplicationPrograms>
-        <ApplicationProgram>
+        <ApplicationProgram Id="%AID%" ApplicationNumber="1" ApplicationVersion="1" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="false">
           <Static>
             <ParameterTypes>
               <ParameterType Id="%AID%_PT-hclType" Name="hclType">
@@ -166,12 +166,8 @@
           </ModuleDefs>
           <Dynamic>
             <ChannelIndependentBlock>
-              <ParameterBlock Id="%AID%_PB-nnn" Name="scenes" Text="Einzeladressierung">
-                <Module Id="%AID%_MD-4_M-5" RefId="%AID%_MD-4">
-                    <NumericArg RefId="%AID%_MD-4_A-1" Value="300" />
-                    <NumericArg RefId="%AID%_MD-4_A-2" Value="200" />
-                    <NumericArg RefId="%AID%_MD-4_A-3" Value="1" />
-                  </Module>
+              <ParameterBlock Id="%AID%_PB-nnn" Name="evgs" Text="Einzeladressierung">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Test" />
               </ParameterBlock>
             </ChannelIndependentBlock>
           </Dynamic>

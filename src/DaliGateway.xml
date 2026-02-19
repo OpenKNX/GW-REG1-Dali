@@ -8,7 +8,7 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="0.12"
+    ApplicationVersion="1.0"
     ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -22,7 +22,7 @@
     <op:verify File="../lib/OGM-Common/library.json" ModuleVersion="1.7" />
   </op:define>
 
-  <op:define prefix="OAM" ModuleType="99"
+  <op:define prefix="OAM" ModuleType="99" noConfigTransfer="true"
     share="../src/DaliGateway.base.xml">
   </op:define>
 
@@ -33,19 +33,19 @@
 
   <op:define prefix="DGW" ModuleType="41"
     share="../lib/OFM-Dali/src/DaliModule.share.xml"
-    template="../lib/OFM-Dali/src/DaliModule.templ.xml"
-    NumChannels="20" KoOffset="200" KoSingleOffset="20">
+    template="../lib/OFM-Dali/src/DaliModule.single.templ.xml"
+    NumChannels="64" KoOffset="300" KoSingleOffset="20">
     <op:verify File="../lib/OFM-Dali/library.json" ModuleVersion="0.0" /> 
   </op:define>
 
   <op:define prefix="BTN" ModuleType="30"
     share="../lib/OFM-VirtualButton/src/VirtualButton.share.xml"
     template="../lib/OFM-VirtualButton/src/VirtualButton.templ.xml"
-    NumChannels="5" KoOffset="300">
+    NumChannels="5" KoOffset="200">
     <op:verify File="../lib/OFM-VirtualButton/library.json" ModuleVersion="0.5" /> 
   </op:define>
 
-  <op:define prefix="LOG" ModuleType="10"
+  <op:define prefix="LOG" ModuleType="15"
     share="../lib/OFM-LogicModule/src/Logikmodul.share.xml"
     template="../lib/OFM-LogicModule/src/Logikmodul.templ.xml"
     NumChannels="5" KoOffset="100">

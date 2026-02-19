@@ -218,6 +218,31 @@
               <ParameterType Id="%AID%_PT-durationms" Name="durationms">
                 <TypeTime Unit="HundredMilliseconds" UIHint="Time_ssf" minInclusive="30" maxInclusive="255" SizeInBit="8" />
               </ParameterType>
+
+              <ParameterType Id="%AID%_PT-floatPercent" Name="floatPercent">
+                <TypeFloat Encoding="DPT 9" minInclusive="0" maxInclusive="100" Increment="0.01" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-hclCurves" Name="hclCurves">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Kurve 1" Value="0" Id="%AID%_PT-hclCurves_EN-0" />
+                  <Enumeration Text="Kurve 2" Value="1" Id="%AID%_PT-hclCurves_EN-1" />
+                  <Enumeration Text="Kurve 3" Value="2" Id="%AID%_PT-hclCurves_EN-2" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-hclStart" Name="hclStart">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="Nur beim Einschalten" Value="0" Id="%AID%_PT-hclStart_EN-0" />
+                  <Enumeration Text="Auch wenn eingeschaltet ist" Value="1" Id="%AID%_PT-hclStart_EN-1" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-dimmLock" Name="dimmLock">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Nichts sperren" Value="0" Id="%AID%_PT-dimmLock_EN-0" />
+                  <Enumeration Text="Kein Anschalten mit relativem Dimmen" Value="1" Id="%AID%_PT-dimmLock_EN-1" />
+                  <Enumeration Text="Kein Ausschalten mit relativem Dimmen" Value="2" Id="%AID%_PT-dimmLock_EN-2" />
+                  <Enumeration Text="Kein An-/Aussschalten mit relativem Dimmen" Value="3" Id="%AID%_PT-dimmLock_EN-3" />
+                </TypeRestriction>
+              </ParameterType>
             </ParameterTypes>
             <Parameters>
               <Parameter Id="%AID%_P-%TT%00078" Name="isEtsFix" ParameterType="%AID%_PT-noyes" Text="ETS Version &gt;= 6.1.1" Value="0" />
@@ -268,8 +293,14 @@
                 <ParameterRefRef RefId="%AID%_P-81_R-81" />
                 <ParameterRefRef RefId="%AID%_P-80_R-80" /> -->
               </ParameterBlock>
+
+              <ParameterBlock Id="%AID%_PB-nnn" Text="Einzeladresse">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Hier gibts nix zu sehen!" />
+
+
+                <op:include href="DaliModule.single.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/*" type="template" prefix="DGW" IsInner="true" />
+              </ParameterBlock>
               
-              <op:include href="DaliModule.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/*" type="template" prefix="DG" IsInner="true" />
 
               <!-- followed by all channels -->
               <!-- <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
