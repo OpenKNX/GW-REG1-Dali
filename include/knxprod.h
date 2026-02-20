@@ -10,14 +10,15 @@
                                              
 #define ETS_ModuleId_NONE 0
 #define ETS_ModuleId_BASE 1
-#define ETS_ModuleId_UCT 2
-#define ETS_ModuleId_DGW 3
-#define ETS_ModuleId_BTN 4
-#define ETS_ModuleId_LOG 5
+#define ETS_ModuleId_OAM 2
+#define ETS_ModuleId_UCT 3
+#define ETS_ModuleId_DGW 4
+#define ETS_ModuleId_BTN 5
+#define ETS_ModuleId_LOG 6
 #define MAIN_FirmwareName "Dali-Gateway"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 18
+#define MAIN_ApplicationVersion 20
 #define MAIN_ApplicationEncoding iso-8859-15
 #define MAIN_ParameterSize 5233
 #define MAIN_MaxKoNumber 1579
@@ -90,18 +91,21 @@
 #define     BASE_DefaultLedFuncMask 0x80
 #define     BASE_DefaultLedFuncShift 7
 #define BASE_Dummy                               109      // uint8_t
-#define BASE_ModuleEnabled_UCT                   110      // 1 Bit, Bit 6
-#define     BASE_ModuleEnabled_UCTMask 0x40
-#define     BASE_ModuleEnabled_UCTShift 6
-#define BASE_ModuleEnabled_DGW                   110      // 1 Bit, Bit 5
-#define     BASE_ModuleEnabled_DGWMask 0x20
-#define     BASE_ModuleEnabled_DGWShift 5
-#define BASE_ModuleEnabled_BTN                   110      // 1 Bit, Bit 4
-#define     BASE_ModuleEnabled_BTNMask 0x10
-#define     BASE_ModuleEnabled_BTNShift 4
-#define BASE_ModuleEnabled_LOG                   110      // 1 Bit, Bit 3
-#define     BASE_ModuleEnabled_LOGMask 0x08
-#define     BASE_ModuleEnabled_LOGShift 3
+#define BASE_ModuleEnabled_OAM                   110      // 1 Bit, Bit 6
+#define     BASE_ModuleEnabled_OAMMask 0x40
+#define     BASE_ModuleEnabled_OAMShift 6
+#define BASE_ModuleEnabled_UCT                   110      // 1 Bit, Bit 5
+#define     BASE_ModuleEnabled_UCTMask 0x20
+#define     BASE_ModuleEnabled_UCTShift 5
+#define BASE_ModuleEnabled_DGW                   110      // 1 Bit, Bit 4
+#define     BASE_ModuleEnabled_DGWMask 0x10
+#define     BASE_ModuleEnabled_DGWShift 4
+#define BASE_ModuleEnabled_BTN                   110      // 1 Bit, Bit 3
+#define     BASE_ModuleEnabled_BTNMask 0x08
+#define     BASE_ModuleEnabled_BTNShift 3
+#define BASE_ModuleEnabled_LOG                   110      // 1 Bit, Bit 2
+#define     BASE_ModuleEnabled_LOGMask 0x04
+#define     BASE_ModuleEnabled_LOGShift 2
 
 // Zeitbasis
 #define ParamBASE_StartupDelayBase                    ((knx.paramByte(BASE_StartupDelayBase) & BASE_StartupDelayBaseMask) >> BASE_StartupDelayBaseShift)
@@ -150,14 +154,16 @@
 #define ParamBASE_PeriodicSave                        (knx.paramByte(BASE_PeriodicSave))
 // Info1
 #define ParamBASE_Info1LedFunc                        (knx.paramWord(BASE_Info1LedFunc))
-// Info2
+// Info2 IP
 #define ParamBASE_Info2LedFunc                        (knx.paramWord(BASE_Info2LedFunc))
-// Info3
+// Info3 DALI
 #define ParamBASE_Info3LedFunc                        (knx.paramWord(BASE_Info3LedFunc))
 // 
 #define ParamBASE_DefaultLedFunc                      ((bool)(knx.paramByte(BASE_DefaultLedFunc) & BASE_DefaultLedFuncMask))
 // 
 #define ParamBASE_Dummy                               (knx.paramByte(BASE_Dummy))
+// OAM
+#define ParamBASE_ModuleEnabled_OAM                   ((bool)(knx.paramByte(BASE_ModuleEnabled_OAM) & BASE_ModuleEnabled_OAMMask))
 // UCT
 #define ParamBASE_ModuleEnabled_UCT                   ((bool)(knx.paramByte(BASE_ModuleEnabled_UCT) & BASE_ModuleEnabled_UCTMask))
 // DGW
@@ -386,45 +392,45 @@
 #define DGW_Kohcl_curve 17
 #define DGW_Koscene 18
 
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_switch                              (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koswitch)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_switch_state                        (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koswitch_state)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_dimm_relative                       (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodimm_relative)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_dimm_absolute                       (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodimm_absolute)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_dimm_state                          (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodimm_state)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_lock                                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kolock)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_error                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koerror)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_rgb_state                     (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_rgb_state)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_red_relative                  (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_red_relative)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_red_absolute                  (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_red_absolute)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_red_state                     (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_red_state)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_green_relative                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_green_relative)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_green_absolute                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_green_absolute)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_green_state                   (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_green_state)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_blue_relative                 (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_blue_relative)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_blue_absolute                 (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_blue_absolute)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_color_blue_state                    (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_blue_state)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_hcl_curve                           (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kohcl_curve)))
-// A%C% {{0}}
+// A%C-1% {{0}}
 #define KoDGW_scene                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koscene)))
 
 #define BTN_ReactionTimeMultiClick              1522      // 8 Bits, Bit 7-0

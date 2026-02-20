@@ -4,11 +4,18 @@
 
   <op:config name="%BTN_NumChannelsDefault%" value="5" />
   <op:config name="%LOG_NumChannelsDefault%" value="5" />
+  
+  <op:config name="%BASE_Info1LedLabel%" value="" />
+  <op:config name="%BASE_Info2LedLabel%" value=" IP" />
+  <op:config name="%BASE_Info3LedLabel%" value=" DALI" />
+  <op:config name="%BASE_Info1LedFunc%" value="0" />
+  <op:config name="%BASE_Info2LedFunc%" value="0" />
+  <op:config name="%BASE_Info3LedFunc%" value="0" />
 
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="1.2"
+    ApplicationVersion="1.4"
     ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -22,7 +29,7 @@
     <op:verify File="../lib/OGM-Common/library.json" ModuleVersion="1.7" />
   </op:define>
 
-  <op:define prefix="OAM" ModuleType="99" noConfigTransfer="true"
+  <op:define prefix="OAM" ModuleType="99"
     share="../src/DaliGateway.base.xml">
   </op:define>
 
