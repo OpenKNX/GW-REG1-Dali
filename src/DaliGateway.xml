@@ -15,7 +15,7 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="1.4"
+    ApplicationVersion="1.6"
     ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -45,6 +45,13 @@
     <op:verify File="../lib/OFM-Dali/library.json" ModuleVersion="0.0" /> 
   </op:define>
 
+  <op:define prefix="DGWG" ModuleType="42"
+    noConfigTransfer="true"
+    prefixDoc="DGW"
+    template="../lib/OFM-Dali/src/DaliModule.group.templ.xml"
+    NumChannels="16" KoOffset="3000" />
+
+
   <op:define prefix="BTN" ModuleType="30"
     share="../lib/OFM-VirtualButton/src/VirtualButton.share.xml"
     template="../lib/OFM-VirtualButton/src/VirtualButton.templ.xml"
@@ -59,5 +66,14 @@
     <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="3.10" /> 
   </op:define>
 
-  <generate />
+  <!-- <generate /> -->
+    <generate>
+      <Dynamic>
+        <op:include href="../lib/OGM-Common/src/Common.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="BASE" />
+        <op:include href="../lib/OFM-ConfigTransfer/src/ConfigTransfer.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="UCT" />
+        <op:include href="../lib/OFM-LogicModule/src/Logikmodul.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="LOG" />
+        <op:include href="../lib/OFM-VirtualButton/src/VirtualButton.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="BTN" />
+        <op:include href="../lib/OFM-Dali/src/DaliModule.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="DGW" />
+      </Dynamic>
+    </generate>
 </KNX>
