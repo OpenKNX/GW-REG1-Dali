@@ -12,3 +12,4 @@ src/*.baggages
 compile_commands.json
 include/versions.h
 */*-backups/*.zip
+lib/Organization/**
