@@ -19,7 +19,7 @@
 #define MAIN_FirmwareName "Dali-Gateway"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 29
+#define MAIN_ApplicationVersion 31
 #define MAIN_ApplicationEncoding iso-8859-15
 #define MAIN_ParameterSize 5648
 #define MAIN_MaxKoNumber 2205
@@ -766,13 +766,13 @@
 #define     DGWH_typeShift 6
 #define DGWH_min                                  1      // uint16_t
 #define DGWH_max                                  3      // uint16_t
-#define DGWH_offsetRiseType                       0      // 4 Bits, Bit 5-2
-#define     DGWH_offsetRiseTypeMask 0x3C
-#define     DGWH_offsetRiseTypeShift 2
+#define DGWH_offsetRiseType                       0      // 2 Bits, Bit 5-4
+#define     DGWH_offsetRiseTypeMask 0x30
+#define     DGWH_offsetRiseTypeShift 4
 #define DGWH_offsetRiseMin                        5      // 8_t
-#define DGWH_offsetSetType                        0      // 4 Bits, Bit 3-0
-#define     DGWH_offsetSetTypeMask 0x0F
-#define     DGWH_offsetSetTypeShift 0
+#define DGWH_offsetSetType                        0      // 2 Bits, Bit 3-2
+#define     DGWH_offsetSetTypeMask 0x0C
+#define     DGWH_offsetSetTypeShift 2
 #define DGWH_offsetSetMin                         6      // 8_t
 #define DGWH_briMin                               7      // 7 Bits, Bit 7-1
 #define     DGWH_briMinMask 0xFE
@@ -796,11 +796,11 @@
 // Verschiebe Sonnenaufgang
 #define ParamDGWH_offsetRiseType                      ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetRiseType)) & DGWH_offsetRiseTypeMask) >> DGWH_offsetRiseTypeShift)
 // 
-#define ParamDGWH_offsetRiseMin                       ((bool)(knx.paramByte(3)))
+#define ParamDGWH_offsetRiseMin                       ()
 // Verschiebe Sonnenuntergang
-#define ParamDGWH_offsetSetType                       (knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetSetType)) & DGWH_offsetSetTypeMask)
+#define ParamDGWH_offsetSetType                       ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetSetType)) & DGWH_offsetSetTypeMask) >> DGWH_offsetSetTypeShift)
 // 
-#define ParamDGWH_offsetSetMin                        ((bool)(knx.paramByte(3)))
+#define ParamDGWH_offsetSetMin                        ()
 // Helligkeit Min
 #define ParamDGWH_briMin                              ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_briMin)) & DGWH_briMinMask) >> DGWH_briMinShift)
 // Helligkeit Max
