@@ -25,6 +25,7 @@
 #define PT_deviceType_DT5 6
 #define PT_deviceType_DT6 7
 #define PT_deviceType_DT7 8
+#define PT_deviceType_DT8 9
 
 /*
 
@@ -107,3 +108,75 @@
 #define PT_groupType_switch 1
 #define PT_groupType_dimm 2
 #define PT_groupType_color 3
+
+/*
+
+              <ParameterType Id="%AID%_PT-clickAction" Name="clickAction">
+                <TypeRestriction Base="Value" SizeInBit="3">
+                  <Enumeration Text="Deaktiviert" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Alle Einschalten" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Alle Ausschalten" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Alle Umschalten" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Sperren" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Entsperren" Value="5" Id="%ENID%" />
+                  <Enumeration Text="Sperre Umschalten" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Gerät identifizieren (LED blink - 1 = Adresse)" Value="7" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+*/
+
+#define PT_clickAction_none 0
+#define PT_clickAction_on 1
+#define PT_clickAction_off 2
+#define PT_clickAction_toggle 3
+#define PT_clickAction_lock 4
+#define PT_clickAction_unlock 5
+#define PT_clickAction_lock_toggle 6
+#define PT_clickAction_identify 7
+
+/*
+
+              <ParameterType Id="%AID%_PT-offset" Name="offset">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Deaktiviert" Value="0" Id="%AID%_PT-offset_EN-0" />
+                  <Enumeration Text="Später" Value="1" Id="%AID%_PT-offset_EN-1" />
+                  <Enumeration Text="Früher" Value="2" Id="%AID%_PT-offset_EN-2" />
+                </TypeRestriction>
+              </ParameterType>
+*/
+
+#define PT_offset_none 0
+#define PT_offset_plus 1
+#define PT_offset_minus 2
+
+/*
+
+              <ParameterType Id="%AID%_PT-scenetype" Name="scenetype">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Deaktiviert" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Adresse" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Gruppe" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Broadcast" Value="3" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+*/
+
+#define PT_scenetype_none 0
+#define PT_scenetype_address 1
+#define PT_scenetype_group 2
+#define PT_scenetype_broadcast 3
+
+/*
+
+              <ParameterType Id="%AID%_PT-hclType" Name="hclType">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Inaktiv" Value="0" Id="%AID%_PT-hclType_EN-0" />
+                  <Enumeration Text="Sonnen Auf-/Untergang" Value="1" Id="%AID%_PT-hclType_EN-1" />
+                  <Enumeration Text="Feste Zeiten" Value="2" Id="%AID%_PT-hclType_EN-2" />
+                </TypeRestriction>
+              </ParameterType>
+*/
+
+#define PT_hclType_none 0
+#define PT_hclType_sun 1
+#define PT_hclType_time 2
