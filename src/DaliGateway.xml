@@ -10,12 +10,12 @@
   <op:config name="%BASE_Info3LedLabel%" value=" DALI" />
   <op:config name="%BASE_Info1LedFunc%" value="0" />
   <op:config name="%BASE_Info2LedFunc%" value="0" />
-  <op:config name="%BASE_Info3LedFunc%" value="0" />
+  <op:config name="%BASE_Info3LedFunc%" value="40" />
 
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="1.8"
+    ApplicationVersion="1.13"
     ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -31,6 +31,11 @@
 
   <op:define prefix="OAM" ModuleType="99"
     share="../src/DaliGateway.base.xml">
+  </op:define>
+
+  <op:define prefix="NET" ModuleType="18"
+      share="../lib/OFM-Network/src/Network.share.xml">
+      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.4" />
   </op:define>
 
   <op:define prefix="UCT" ModuleType="19"

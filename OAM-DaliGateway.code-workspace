@@ -8,6 +8,15 @@
 		},
 		{
 			"path": "lib/OFM-Dali"
+		},
+		{
+			"path": "../OGM-HardwareConfig"
+		},
+		{
+			"path": "../Organization"
+		},
+		{
+			"path": "../OFM-Network"
 		}
 	],
 	"settings": {}
