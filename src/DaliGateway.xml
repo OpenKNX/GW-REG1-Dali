@@ -40,40 +40,44 @@
 
   <op:define prefix="UCT" ModuleType="19"
       share="../lib/OFM-ConfigTransfer/src/ConfigTransfer.share.xml">
-      <op:verify File="../lib/OFM-ConfigTransfer/library.json" ModuleVersion="0.4" />
+      <op:verify File="../lib/OFM-ConfigTransfer/library.json" ModuleVersion="0.5" />
   </op:define>
 
-  <op:define prefix="DGW" ModuleType="41"
+  <!-- Uses ModuleType 41 internal for share and 42 for single -->
+  <op:define prefix="DGW" ModuleType="4"
     share="../lib/OFM-Dali/src/DaliModule.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.single.templ.xml"
     NumChannels="64" KoOffset="300" KoSingleOffset="20">
     <op:verify File="../lib/OFM-Dali/library.json" ModuleVersion="0.0" /> 
   </op:define>
 
-  <op:define prefix="DGWG" ModuleType="42"
+  <!-- Uses ModuleType 43 internal -->
+  <op:define prefix="DGWG" ModuleType="4"
     noConfigTransfer="true"
     prefixDoc="DGW"
     template="../lib/OFM-Dali/src/DaliModule.group.templ.xml"
     NumChannels="16" KoOffset="1800" />
 
-  <op:define prefix="DGWS" ModuleType="43"
+  <!-- Uses ModuleType 44 internal -->
+  <op:define prefix="DGWS" ModuleType="4"
     noConfigTransfer="true"
     prefixDoc="DGW"
     template="../lib/OFM-Dali/src/DaliModule.scene.templ.xml"
     NumChannels="64" />
 
-  <op:define prefix="DGWH" ModuleType="44"
+    <!-- Uses ModuleType 45 internal -->
+  <op:define prefix="DGWH" ModuleType="4"
     noConfigTransfer="true"
     prefixDoc="DGW"
     template="../lib/OFM-Dali/src/DaliModule.hcl.templ.xml"
     NumChannels="3" KoOffset="2200" />
 
 
-  <op:define prefix="LOG" ModuleType="15"
+  <op:define prefix="LOG" ModuleType="10"
     share="../lib/OFM-LogicModule/src/Logikmodul.share.xml"
     template="../lib/OFM-LogicModule/src/Logikmodul.templ.xml"
     NumChannels="5" KoOffset="100">
-    <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="3.10" /> 
+    <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="4.0" /> 
   </op:define>
 
   <!-- <generate /> -->

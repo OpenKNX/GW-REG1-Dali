@@ -20,6 +20,12 @@
 		},
 		{
 			"path": "../knx"
+		},
+		{
+			"path": "../OFM-LogicModule"
+		},
+		{
+			"path": "../OFM-ConfigTransfer"
 		}
 	],
 	"settings": {}

@@ -25,9 +25,9 @@
 #define MAIN_OrderNumber "DaliGateway"
 #define BASE_ModuleVersion 23
 #define NET_ModuleVersion 4
-#define UCT_ModuleVersion 4
+#define UCT_ModuleVersion 5
 #define DGW_ModuleVersion 0
-#define LOG_ModuleVersion 58
+#define LOG_ModuleVersion 64
 // Parameter with single occurrence
 
 
@@ -3235,6 +3235,77 @@
 
 
 // enumeration types
+#define PT_deviceType_none 0
+#define PT_deviceType_DT0 1
+#define PT_deviceType_DT1 2
+#define PT_deviceType_DT2 3
+#define PT_deviceType_DT3 4
+#define PT_deviceType_DT4 5
+#define PT_deviceType_DT5 6
+#define PT_deviceType_DT6 7
+#define PT_deviceType_DT7 8
+#define PT_deviceType_DT8 9
+
+#define PT_lock_no 0
+#define PT_lock_on 1
+#define PT_lock_off 2
+#define PT_lock_value 3
+
+#define PT_groupType_none 0
+#define PT_groupType_switch 1
+#define PT_groupType_dim 2
+#define PT_groupType_color 3
+
+#define PT_scenetype_none 0
+#define PT_scenetype_address 1
+#define PT_scenetype_group 2
+#define PT_scenetype_broadcast 3
+
+#define PT_colorType_HSV 0
+#define PT_colorType_RGB 1
+#define PT_colorType_TW 2
+#define PT_colorType_XYY 3
+
+#define PT_colorSpace_rgb 1
+#define PT_colorSpace_xy 0
+
+#define PT_clickAction_none 0
+#define PT_clickAction_on 1
+#define PT_clickAction_off 2
+#define PT_clickAction_toggle 3
+#define PT_clickAction_lock 4
+#define PT_clickAction_unlock 5
+#define PT_clickAction_lock_toggle 6
+
+#define PT_dimmLock_none 0
+#define PT_dimmLock_noOn 1
+#define PT_dimmLock_noOff 2
+#define PT_dimmLock_noBoth 3
+
+#define PT_hclType_none 0
+#define PT_hclType_sun 1
+#define PT_hclType_time 2
+
+#define PT_offset_none 0
+#define PT_offset_plus 1
+#define PT_offset_minus 2
+
+#define PT_hclType_none 0
+#define PT_hclType_sun 1
+#define PT_hclType_time 2
+
+#define PT_offset_none 0
+#define PT_offset_plus 1
+#define PT_offset_minus 2
+
+#define PT_hclType_none 0
+#define PT_hclType_sun 1
+#define PT_hclType_time 2
+
+#define PT_offset_none 0
+#define PT_offset_plus 1
+#define PT_offset_minus 2
+
 
 
 #ifdef MAIN_FirmwareRevision
