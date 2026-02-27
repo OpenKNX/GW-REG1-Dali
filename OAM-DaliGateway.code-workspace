@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "../OFM-Network"
+		},
+		{
+			"path": "../knx"
 		}
 	],
 	"settings": {}

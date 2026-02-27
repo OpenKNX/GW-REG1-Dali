@@ -19,13 +19,13 @@
 #define MAIN_FirmwareName "Dali-Gateway"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 31
+#define MAIN_ApplicationVersion 32
 #define MAIN_ApplicationEncoding iso-8859-15
 #define MAIN_ParameterSize 5648
 #define MAIN_MaxKoNumber 2205
 #define MAIN_OrderNumber "DaliGateway"
 #define BASE_ModuleVersion 23
-#define NET_ModuleVersion 4
+#define NET_ModuleVersion 5
 #define UCT_ModuleVersion 4
 #define DGW_ModuleVersion 0
 #define LOG_ModuleVersion 58
@@ -796,11 +796,11 @@
 // Verschiebe Sonnenaufgang
 #define ParamDGWH_offsetRiseType                      ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetRiseType)) & DGWH_offsetRiseTypeMask) >> DGWH_offsetRiseTypeShift)
 // 
-#define ParamDGWH_offsetRiseMin                       ()
+#define ParamDGWH_offsetRiseMin                       (0)
 // Verschiebe Sonnenuntergang
 #define ParamDGWH_offsetSetType                       ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetSetType)) & DGWH_offsetSetTypeMask) >> DGWH_offsetSetTypeShift)
 // 
-#define ParamDGWH_offsetSetMin                        ()
+#define ParamDGWH_offsetSetMin                        (0)
 // Helligkeit Min
 #define ParamDGWH_briMin                              ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_briMin)) & DGWH_briMinMask) >> DGWH_briMinShift)
 // Helligkeit Max

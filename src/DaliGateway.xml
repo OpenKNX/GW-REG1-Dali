@@ -15,7 +15,7 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="1.15"
+    ApplicationVersion="2.0"
     ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -35,7 +35,7 @@
 
   <op:define prefix="NET" ModuleType="18"
       share="../lib/OFM-Network/src/Network.share.xml">
-      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.4" />
+      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.5" />
   </op:define>
 
   <op:define prefix="UCT" ModuleType="19"
@@ -54,13 +54,13 @@
     noConfigTransfer="true"
     prefixDoc="DGW"
     template="../lib/OFM-Dali/src/DaliModule.group.templ.xml"
-    NumChannels="16" KoOffset="1700" />
+    NumChannels="16" KoOffset="1800" />
 
   <op:define prefix="DGWS" ModuleType="43"
     noConfigTransfer="true"
     prefixDoc="DGW"
     template="../lib/OFM-Dali/src/DaliModule.scene.templ.xml"
-    NumChannels="64" KoOffset="3000" />
+    NumChannels="64" />
 
   <op:define prefix="DGWH" ModuleType="44"
     noConfigTransfer="true"
@@ -80,6 +80,7 @@
     <generate>
       <Dynamic>
         <op:include href="../lib/OGM-Common/src/Common.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="BASE" />
+        <op:include href="../lib/OFM-Network/src/Network.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="NET" />
         <op:include href="../lib/OFM-ConfigTransfer/src/ConfigTransfer.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="UCT" />
         <op:include href="../lib/OFM-LogicModule/src/Logikmodul.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="LOG" />
         <op:include href="../lib/OFM-Dali/src/DaliModule.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="DGW" />
