@@ -1,6 +1,5 @@
 #pragma once
 
-#include "knxprod_enums.h"
 
 #define paramDelay(time) (uint32_t)( \
             (time & 0xC000) == 0xC000 ? (time & 0x3FFF) * 100 : \
@@ -25,7 +24,7 @@
 #define MAIN_MaxKoNumber 2205
 #define MAIN_OrderNumber "DaliGateway"
 #define BASE_ModuleVersion 23
-#define NET_ModuleVersion 5
+#define NET_ModuleVersion 4
 #define UCT_ModuleVersion 4
 #define DGW_ModuleVersion 0
 #define LOG_ModuleVersion 58
@@ -88,7 +87,7 @@
 #define BASE_Info1LedFunc                        80      // 16 Bits, Bit 15-0
 #define BASE_Info2LedFunc                        82      // 16 Bits, Bit 15-0
 #define BASE_Info3LedFunc                        84      // 16 Bits, Bit 15-0
-#define BASE_DefaultLedFunc                      85      // 1 Bit, Bit 7
+#define BASE_DefaultLedFunc                      86      // 1 Bit, Bit 7
 #define     BASE_DefaultLedFuncMask 0x80
 #define     BASE_DefaultLedFuncShift 7
 #define BASE_Dummy                               109      // uint8_t
@@ -318,7 +317,9 @@
 #define DGW_nachtriggern                         0      // 1 Bit, Bit 1
 #define     DGW_nachtriggernMask 0x02
 #define     DGW_nachtriggernShift 1
-#define DGW_stairtime                            5      // 14_t
+#define DGW_stairtime                            5      // 14 Bits, Bit 15-2
+#define     DGW_stairtimeMask 0xFFFC
+#define     DGW_stairtimeShift 2
 #define DGW_manuoff                              0      // 1 Bit, Bit 0
 #define     DGW_manuoffMask 0x01
 #define     DGW_manuoffShift 0
@@ -350,7 +351,7 @@
 #define DGW_hcl                                  8      // 1 Bit, Bit 0
 #define     DGW_hclMask 0x01
 #define     DGW_hclShift 0
-#define DGW_queryTime                           18      // 16_t
+#define DGW_queryTime                           18      // 16 Bits, Bit 15-0
 #define DGW_xyIgnore                             9      // 1 Bit, Bit 0
 #define     DGW_xyIgnoreMask 0x01
 #define     DGW_xyIgnoreShift 0
@@ -392,7 +393,7 @@
 // Nachtriggern erlauben
 #define ParamDGW_nachtriggern                        ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_nachtriggern)) & DGW_nachtriggernMask))
 // Nachlaufzeit
-#define ParamDGW_stairtime                           ((bool)(knx.paramByte(3)))
+#define ParamDGW_stairtime                           ((knx.paramWord(DGW_ParamCalcIndex(DGW_stairtime)) & DGW_stairtimeMask) >> DGW_stairtimeShift)
 // Manuelles ausschalten
 #define ParamDGW_manuoff                             ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_manuoff)) & DGW_manuoffMask))
 // Verhalten bei Sperren
@@ -420,7 +421,7 @@
 // HCL aktivieren
 #define ParamDGW_hcl                                 ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hcl)) & DGW_hclMask))
 // Dimmwert abfragen (0 = deaktiviert)
-#define ParamDGW_queryTime                           ((bool)(knx.paramByte(3)))
+#define ParamDGW_queryTime                           (knx.paramWord(DGW_ParamCalcIndex(DGW_queryTime)))
 // Helligkeit ignorieren? (nur xy verwenden)
 #define ParamDGW_xyIgnore                            ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_xyIgnore)) & DGW_xyIgnoreMask))
 // Dimmstatus Interval bei relativ
@@ -529,7 +530,9 @@
 #define DGWG_nachtriggern                         0      // 1 Bit, Bit 4
 #define     DGWG_nachtriggernMask 0x10
 #define     DGWG_nachtriggernShift 4
-#define DGWG_stairtime                            1      // 14_t
+#define DGWG_stairtime                            1      // 14 Bits, Bit 15-2
+#define     DGWG_stairtimeMask 0xFFFC
+#define     DGWG_stairtimeShift 2
 #define DGWG_manuoff                              0      // 1 Bit, Bit 3
 #define     DGWG_manuoffMask 0x08
 #define     DGWG_manuoffShift 3
@@ -567,7 +570,7 @@
 #define DGWG_dimmStateInterval                   14      // 4 Bits, Bit 7-4
 #define     DGWG_dimmStateIntervalMask 0xF0
 #define     DGWG_dimmStateIntervalShift 4
-#define DGWG_queryTime                           15      // 16_t
+#define DGWG_queryTime                           15      // 16 Bits, Bit 15-0
 #define DGWG_hclCurve                             4      // 2 Bits, Bit 1-0
 #define     DGWG_hclCurveMask 0x03
 #define     DGWG_hclCurveShift 0
@@ -597,7 +600,7 @@
 // Nachtriggern erlauben
 #define ParamDGWG_nachtriggern                        ((bool)(knx.paramByte(DGWG_ParamCalcIndex(DGWG_nachtriggern)) & DGWG_nachtriggernMask))
 // Nachlaufzeit
-#define ParamDGWG_stairtime                           ((bool)(knx.paramByte(4)))
+#define ParamDGWG_stairtime                           ((knx.paramWord(DGWG_ParamCalcIndex(DGWG_stairtime)) & DGWG_stairtimeMask) >> DGWG_stairtimeShift)
 // Manuelles ausschalten
 #define ParamDGWG_manuoff                             ((bool)(knx.paramByte(DGWG_ParamCalcIndex(DGWG_manuoff)) & DGWG_manuoffMask))
 // Verhalten bei Sperre
@@ -629,7 +632,7 @@
 // Dimmstatus Interval bei relativ
 #define ParamDGWG_dimmStateInterval                   ((knx.paramByte(DGWG_ParamCalcIndex(DGWG_dimmStateInterval)) & DGWG_dimmStateIntervalMask) >> DGWG_dimmStateIntervalShift)
 // Dimmwert abfragen (0 = deaktiviert)
-#define ParamDGWG_queryTime                           ((bool)(knx.paramByte(3)))
+#define ParamDGWG_queryTime                           (knx.paramWord(DGWG_ParamCalcIndex(DGWG_queryTime)))
 // Verwende
 #define ParamDGWG_hclCurve                            (knx.paramByte(DGWG_ParamCalcIndex(DGWG_hclCurve)) & DGWG_hclCurveMask)
 // HCL anwenden
@@ -646,10 +649,10 @@
 #define ParamDGWG_hcl_auto_day                        ((bool)(knx.paramByte(DGWG_ParamCalcIndex(DGWG_hcl_auto_day)) & DGWG_hcl_auto_dayMask))
 
 // deprecated
-#define DGWG_KoOffset 1700
+#define DGWG_KoOffset 1800
 
 // Communication objects per channel (multiple occurrence)
-#define DGWG_KoBlockOffset 1700
+#define DGWG_KoBlockOffset 1800
 #define DGWG_KoBlockSize 19
 
 #define DGWG_KoCalcNumber(index) (index + DGWG_KoBlockOffset + _channelIndex * DGWG_KoBlockSize)
@@ -769,11 +772,11 @@
 #define DGWH_offsetRiseType                       0      // 2 Bits, Bit 5-4
 #define     DGWH_offsetRiseTypeMask 0x30
 #define     DGWH_offsetRiseTypeShift 4
-#define DGWH_offsetRiseMin                        5      // 8_t
+#define DGWH_offsetRiseMin                        5      // 8 Bits, Bit 7-0
 #define DGWH_offsetSetType                        0      // 2 Bits, Bit 3-2
 #define     DGWH_offsetSetTypeMask 0x0C
 #define     DGWH_offsetSetTypeShift 2
-#define DGWH_offsetSetMin                         6      // 8_t
+#define DGWH_offsetSetMin                         6      // 8 Bits, Bit 7-0
 #define DGWH_briMin                               7      // 7 Bits, Bit 7-1
 #define     DGWH_briMinMask 0xFE
 #define     DGWH_briMinShift 1
@@ -796,11 +799,11 @@
 // Verschiebe Sonnenaufgang
 #define ParamDGWH_offsetRiseType                      ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetRiseType)) & DGWH_offsetRiseTypeMask) >> DGWH_offsetRiseTypeShift)
 // 
-#define ParamDGWH_offsetRiseMin                       (0)
+#define ParamDGWH_offsetRiseMin                       (knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetRiseMin)))
 // Verschiebe Sonnenuntergang
 #define ParamDGWH_offsetSetType                       ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetSetType)) & DGWH_offsetSetTypeMask) >> DGWH_offsetSetTypeShift)
 // 
-#define ParamDGWH_offsetSetMin                        (0)
+#define ParamDGWH_offsetSetMin                        (knx.paramByte(DGWH_ParamCalcIndex(DGWH_offsetSetMin)))
 // Helligkeit Min
 #define ParamDGWH_briMin                              ((knx.paramByte(DGWH_ParamCalcIndex(DGWH_briMin)) & DGWH_briMinMask) >> DGWH_briMinShift)
 // Helligkeit Max
@@ -3228,6 +3231,10 @@
 #define BASE_KommentarModuleParamOffset 5648
 #define BASE_KommentarModuleCalcIndex(index, m1) (index + BASE_KommentarModuleParamOffset + _channelIndex * BASE_KommentarModuleCount * BASE_KommentarModuleParamSize + m1 * BASE_KommentarModuleParamSize)
 
+
+
+
+// enumeration types
 
 
 #ifdef MAIN_FirmwareRevision

@@ -35,7 +35,7 @@
 
   <op:define prefix="NET" ModuleType="18"
       share="../lib/OFM-Network/src/Network.share.xml">
-      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.5" />
+      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.4" />
   </op:define>
 
   <op:define prefix="UCT" ModuleType="19"
