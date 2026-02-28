@@ -62,6 +62,7 @@
   <op:define prefix="DGWS" ModuleType="4"
     noConfigTransfer="true"
     prefixDoc="DGW"
+    share="../lib/OFM-Dali/src/DaliModule.scene.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.scene.templ.xml"
     NumChannels="64" />
 
