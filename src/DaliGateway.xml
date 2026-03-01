@@ -2,7 +2,8 @@
 <?xml-model href="../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <KNX xmlns="http://knx.org/xml/project/20" xmlns:op="http://github.com/OpenKNX/OpenKNXproducer">
 
-  <op:config name="%BTN_NumChannelsDefault%" value="5" />
+  <op:config name="%DGWS_NumChannelsDefault%" value="5" />
+  <op:config name="%DGWH_NumChannelsDefault%" value="3" />
   <op:config name="%LOG_NumChannelsDefault%" value="5" />
   
   <op:config name="%BASE_Info1LedLabel%" value="" />
@@ -15,7 +16,7 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="2.0"
+    ApplicationVersion="2.6"
     ReplacesVersions="0.9"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -70,6 +71,7 @@
   <op:define prefix="DGWH" ModuleType="4"
     noConfigTransfer="true"
     prefixDoc="DGW"
+    share="../lib/OFM-Dali/src/DaliModule.hcl.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.hcl.templ.xml"
     NumChannels="3" KoOffset="2200" />
 
