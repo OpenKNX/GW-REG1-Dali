@@ -15,13 +15,14 @@
 #define ETS_ModuleId_UCT 4
 #define ETS_ModuleId_DGW 5
 #define ETS_ModuleId_LOG 6
-#define MAIN_FirmwareName "Dali-Gateway"
+#define MAIN_FirmwareName "Dali-GatewayTest"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 38
+#define MAIN_ApplicationVersion 11
+#define MAIN_FirmwareRevision 0
 #define MAIN_ApplicationEncoding iso-8859-15
 #define MAIN_ParameterSize 5650
-#define MAIN_MaxKoNumber 2205
+#define MAIN_MaxKoNumber 2211
 #define MAIN_OrderNumber "DaliGateway"
 #define BASE_ModuleVersion 23
 #define NET_ModuleVersion 4
@@ -828,14 +829,14 @@
 
 // Communication objects per channel (multiple occurrence)
 #define DGWH_KoBlockOffset 2200
-#define DGWH_KoBlockSize 2
+#define DGWH_KoBlockSize 4
 
 #define DGWH_KoCalcNumber(index) (index + DGWH_KoBlockOffset + _channelIndex * DGWH_KoBlockSize)
 #define DGWH_KoCalcIndex(number) ((number >= DGWH_KoCalcNumber(0) && number < DGWH_KoCalcNumber(DGWH_KoBlockSize)) ? (number - DGWH_KoBlockOffset) % DGWH_KoBlockSize : -1)
 #define DGWH_KoCalcChannel(number) ((number >= DGWH_KoBlockOffset && number < DGWH_KoBlockOffset + DGWH_ChannelCount * DGWH_KoBlockSize) ? (number - DGWH_KoBlockOffset) / DGWH_KoBlockSize : -1)
 
 #define DGWH_Kohcl_state 0
-#define DGWH_Kobri_state 1
+#define DGWH_Kobri_state 3
 
 // HCL Kurve %C%
 #define KoDGWH_hcl_state                           (knx.getGroupObject(DGWH_KoCalcNumber(DGWH_Kohcl_state)))
