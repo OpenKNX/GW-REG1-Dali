@@ -163,6 +163,12 @@ void DaliChannel::loopDimming()
             }
             else if (_dimmDirection == DimmDirection::Down)
             {
+                if (!currentState) {
+                    _dimmDirection = DimmDirection::None;
+                    logDebugP("Do not start relativ dimm down when state is off");
+                    return;
+                }
+
                 if (currentDimmType == DimmType::Brigthness)
                 {
                     daliMaster.sendCommand(_channelIndex, Dali::Command::DOWN, _isGroup);
