@@ -141,7 +141,6 @@ void DaliChannel::loopDimming()
                         {
                             logDebugP("Dimm on is locked");
                             _dimmDirection = DimmDirection::None;
-                            updateCurrentDimmValue();
                             return;
                         }
                         daliMaster.sendCommand(_channelIndex, Dali::Command::RECALL_MIN, _isGroup, true);
@@ -627,7 +626,6 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
         logDebugP("Dimm Stop");
         _dimmDirection = DimmDirection::None;
         _dimmLast = 0;
-        updateCurrentDimmValue();
         return;
     }
 
