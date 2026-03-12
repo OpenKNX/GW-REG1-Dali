@@ -633,13 +633,6 @@ void DaliChannel::koHandleDimmRel(GroupObject &ko)
         return;
     }
 
-    uint8_t dimmLock = _isGroup ? ParamGRP_dimmLock : ParamADR_dimmLock;
-    if(dimmLock == PT_dimmLock_noBoth || dimmLock == PT_dimmLock_noOn)
-    {
-        logDebugP("ignored due settings");
-        return;
-    }
-
     if(_isGroup ? ParamGRP_hcl_manu_bri : ParamADR_hcl_manu_bri)
         _hclIsAutoMode = false;
 
