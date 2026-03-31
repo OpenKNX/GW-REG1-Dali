@@ -17,9 +17,29 @@ void setup()
         openknx.addModule(2, openknxNetwork);
     #endif
     openknx.setup();
+    
+    #ifdef ARDUINO_ARCH_ESP32
+    xTaskCreateUniversal([](void* parms) {
+        openknxDaliModule.setup1(true);
+        for (;;)
+        {
+            openknxDaliModule.loop1(true);
+        } 
+    }, "daliModuleLoop1", 8192, NULL, 0, nullptr, 0);
+    #endif
 }
 
 void loop()
 {
     openknx.loop();
 }
+
+#if defined(ARDUINO_ARCH_RP2040)
+    void setup1() {
+        openknxDaliModule.setup1(true);
+    }
+
+    void loop1() {
+        openknxDaliModule.loop1(true);
+    }
+#endif
