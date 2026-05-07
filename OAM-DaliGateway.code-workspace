@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../OGM-Common"
+		},
+		{
+			"path": "lib/OFM-Dali"
+		},
+		{
+			"path": "../OGM-HardwareConfig"
+		},
+		{
+			"path": "../Organization"
+		},
+		{
+			"path": "../OFM-Network"
+		},
+		{
+			"path": "../knx"
+		},
+		{
+			"path": "../OFM-LogicModule"
+		},
+		{
+			"path": "../OFM-ConfigTransfer"
+		}
+	],
+	"settings": {}
+}

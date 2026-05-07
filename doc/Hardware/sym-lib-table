@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "UP1-AppTemplate-rescue")(type "KiCad")(uri "${KIPRJMOD}/UP1-AppTemplate-rescue.kicad_sym")(options "")(descr ""))
+)

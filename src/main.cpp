@@ -1,34 +1,25 @@
-#include <Arduino.h>
+#include "FileTransferModule.h"
 #include "OpenKNX.h"
 #include "DaliModule.h"
-#include "TimerModule.h"
-#include "FileTransferModule.h"
+#include "Logic.h"
+
 #ifdef ARDUINO_ARCH_ESP32
 #include "NetworkModule.h"
-#include "IotGateway.h"
-IotGateway iotGateway;
 #endif
 
 void setup()
 {
-	const uint8_t firmwareRevision = 6;
-	openknx.init(firmwareRevision);
-	openknx.addModule(1, openknxDaliModule);
-	openknx.addModule(2, openknxTimerModule);
-	openknx.addModule(3, openknxFileTransferModule);
-	#ifdef ARDUINO_ARCH_ESP32
-	openknx.addModule(4, openknxNetwork);
-	#endif
-
-	openknx.setup();
-
-	#ifdef ARDUINO_ARCH_ESP32
-	iotGateway.setup();
-	iotGateway.addMaster(&openknxDaliModule.daliMaster);
-	#endif
+    openknx.init();
+    openknx.addModule(1, openknxLogic);
+    openknx.addModule(3, openknxDaliModule);
+    openknx.addModule(9, openknxFileTransferModule);
+    #ifdef ARDUINO_ARCH_ESP32
+        openknx.addModule(2, openknxNetwork);
+    #endif
+    openknx.setup();
 }
 
 void loop()
 {
-	openknx.loop();
+    openknx.loop();
 }

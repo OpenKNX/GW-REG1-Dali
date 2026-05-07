@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<KNX xmlns="http://knx.org/xml/project/20" xmlns:op="http://github.com/OpenKNX/OpenKNXproducer">
+
+  <op:config name="%DGWS_NumChannelsDefault%" value="5" />
+  <op:config name="%DGWH_NumChannelsDefault%" value="3" />
+  <op:config name="%LOG_NumChannelsDefault%" value="5" />
+  
+  <op:config name="%BASE_Info1LedLabel%" value="" />
+  <op:config name="%BASE_Info2LedLabel%" value=" IP" />
+  <op:config name="%BASE_Info3LedLabel%" value=" DALI" />
+  <op:config name="%BASE_Info1LedFunc%" value="0" />
+  <op:config name="%BASE_Info2LedFunc%" value="0" />
+  <op:config name="%BASE_Info3LedFunc%" value="500" />
+
+  <op:ETS
+    OpenKnxId="0xA4"
+    ApplicationNumber="1"
+    ApplicationVersion="0.11.0"
+    ReplacesVersions="0.0"
+    ApplicationRevision="0"
+    ProductName="Dali-Gateway"
+    BusCurrent="10"
+    BuildSuffix=""
+    BuildSuffixText=""
+    OrderNumber="DaliGateway" />
+
+  <op:define prefix="BASE" ModuleType="10"
+    share="../lib/OGM-Common/src/Common.share.xml">
+    <op:verify File="../lib/OGM-Common/library.json" ModuleVersion="1.7" />
+  </op:define>
+
+  <op:define prefix="OAM" ModuleType="99"
+    share="../src/DaliGateway.base.xml">
+  </op:define>
+
+  <op:define prefix="NET" ModuleType="18"
+      share="../lib/OFM-Network/src/Network.share.xml">
+      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.4" />
+  </op:define>
+
+  <op:define prefix="UCT" ModuleType="19"
+      share="../lib/OFM-ConfigTransfer/src/ConfigTransfer.share.xml">
+      <op:verify File="../lib/OFM-ConfigTransfer/library.json" ModuleVersion="0.5" />
+  </op:define>
+
+  <!-- Uses ModuleType 41 internal for share and 42 for single -->
+  <op:define prefix="DGW" ModuleType="4"
+    share="../lib/OFM-Dali/src/DaliModule.share.xml"
+    template="../lib/OFM-Dali/src/DaliModule.single.templ.xml"
+    NumChannels="64" KoOffset="300" KoSingleOffset="20">
+    <op:verify File="../lib/OFM-Dali/library.json" ModuleVersion="0.0" /> 
+  </op:define>
+
+  <!-- Uses ModuleType 43 internal -->
+  <op:define prefix="DGWG" ModuleType="4"
+    noConfigTransfer="true"
+    prefixDoc="DGW"
+    template="../lib/OFM-Dali/src/DaliModule.group.templ.xml"
+    NumChannels="16" KoOffset="1800" />
+
+  <!-- Uses ModuleType 44 internal -->
+  <op:define prefix="DGWS" ModuleType="4"
+    noConfigTransfer="true"
+    prefixDoc="DGW"
+    share="../lib/OFM-Dali/src/DaliModule.scene.share.xml"
+    template="../lib/OFM-Dali/src/DaliModule.scene.templ.xml"
+    NumChannels="64" />
+
+    <!-- Uses ModuleType 45 internal -->
+  <op:define prefix="DGWH" ModuleType="4"
+    noConfigTransfer="true"
+    prefixDoc="DGW"
+    share="../lib/OFM-Dali/src/DaliModule.hcl.share.xml"
+    template="../lib/OFM-Dali/src/DaliModule.hcl.templ.xml"
+    NumChannels="3" KoOffset="2200" />
+
+
+  <op:define prefix="LOG" ModuleType="10"
+    share="../lib/OFM-LogicModule/src/Logikmodul.share.xml"
+    template="../lib/OFM-LogicModule/src/Logikmodul.templ.xml"
+    NumChannels="5" KoOffset="100">
+    <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="4.0" /> 
+  </op:define>
+
+  <!-- <generate /> -->
+    <generate>
+      <Dynamic>
+        <op:include href="../lib/OGM-Common/src/Common.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="BASE" />
+        <op:include href="../lib/OFM-Network/src/Network.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="NET" />
+        <op:include href="../lib/OFM-ConfigTransfer/src/ConfigTransfer.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="UCT" />
+        <op:include href="../lib/OFM-LogicModule/src/Logikmodul.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="LOG" />
+        <op:include href="../lib/OFM-Dali/src/DaliModule.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="DGW" />
+      </Dynamic>
+    </generate>
+</KNX>
