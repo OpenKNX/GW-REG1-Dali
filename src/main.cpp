@@ -7,7 +7,7 @@
 #include "NetworkModule.h"
 #endif
 
-bool setup1_ready = false;
+volatile bool setup_ready = false;
 
 void setup()
 {
@@ -19,11 +19,10 @@ void setup()
         openknx.addModule(2, openknxNetwork);
     #endif
     openknx.setup();
+    openknxDaliModule.setup1(knx.configured());
 
     #ifdef ARDUINO_ARCH_ESP32
     xTaskCreateUniversal([](void* parms) {
-        openknxDaliModule.setup1(knx.configured());
-        setup1_ready = true;
         for (;;)
         {
             openknxDaliModule.loop1(knx.configured());
@@ -31,9 +30,7 @@ void setup()
     }, "daliModuleLoop1", 8192, NULL, 0, nullptr, 0);
     #endif
 
-    while(!setup1_ready) {
-        delay(10);
-    }
+    setup_ready = true;
 }
 
 void loop()
@@ -42,12 +39,12 @@ void loop()
 }
 
 #if defined(ARDUINO_ARCH_RP2040)
-    void setup1() {
-        openknxDaliModule.setup1(knx.configured());
-        setup1_ready = true;
-    }
+    void setup1() { }
 
     void loop1() {
+        while(!setup_ready) {
+            delay(10);
+        }
         openknxDaliModule.loop1(knx.configured());
     }
 #endif
