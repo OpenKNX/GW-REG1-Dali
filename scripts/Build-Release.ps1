@@ -34,11 +34,11 @@ if (!$?) { exit 1 }
 
 
 # Example call, the following 2 lines might be there multiple times for each firmware which should be built
-../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1 OAM-DaliGateway uf2
+../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_V1 REG1-Dali uf2
 if (!$?) { exit 1 }
 
 # Example call, the following 2 lines might be there multiple times for each firmware which should be built
-../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_REG1_LAN_TP_DALI OAM-DaliGateway esp32
+../OGM-Common/scripts/setup/reusable/Build-Step.ps1 release_REG1_REG1_LAN_TP_DALI REG1-LAN-TP-Dali esp32
 if (!$?) { exit 1 }
 
 # build firmware based on generated headerfile for SAMD
