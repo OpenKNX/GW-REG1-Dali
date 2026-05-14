@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "../OFM-ConfigTransfer"
+		},
+		{
+			"path": "../dali-iot-gateway"
 		}
 	],
 	"settings": {}
