@@ -31,6 +31,12 @@ void setup()
     setup0_ready = true;
 
     #ifdef ARDUINO_ARCH_ESP32
+    // Pin DALI loop to APP_CPU (core 1) with elevated priority so it is not
+    // preempted by WiFi/IP/Ethernet activity on PRO_CPU (core 0) nor by the
+    // Arduino loopTask. Without this, the RMT RX re-arm (Rmt.cpp) misses the
+    // backward-frame window during ETS-triggered scans → truncated frames
+    // (bits=6/7/0). Equivalent to the RP2040 setup1()/loop1() multicore fix
+    // (OFM-Dali commit fb3aea9).
     xTaskCreateUniversal([](void* parms) {
         while(!setup0_ready) {
             delay(10);
@@ -40,8 +46,10 @@ void setup()
         for (;;)
         {
             openknxDaliModule.loop1(knx.configured());
-        } 
-    }, "daliModuleLoop1", 8192, NULL, 0, nullptr, 0);
+            vTaskDelay(1);  // yield to lower-prio tasks on this core
+        }
+    }, "daliModuleLoop1", 8192, NULL, 5, nullptr, 1);
+    //                          ^prio=5  ^core=APP_CPU (opposite of WiFi/IP)
     #endif
 
     while(!setup1_ready) {
