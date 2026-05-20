@@ -29,6 +29,9 @@
 		},
 		{
 			"path": "../dali-iot-gateway"
+		},
+		{
+			"path": "../dali"
 		}
 	],
 	"settings": {}

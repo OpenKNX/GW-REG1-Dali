@@ -10,25 +10,23 @@
                                              
 #define ETS_ModuleId_NONE 0
 #define ETS_ModuleId_BASE 1
-#define ETS_ModuleId_OAM 2
-#define ETS_ModuleId_NET 3
-#define ETS_ModuleId_UCT 4
-#define ETS_ModuleId_DGW 5
-#define ETS_ModuleId_LOG 6
+#define ETS_ModuleId_UCT 2
+#define ETS_ModuleId_DGW 3
+#define ETS_ModuleId_LOG 4
 #define MAIN_FirmwareName "Dali-Gateway"
 #define MAIN_OpenKnxId 0xA4
 #define MAIN_ApplicationNumber 1
-#define MAIN_ApplicationVersion 10
+#define MAIN_ApplicationVersion 15
 #define MAIN_FirmwareRevision 1
 #define MAIN_ApplicationEncoding iso-8859-15
-#define MAIN_ParameterSize 5650
+#define MAIN_ParameterSize 5660
 #define MAIN_MaxKoNumber 2211
 #define MAIN_OrderNumber "DaliGateway"
-#define BASE_ModuleVersion 23
+#define BASE_ModuleVersion 24
 #define NET_ModuleVersion 4
 #define UCT_ModuleVersion 5
 #define DGW_ModuleVersion 0
-#define LOG_ModuleVersion 64
+#define LOG_ModuleVersion 67
 // Parameter with single occurrence
 
 
@@ -92,21 +90,15 @@
 #define     BASE_DefaultLedFuncMask 0x80
 #define     BASE_DefaultLedFuncShift 7
 #define BASE_Dummy                               109      // uint8_t
-#define BASE_ModuleEnabled_OAM                   110      // 1 Bit, Bit 6
-#define     BASE_ModuleEnabled_OAMMask 0x40
-#define     BASE_ModuleEnabled_OAMShift 6
-#define BASE_ModuleEnabled_NET                   110      // 1 Bit, Bit 5
-#define     BASE_ModuleEnabled_NETMask 0x20
-#define     BASE_ModuleEnabled_NETShift 5
-#define BASE_ModuleEnabled_UCT                   110      // 1 Bit, Bit 4
-#define     BASE_ModuleEnabled_UCTMask 0x10
-#define     BASE_ModuleEnabled_UCTShift 4
-#define BASE_ModuleEnabled_DGW                   110      // 1 Bit, Bit 3
-#define     BASE_ModuleEnabled_DGWMask 0x08
-#define     BASE_ModuleEnabled_DGWShift 3
-#define BASE_ModuleEnabled_LOG                   110      // 1 Bit, Bit 2
-#define     BASE_ModuleEnabled_LOGMask 0x04
-#define     BASE_ModuleEnabled_LOGShift 2
+#define BASE_ModuleEnabled_UCT                   110      // 1 Bit, Bit 6
+#define     BASE_ModuleEnabled_UCTMask 0x40
+#define     BASE_ModuleEnabled_UCTShift 6
+#define BASE_ModuleEnabled_DGW                   110      // 1 Bit, Bit 5
+#define     BASE_ModuleEnabled_DGWMask 0x20
+#define     BASE_ModuleEnabled_DGWShift 5
+#define BASE_ModuleEnabled_LOG                   110      // 1 Bit, Bit 4
+#define     BASE_ModuleEnabled_LOGMask 0x10
+#define     BASE_ModuleEnabled_LOGShift 4
 
 // Zeitbasis
 #define ParamBASE_StartupDelayBase                    ((knx.paramByte(BASE_StartupDelayBase) & BASE_StartupDelayBaseMask) >> BASE_StartupDelayBaseShift)
@@ -163,10 +155,6 @@
 #define ParamBASE_DefaultLedFunc                      ((bool)(knx.paramByte(BASE_DefaultLedFunc) & BASE_DefaultLedFuncMask))
 // 
 #define ParamBASE_Dummy                               (knx.paramByte(BASE_Dummy))
-// OAM
-#define ParamBASE_ModuleEnabled_OAM                   ((bool)(knx.paramByte(BASE_ModuleEnabled_OAM) & BASE_ModuleEnabled_OAMMask))
-// NET
-#define ParamBASE_ModuleEnabled_NET                   ((bool)(knx.paramByte(BASE_ModuleEnabled_NET) & BASE_ModuleEnabled_NETMask))
 // UCT
 #define ParamBASE_ModuleEnabled_UCT                   ((bool)(knx.paramByte(BASE_ModuleEnabled_UCT) & BASE_ModuleEnabled_UCTMask))
 // DGW
@@ -304,143 +292,143 @@
 #define DGW_ParamBlockSize 22
 #define DGW_ParamCalcIndex(index) (index + DGW_ParamBlockOffset + _channelIndex * DGW_ParamBlockSize)
 
-#define DGW_deviceType                           0      // 4 Bits, Bit 7-4
-#define     DGW_deviceTypeMask 0xF0
-#define     DGW_deviceTypeShift 4
-#define DGW_type                                 0      // 1 Bit, Bit 3
-#define     DGW_typeMask 0x08
-#define     DGW_typeShift 3
-#define DGW_error                                0      // 1 Bit, Bit 2
-#define     DGW_errorMask 0x04
-#define     DGW_errorShift 2
-#define DGW_min                                  1      // float (2 Byte)
-#define DGW_max                                  3      // float (2 Byte)
-#define DGW_nachtriggern                         0      // 1 Bit, Bit 1
-#define     DGW_nachtriggernMask 0x02
-#define     DGW_nachtriggernShift 1
-#define DGW_stairtime                            5      // 14 Bits, Bit 15-2
-#define     DGW_stairtimeMask 0xFFFC
-#define     DGW_stairtimeShift 2
-#define DGW_manuoff                              0      // 1 Bit, Bit 0
-#define     DGW_manuoffMask 0x01
-#define     DGW_manuoffShift 0
-#define DGW_lockbehave                           7      // 2 Bits, Bit 7-6
-#define     DGW_lockbehaveMask 0xC0
-#define     DGW_lockbehaveShift 6
-#define DGW_lockvalue                            8      // 7 Bits, Bit 7-1
-#define     DGW_lockvalueMask 0xFE
-#define     DGW_lockvalueShift 1
-#define DGW_unlockbehave                         7      // 2 Bits, Bit 5-4
-#define     DGW_unlockbehaveMask 0x30
-#define     DGW_unlockbehaveShift 4
-#define DGW_unlockvalue                          9      // 7 Bits, Bit 7-1
-#define     DGW_unlockvalueMask 0xFE
-#define     DGW_unlockvalueShift 1
-#define DGW_onDay                               10      // float (2 Byte)
-#define DGW_onNight                             12      // float (2 Byte)
-#define DGW_locknegate                           7      // 1 Bit, Bit 3
-#define     DGW_locknegateMask 0x08
-#define     DGW_locknegateShift 3
-#define DGW_colorType                            7      // 2 Bits, Bit 2-1
-#define     DGW_colorTypeMask 0x06
-#define     DGW_colorTypeShift 1
-#define DGW_colorSpace                           7      // 1 Bit, Bit 0
-#define     DGW_colorSpaceMask 0x01
-#define     DGW_colorSpaceShift 0
-#define DGW_tempMin                             14      // uint16_t
-#define DGW_tempMax                             16      // uint16_t
-#define DGW_hcl                                  8      // 1 Bit, Bit 0
-#define     DGW_hclMask 0x01
-#define     DGW_hclShift 0
-#define DGW_queryTime                           18      // 16 Bits, Bit 15-0
-#define DGW_xyIgnore                             9      // 1 Bit, Bit 0
-#define     DGW_xyIgnoreMask 0x01
-#define     DGW_xyIgnoreShift 0
-#define DGW_dimmStateInterval                   20      // 4 Bits, Bit 7-4
-#define     DGW_dimmStateIntervalMask 0xF0
-#define     DGW_dimmStateIntervalShift 4
-#define DGW_hclCurve                            20      // 2 Bits, Bit 3-2
-#define     DGW_hclCurveMask 0x0C
-#define     DGW_hclCurveShift 2
-#define DGW_hclStart                            20      // 1 Bit, Bit 1
-#define     DGW_hclStartMask 0x02
-#define     DGW_hclStartShift 1
-#define DGW_dimmLock                            21      // 2 Bits, Bit 7-6
-#define     DGW_dimmLockMask 0xC0
-#define     DGW_dimmLockShift 6
-#define DGW_hcl_manu_bri                        20      // 1 Bit, Bit 0
-#define     DGW_hcl_manu_briMask 0x01
-#define     DGW_hcl_manu_briShift 0
-#define DGW_hcl_manu_col                        21      // 1 Bit, Bit 5
-#define     DGW_hcl_manu_colMask 0x20
-#define     DGW_hcl_manu_colShift 5
-#define DGW_hcl_auto_off                        21      // 1 Bit, Bit 4
-#define     DGW_hcl_auto_offMask 0x10
-#define     DGW_hcl_auto_offShift 4
-#define DGW_hcl_auto_day                        21      // 1 Bit, Bit 3
-#define     DGW_hcl_auto_dayMask 0x08
-#define     DGW_hcl_auto_dayShift 3
+#define DGW_ddeviceType                          0      // 4 Bits, Bit 7-4
+#define     DGW_ddeviceTypeMask 0xF0
+#define     DGW_ddeviceTypeShift 4
+#define DGW_dtype                                0      // 1 Bit, Bit 3
+#define     DGW_dtypeMask 0x08
+#define     DGW_dtypeShift 3
+#define DGW_derror                               0      // 1 Bit, Bit 2
+#define     DGW_derrorMask 0x04
+#define     DGW_derrorShift 2
+#define DGW_dmin                                 1      // float (2 Byte)
+#define DGW_dmax                                 3      // float (2 Byte)
+#define DGW_dnachtriggern                        0      // 1 Bit, Bit 1
+#define     DGW_dnachtriggernMask 0x02
+#define     DGW_dnachtriggernShift 1
+#define DGW_dstairtime                           5      // 14 Bits, Bit 15-2
+#define     DGW_dstairtimeMask 0xFFFC
+#define     DGW_dstairtimeShift 2
+#define DGW_dmanuoff                             0      // 1 Bit, Bit 0
+#define     DGW_dmanuoffMask 0x01
+#define     DGW_dmanuoffShift 0
+#define DGW_dlockbehave                          7      // 2 Bits, Bit 7-6
+#define     DGW_dlockbehaveMask 0xC0
+#define     DGW_dlockbehaveShift 6
+#define DGW_dlockvalue                           8      // 7 Bits, Bit 7-1
+#define     DGW_dlockvalueMask 0xFE
+#define     DGW_dlockvalueShift 1
+#define DGW_dunlockbehave                        7      // 2 Bits, Bit 5-4
+#define     DGW_dunlockbehaveMask 0x30
+#define     DGW_dunlockbehaveShift 4
+#define DGW_dunlockvalue                         9      // 7 Bits, Bit 7-1
+#define     DGW_dunlockvalueMask 0xFE
+#define     DGW_dunlockvalueShift 1
+#define DGW_donDay                              10      // float (2 Byte)
+#define DGW_donNight                            12      // float (2 Byte)
+#define DGW_dlocknegate                          7      // 1 Bit, Bit 3
+#define     DGW_dlocknegateMask 0x08
+#define     DGW_dlocknegateShift 3
+#define DGW_dcolorType                           7      // 2 Bits, Bit 2-1
+#define     DGW_dcolorTypeMask 0x06
+#define     DGW_dcolorTypeShift 1
+#define DGW_dcolorSpace                          7      // 1 Bit, Bit 0
+#define     DGW_dcolorSpaceMask 0x01
+#define     DGW_dcolorSpaceShift 0
+#define DGW_dtempMin                            14      // uint16_t
+#define DGW_dtempMax                            16      // uint16_t
+#define DGW_dhcl                                 8      // 1 Bit, Bit 0
+#define     DGW_dhclMask 0x01
+#define     DGW_dhclShift 0
+#define DGW_dqueryTime                          18      // 16 Bits, Bit 15-0
+#define DGW_dxyIgnore                            9      // 1 Bit, Bit 0
+#define     DGW_dxyIgnoreMask 0x01
+#define     DGW_dxyIgnoreShift 0
+#define DGW_ddimmStateInterval                  20      // 4 Bits, Bit 7-4
+#define     DGW_ddimmStateIntervalMask 0xF0
+#define     DGW_ddimmStateIntervalShift 4
+#define DGW_dhclCurve                           20      // 2 Bits, Bit 3-2
+#define     DGW_dhclCurveMask 0x0C
+#define     DGW_dhclCurveShift 2
+#define DGW_dhclStart                           20      // 1 Bit, Bit 1
+#define     DGW_dhclStartMask 0x02
+#define     DGW_dhclStartShift 1
+#define DGW_ddimmLock                           21      // 2 Bits, Bit 7-6
+#define     DGW_ddimmLockMask 0xC0
+#define     DGW_ddimmLockShift 6
+#define DGW_dhcl_manu_bri                       20      // 1 Bit, Bit 0
+#define     DGW_dhcl_manu_briMask 0x01
+#define     DGW_dhcl_manu_briShift 0
+#define DGW_dhcl_manu_col                       21      // 1 Bit, Bit 5
+#define     DGW_dhcl_manu_colMask 0x20
+#define     DGW_dhcl_manu_colShift 5
+#define DGW_dhcl_auto_off                       21      // 1 Bit, Bit 4
+#define     DGW_dhcl_auto_offMask 0x10
+#define     DGW_dhcl_auto_offShift 4
+#define DGW_dhcl_auto_day                       21      // 1 Bit, Bit 3
+#define     DGW_dhcl_auto_dayMask 0x08
+#define     DGW_dhcl_auto_dayShift 3
 
 // Gerätetyp
-#define ParamDGW_deviceType                          ((knx.paramByte(DGW_ParamCalcIndex(DGW_deviceType)) & DGW_deviceTypeMask) >> DGW_deviceTypeShift)
+#define ParamDGW_ddeviceType                         ((knx.paramByte(DGW_ParamCalcIndex(DGW_ddeviceType)) & DGW_ddeviceTypeMask) >> DGW_ddeviceTypeShift)
 // Betriebsart
-#define ParamDGW_type                                ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_type)) & DGW_typeMask))
+#define ParamDGW_dtype                               ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dtype)) & DGW_dtypeMask))
 // Fehlerstatus auslesen
-#define ParamDGW_error                               ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_error)) & DGW_errorMask))
+#define ParamDGW_derror                              ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_derror)) & DGW_derrorMask))
 // 
-#define ParamDGW_min                                 (knx.paramFloat(DGW_ParamCalcIndex(DGW_min), Float_Enc_DPT9))
+#define ParamDGW_dmin                                (knx.paramFloat(DGW_ParamCalcIndex(DGW_dmin), Float_Enc_DPT9))
 // 
-#define ParamDGW_max                                 (knx.paramFloat(DGW_ParamCalcIndex(DGW_max), Float_Enc_DPT9))
+#define ParamDGW_dmax                                (knx.paramFloat(DGW_ParamCalcIndex(DGW_dmax), Float_Enc_DPT9))
 // Nachtriggern erlauben
-#define ParamDGW_nachtriggern                        ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_nachtriggern)) & DGW_nachtriggernMask))
+#define ParamDGW_dnachtriggern                       ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dnachtriggern)) & DGW_dnachtriggernMask))
 // Nachlaufzeit
-#define ParamDGW_stairtime                           ((knx.paramWord(DGW_ParamCalcIndex(DGW_stairtime)) & DGW_stairtimeMask) >> DGW_stairtimeShift)
+#define ParamDGW_dstairtime                          ((knx.paramWord(DGW_ParamCalcIndex(DGW_dstairtime)) & DGW_dstairtimeMask) >> DGW_dstairtimeShift)
 // Manuelles ausschalten
-#define ParamDGW_manuoff                             ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_manuoff)) & DGW_manuoffMask))
+#define ParamDGW_dmanuoff                            ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dmanuoff)) & DGW_dmanuoffMask))
 // Verhalten bei Sperren
-#define ParamDGW_lockbehave                          ((knx.paramByte(DGW_ParamCalcIndex(DGW_lockbehave)) & DGW_lockbehaveMask) >> DGW_lockbehaveShift)
+#define ParamDGW_dlockbehave                         ((knx.paramByte(DGW_ParamCalcIndex(DGW_dlockbehave)) & DGW_dlockbehaveMask) >> DGW_dlockbehaveShift)
 // 
-#define ParamDGW_lockvalue                           ((knx.paramByte(DGW_ParamCalcIndex(DGW_lockvalue)) & DGW_lockvalueMask) >> DGW_lockvalueShift)
+#define ParamDGW_dlockvalue                          ((knx.paramByte(DGW_ParamCalcIndex(DGW_dlockvalue)) & DGW_dlockvalueMask) >> DGW_dlockvalueShift)
 // Verhalten bei Entsperren
-#define ParamDGW_unlockbehave                        ((knx.paramByte(DGW_ParamCalcIndex(DGW_unlockbehave)) & DGW_unlockbehaveMask) >> DGW_unlockbehaveShift)
+#define ParamDGW_dunlockbehave                       ((knx.paramByte(DGW_ParamCalcIndex(DGW_dunlockbehave)) & DGW_dunlockbehaveMask) >> DGW_dunlockbehaveShift)
 // 
-#define ParamDGW_unlockvalue                         ((knx.paramByte(DGW_ParamCalcIndex(DGW_unlockvalue)) & DGW_unlockvalueMask) >> DGW_unlockvalueShift)
+#define ParamDGW_dunlockvalue                        ((knx.paramByte(DGW_ParamCalcIndex(DGW_dunlockvalue)) & DGW_dunlockvalueMask) >> DGW_dunlockvalueShift)
 // Einschaltwert Tag
-#define ParamDGW_onDay                               (knx.paramFloat(DGW_ParamCalcIndex(DGW_onDay), Float_Enc_DPT9))
+#define ParamDGW_donDay                              (knx.paramFloat(DGW_ParamCalcIndex(DGW_donDay), Float_Enc_DPT9))
 // Einschaltwert Nacht
-#define ParamDGW_onNight                             (knx.paramFloat(DGW_ParamCalcIndex(DGW_onNight), Float_Enc_DPT9))
+#define ParamDGW_donNight                            (knx.paramFloat(DGW_ParamCalcIndex(DGW_donNight), Float_Enc_DPT9))
 // Sperren bei
-#define ParamDGW_locknegate                          ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_locknegate)) & DGW_locknegateMask))
+#define ParamDGW_dlocknegate                         ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dlocknegate)) & DGW_dlocknegateMask))
 // Farbe ansteuern per
-#define ParamDGW_colorType                           ((knx.paramByte(DGW_ParamCalcIndex(DGW_colorType)) & DGW_colorTypeMask) >> DGW_colorTypeShift)
+#define ParamDGW_dcolorType                          ((knx.paramByte(DGW_ParamCalcIndex(DGW_dcolorType)) & DGW_dcolorTypeMask) >> DGW_dcolorTypeShift)
 // Farbe übertragen per
-#define ParamDGW_colorSpace                          ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_colorSpace)) & DGW_colorSpaceMask))
+#define ParamDGW_dcolorSpace                         ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dcolorSpace)) & DGW_dcolorSpaceMask))
 // Farbtemperatur Min
-#define ParamDGW_tempMin                             (knx.paramWord(DGW_ParamCalcIndex(DGW_tempMin)))
+#define ParamDGW_dtempMin                            (knx.paramWord(DGW_ParamCalcIndex(DGW_dtempMin)))
 // Farbtemperatur Max
-#define ParamDGW_tempMax                             (knx.paramWord(DGW_ParamCalcIndex(DGW_tempMax)))
+#define ParamDGW_dtempMax                            (knx.paramWord(DGW_ParamCalcIndex(DGW_dtempMax)))
 // HCL aktivieren
-#define ParamDGW_hcl                                 ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hcl)) & DGW_hclMask))
+#define ParamDGW_dhcl                                ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dhcl)) & DGW_dhclMask))
 // Dimmwert abfragen (0 = deaktiviert)
-#define ParamDGW_queryTime                           (knx.paramWord(DGW_ParamCalcIndex(DGW_queryTime)))
+#define ParamDGW_dqueryTime                          (knx.paramWord(DGW_ParamCalcIndex(DGW_dqueryTime)))
 // Helligkeit ignorieren? (nur xy verwenden)
-#define ParamDGW_xyIgnore                            ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_xyIgnore)) & DGW_xyIgnoreMask))
+#define ParamDGW_dxyIgnore                           ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dxyIgnore)) & DGW_dxyIgnoreMask))
 // Dimmstatus Interval bei relativ
-#define ParamDGW_dimmStateInterval                   ((knx.paramByte(DGW_ParamCalcIndex(DGW_dimmStateInterval)) & DGW_dimmStateIntervalMask) >> DGW_dimmStateIntervalShift)
+#define ParamDGW_ddimmStateInterval                  ((knx.paramByte(DGW_ParamCalcIndex(DGW_ddimmStateInterval)) & DGW_ddimmStateIntervalMask) >> DGW_ddimmStateIntervalShift)
 // Verwende
-#define ParamDGW_hclCurve                            ((knx.paramByte(DGW_ParamCalcIndex(DGW_hclCurve)) & DGW_hclCurveMask) >> DGW_hclCurveShift)
+#define ParamDGW_dhclCurve                           ((knx.paramByte(DGW_ParamCalcIndex(DGW_dhclCurve)) & DGW_dhclCurveMask) >> DGW_dhclCurveShift)
 // HCL anwenden
-#define ParamDGW_hclStart                            ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hclStart)) & DGW_hclStartMask))
+#define ParamDGW_dhclStart                           ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dhclStart)) & DGW_dhclStartMask))
 // Einschalten bei relativ
-#define ParamDGW_dimmLock                            ((knx.paramByte(DGW_ParamCalcIndex(DGW_dimmLock)) & DGW_dimmLockMask) >> DGW_dimmLockShift)
+#define ParamDGW_ddimmLock                           ((knx.paramByte(DGW_ParamCalcIndex(DGW_ddimmLock)) & DGW_ddimmLockMask) >> DGW_ddimmLockShift)
 // Helligkeit geändert wird
-#define ParamDGW_hcl_manu_bri                        ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hcl_manu_bri)) & DGW_hcl_manu_briMask))
+#define ParamDGW_dhcl_manu_bri                       ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dhcl_manu_bri)) & DGW_dhcl_manu_briMask))
 // Farbe/Temperatur geändert wird
-#define ParamDGW_hcl_manu_col                        ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hcl_manu_col)) & DGW_hcl_manu_colMask))
+#define ParamDGW_dhcl_manu_col                       ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dhcl_manu_col)) & DGW_dhcl_manu_colMask))
 // das EVG ausgeschaltet wird
-#define ParamDGW_hcl_auto_off                        ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hcl_auto_off)) & DGW_hcl_auto_offMask))
+#define ParamDGW_dhcl_auto_off                       ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dhcl_auto_off)) & DGW_dhcl_auto_offMask))
 // der Tag vorbei ist
-#define ParamDGW_hcl_auto_day                        ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_hcl_auto_day)) & DGW_hcl_auto_dayMask))
+#define ParamDGW_dhcl_auto_day                       ((bool)(knx.paramByte(DGW_ParamCalcIndex(DGW_dhcl_auto_day)) & DGW_dhcl_auto_dayMask))
 
 // deprecated
 #define DGW_KoOffset 300
@@ -453,67 +441,67 @@
 #define DGW_KoCalcIndex(number) ((number >= DGW_KoCalcNumber(0) && number < DGW_KoCalcNumber(DGW_KoBlockSize)) ? (number - DGW_KoBlockOffset) % DGW_KoBlockSize : -1)
 #define DGW_KoCalcChannel(number) ((number >= DGW_KoBlockOffset && number < DGW_KoBlockOffset + DGW_ChannelCount * DGW_KoBlockSize) ? (number - DGW_KoBlockOffset) / DGW_KoBlockSize : -1)
 
-#define DGW_Koswitch 0
-#define DGW_Koswitch_state 1
-#define DGW_Kodimm_relative 2
-#define DGW_Kodimm_absolute 3
-#define DGW_Kodimm_state 4
-#define DGW_Kolock 5
-#define DGW_Koerror 19
-#define DGW_Kocolor 6
-#define DGW_Kocolor_rgb_state 7
-#define DGW_Kocolor_red_relative 8
-#define DGW_Kocolor_red_absolute 9
-#define DGW_Kocolor_red_state 10
-#define DGW_Kocolor_green_relative 11
-#define DGW_Kocolor_green_absolute 12
-#define DGW_Kocolor_green_state 13
-#define DGW_Kocolor_blue_relative 14
-#define DGW_Kocolor_blue_absolute 15
-#define DGW_Kocolor_blue_state 16
-#define DGW_Kohcl_curve 17
-#define DGW_Koscene 18
+#define DGW_Kodswitch 0
+#define DGW_Kodswitch_state 1
+#define DGW_Koddimm_relative 2
+#define DGW_Koddimm_absolute 3
+#define DGW_Koddimm_state 4
+#define DGW_Kodlock 5
+#define DGW_Koderror 19
+#define DGW_Kodcolor 6
+#define DGW_Kodcolor_rgb_state 7
+#define DGW_Kodcolor_red_relative 8
+#define DGW_Kodcolor_red_absolute 9
+#define DGW_Kodcolor_red_state 10
+#define DGW_Kodcolor_green_relative 11
+#define DGW_Kodcolor_green_absolute 12
+#define DGW_Kodcolor_green_state 13
+#define DGW_Kodcolor_blue_relative 14
+#define DGW_Kodcolor_blue_absolute 15
+#define DGW_Kodcolor_blue_state 16
+#define DGW_Kodhcl_curve 17
+#define DGW_Kodscene 18
 
 // A%C-1% {{0}}
-#define KoDGW_switch                              (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koswitch)))
+#define KoDGW_dswitch                             (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodswitch)))
 // A%C-1% {{0}}
-#define KoDGW_switch_state                        (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koswitch_state)))
+#define KoDGW_dswitch_state                       (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodswitch_state)))
 // A%C-1% {{0}}
-#define KoDGW_dimm_relative                       (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodimm_relative)))
+#define KoDGW_ddimm_relative                      (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koddimm_relative)))
 // A%C-1% {{0}}
-#define KoDGW_dimm_absolute                       (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodimm_absolute)))
+#define KoDGW_ddimm_absolute                      (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koddimm_absolute)))
 // A%C-1% {{0}}
-#define KoDGW_dimm_state                          (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodimm_state)))
+#define KoDGW_ddimm_state                         (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koddimm_state)))
 // A%C-1% {{0}}
-#define KoDGW_lock                                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kolock)))
+#define KoDGW_dlock                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodlock)))
 // A%C-1% {{0}}
-#define KoDGW_error                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koerror)))
+#define KoDGW_derror                              (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koderror)))
 // A%C-1% {{0}}
-#define KoDGW_color                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor)))
+#define KoDGW_dcolor                              (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor)))
 // A%C-1% {{0}}
-#define KoDGW_color_rgb_state                     (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_rgb_state)))
+#define KoDGW_dcolor_rgb_state                    (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_rgb_state)))
 // A%C-1% {{0}}
-#define KoDGW_color_red_relative                  (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_red_relative)))
+#define KoDGW_dcolor_red_relative                 (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_red_relative)))
 // A%C-1% {{0}}
-#define KoDGW_color_red_absolute                  (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_red_absolute)))
+#define KoDGW_dcolor_red_absolute                 (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_red_absolute)))
 // A%C-1% {{0}}
-#define KoDGW_color_red_state                     (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_red_state)))
+#define KoDGW_dcolor_red_state                    (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_red_state)))
 // A%C-1% {{0}}
-#define KoDGW_color_green_relative                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_green_relative)))
+#define KoDGW_dcolor_green_relative               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_green_relative)))
 // A%C-1% {{0}}
-#define KoDGW_color_green_absolute                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_green_absolute)))
+#define KoDGW_dcolor_green_absolute               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_green_absolute)))
 // A%C-1% {{0}}
-#define KoDGW_color_green_state                   (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_green_state)))
+#define KoDGW_dcolor_green_state                  (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_green_state)))
 // A%C-1% {{0}}
-#define KoDGW_color_blue_relative                 (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_blue_relative)))
+#define KoDGW_dcolor_blue_relative                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_blue_relative)))
 // A%C-1% {{0}}
-#define KoDGW_color_blue_absolute                 (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_blue_absolute)))
+#define KoDGW_dcolor_blue_absolute                (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_blue_absolute)))
 // A%C-1% {{0}}
-#define KoDGW_color_blue_state                    (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kocolor_blue_state)))
+#define KoDGW_dcolor_blue_state                   (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodcolor_blue_state)))
 // A%C-1% {{0}}
-#define KoDGW_hcl_curve                           (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kohcl_curve)))
+#define KoDGW_dhcl_curve                          (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodhcl_curve)))
 // A%C-1% {{0}}
-#define KoDGW_scene                               (knx.getGroupObject(DGW_KoCalcNumber(DGW_Koscene)))
+#define KoDGW_dscene                              (knx.getGroupObject(DGW_KoCalcNumber(DGW_Kodscene)))
 
 #define DGWG_ChannelCount 16
 
@@ -1358,7 +1346,7 @@
 
 // Parameter per channel
 #define LOG_ParamBlockOffset 5215
-#define LOG_ParamBlockSize 87
+#define LOG_ParamBlockSize 89
 #define LOG_ParamCalcIndex(index) (index + LOG_ParamBlockOffset + _channelIndex * LOG_ParamBlockSize)
 
 #define LOG_fChannelDelayBase                    0      // 2 Bits, Bit 7-6
@@ -2166,107 +2154,124 @@
 #define LOG_fOSendOnChange                      55      // 1 Bit, Bit 2
 #define     LOG_fOSendOnChangeMask 0x04
 #define     LOG_fOSendOnChangeShift 2
+#define LOG_fOLockEnabled                       55      // 1 Bit, Bit 1
+#define     LOG_fOLockEnabledMask 0x02
+#define     LOG_fOLockEnabledShift 1
 #define LOG_fODpt                               56      // 8 Bits, Bit 7-0
-#define LOG_fOOnAll                             57      // 8 Bits, Bit 7-0
-#define LOG_fOOnDpt1                            58      // 8 Bits, Bit 7-0
-#define LOG_fOOnDpt2                            58      // 8 Bits, Bit 7-0
-#define LOG_fOOnDpt3Dir                         58      // 5 Bits, Bit 7-3
+#define LOG_fOLockTriggerLock                   57      // 2 Bits, Bit 7-6
+#define     LOG_fOLockTriggerLockMask 0xC0
+#define     LOG_fOLockTriggerLockShift 6
+#define LOG_fOLockTriggerUnlock                 57      // 2 Bits, Bit 5-4
+#define     LOG_fOLockTriggerUnlockMask 0x30
+#define     LOG_fOLockTriggerUnlockShift 4
+#define LOG_fOLockResetQueue                    57      // 2 Bits, Bit 3-2
+#define     LOG_fOLockResetQueueMask 0x0C
+#define     LOG_fOLockResetQueueShift 2
+#define LOG_fOLockKind                          57      // 2 Bits, Bit 1-0
+#define     LOG_fOLockKindMask 0x03
+#define     LOG_fOLockKindShift 0
+#define LOG_fOLockFunction                      58      // uint8_t
+#define LOG_fOLockFunctionRel                   58      // int8_t
+#define LOG_fOOnAll                             59      // 8 Bits, Bit 7-0
+#define LOG_fOOnDpt1                            60      // 8 Bits, Bit 7-0
+#define LOG_fOOnDpt2                            60      // 8 Bits, Bit 7-0
+#define LOG_fOOnDpt3Dir                         60      // 5 Bits, Bit 7-3
 #define     LOG_fOOnDpt3DirMask 0xF8
 #define     LOG_fOOnDpt3DirShift 3
-#define LOG_fOOnDpt3Dim                         58      // 3 Bits, Bit 2-0
+#define LOG_fOOnDpt3Dim                         60      // 3 Bits, Bit 2-0
 #define     LOG_fOOnDpt3DimMask 0x07
 #define     LOG_fOOnDpt3DimShift 0
-#define LOG_fOOnDpt5                            58      // uint8_t
-#define LOG_fOOnDpt5001                         58      // uint8_t
-#define LOG_fOOnDpt6                            58      // int8_t
-#define LOG_fOOnDpt7                            58      // uint16_t
-#define LOG_fOOnDpt8                            58      // int16_t
-#define LOG_fOOnDpt9                            58      // float (4 Byte)
-#define LOG_fOOnDpt12                           58      // uint32_t
-#define LOG_fOOnDpt13                           58      // int32_t
-#define LOG_fOOnDpt14                           58      // float (4 Byte)
-#define LOG_fOOnDpt16                           58      // char*, 14 Byte
+#define LOG_fOOnDpt5                            60      // uint8_t
+#define LOG_fOOnDpt5001                         60      // uint8_t
+#define LOG_fOOnDpt6                            60      // int8_t
+#define LOG_fOOnDpt7                            60      // uint16_t
+#define LOG_fOOnDpt8                            60      // int16_t
+#define LOG_fOOnDpt9                            60      // float (4 Byte)
+#define LOG_fOOnDpt12                           60      // uint32_t
+#define LOG_fOOnDpt13                           60      // int32_t
+#define LOG_fOOnDpt14                           60      // float (4 Byte)
+#define LOG_fOOnDpt16                           60      // char*, 14 Byte
 #define     LOG_fOOnDpt16Length 14
-#define LOG_fOOnDpt17                           58      // 8 Bits, Bit 7-0
-#define LOG_fOOnRGB                             58      // 24 Bits, Bit 31-8
+#define LOG_fOOnDpt17                           60      // 8 Bits, Bit 7-0
+#define LOG_fOOnRGB                             60      // 24 Bits, Bit 31-8
 #define     LOG_fOOnRGBMask 0xFFFFFF00
 #define     LOG_fOOnRGBShift 8
-#define LOG_fOOnLedProvider                     62      // 3 Bits, Bit 2-0
+#define LOG_fOOnLedProvider                     64      // 3 Bits, Bit 2-0
 #define     LOG_fOOnLedProviderMask 0x07
 #define     LOG_fOOnLedProviderShift 0
-#define LOG_fOOnLedEffect                       63      // 3 Bits, Bit 2-0
+#define LOG_fOOnLedEffect                       65      // 3 Bits, Bit 2-0
 #define     LOG_fOOnLedEffectMask 0x07
 #define     LOG_fOOnLedEffectShift 0
-#define LOG_fOOnLedDuration                     64      // uint16_t
-#define LOG_fOOnPAArea                          58      // 4 Bits, Bit 7-4
+#define LOG_fOOnLedDuration                     66      // uint16_t
+#define LOG_fOOnPAArea                          60      // 4 Bits, Bit 7-4
 #define     LOG_fOOnPAAreaMask 0xF0
 #define     LOG_fOOnPAAreaShift 4
-#define LOG_fOOnPALine                          58      // 4 Bits, Bit 3-0
+#define LOG_fOOnPALine                          60      // 4 Bits, Bit 3-0
 #define     LOG_fOOnPALineMask 0x0F
 #define     LOG_fOOnPALineShift 0
-#define LOG_fOOnPADevice                        59      // uint8_t
-#define LOG_fOOnFunction                        58      // 8 Bits, Bit 7-0
-#define LOG_fOOnKOKind                          63      // 2 Bits, Bit 7-6
+#define LOG_fOOnPADevice                        61      // uint8_t
+#define LOG_fOOnFunction                        60      // 8 Bits, Bit 7-0
+#define LOG_fOOnKOKind                          65      // 2 Bits, Bit 7-6
 #define     LOG_fOOnKOKindMask 0xC0
 #define     LOG_fOOnKOKindShift 6
-#define LOG_fOOnKONumber                        58      // uint16_t
-#define LOG_fOOnKONumberRel                     58      // int16_t
-#define LOG_fOOnKODpt                           60      // 8 Bits, Bit 7-0
-#define LOG_fOOnKOSend                          63      // 2 Bits, Bit 5-4
+#define LOG_fOOnKONumber                        60      // uint16_t
+#define LOG_fOOnKONumberRel                     60      // int16_t
+#define LOG_fOOnKODpt                           62      // 8 Bits, Bit 7-0
+#define LOG_fOOnKOSend                          65      // 2 Bits, Bit 5-4
 #define     LOG_fOOnKOSendMask 0x30
 #define     LOG_fOOnKOSendShift 4
-#define LOG_fOOnKOSendNumber                    64      // uint16_t
-#define LOG_fOOnKOSendNumberRel                 64      // int16_t
-#define LOG_fOOffAll                            72      // 8 Bits, Bit 7-0
-#define LOG_fOOffDpt1                           73      // 8 Bits, Bit 7-0
-#define LOG_fOOffDpt2                           73      // 8 Bits, Bit 7-0
-#define LOG_fOOffDpt3Dir                        73      // 5 Bits, Bit 7-3
+#define LOG_fOOnKOSendNumber                    66      // uint16_t
+#define LOG_fOOnKOSendNumberRel                 66      // int16_t
+#define LOG_fOOffAll                            74      // 8 Bits, Bit 7-0
+#define LOG_fOOffDpt1                           75      // 8 Bits, Bit 7-0
+#define LOG_fOOffDpt2                           75      // 8 Bits, Bit 7-0
+#define LOG_fOOffDpt3Dir                        75      // 5 Bits, Bit 7-3
 #define     LOG_fOOffDpt3DirMask 0xF8
 #define     LOG_fOOffDpt3DirShift 3
-#define LOG_fOOffDpt3Dim                        73      // 3 Bits, Bit 2-0
+#define LOG_fOOffDpt3Dim                        75      // 3 Bits, Bit 2-0
 #define     LOG_fOOffDpt3DimMask 0x07
 #define     LOG_fOOffDpt3DimShift 0
-#define LOG_fOOffDpt5                           73      // uint8_t
-#define LOG_fOOffDpt5001                        73      // uint8_t
-#define LOG_fOOffDpt6                           73      // int8_t
-#define LOG_fOOffDpt7                           73      // uint16_t
-#define LOG_fOOffDpt8                           73      // int16_t
-#define LOG_fOOffDpt9                           73      // float (4 Byte)
-#define LOG_fOOffDpt12                          73      // uint32_t
-#define LOG_fOOffDpt13                          73      // int32_t
-#define LOG_fOOffDpt14                          73      // float (4 Byte)
-#define LOG_fOOffDpt16                          73      // char*, 14 Byte
+#define LOG_fOOffDpt5                           75      // uint8_t
+#define LOG_fOOffDpt5001                        75      // uint8_t
+#define LOG_fOOffDpt6                           75      // int8_t
+#define LOG_fOOffDpt7                           75      // uint16_t
+#define LOG_fOOffDpt8                           75      // int16_t
+#define LOG_fOOffDpt9                           75      // float (4 Byte)
+#define LOG_fOOffDpt12                          75      // uint32_t
+#define LOG_fOOffDpt13                          75      // int32_t
+#define LOG_fOOffDpt14                          75      // float (4 Byte)
+#define LOG_fOOffDpt16                          75      // char*, 14 Byte
 #define     LOG_fOOffDpt16Length 14
-#define LOG_fOOffDpt17                          73      // 8 Bits, Bit 7-0
-#define LOG_fOOffRGB                            73      // 24 Bits, Bit 31-8
+#define LOG_fOOffDpt17                          75      // 8 Bits, Bit 7-0
+#define LOG_fOOffRGB                            75      // 24 Bits, Bit 31-8
 #define     LOG_fOOffRGBMask 0xFFFFFF00
 #define     LOG_fOOffRGBShift 8
-#define LOG_fOOffLedProvider                    77      // 3 Bits, Bit 2-0
+#define LOG_fOOffLedProvider                    79      // 3 Bits, Bit 2-0
 #define     LOG_fOOffLedProviderMask 0x07
 #define     LOG_fOOffLedProviderShift 0
-#define LOG_fOOffLedEffect                      78      // 3 Bits, Bit 2-0
+#define LOG_fOOffLedEffect                      80      // 3 Bits, Bit 2-0
 #define     LOG_fOOffLedEffectMask 0x07
 #define     LOG_fOOffLedEffectShift 0
-#define LOG_fOOffLedDuration                    79      // uint16_t
-#define LOG_fOOffPAArea                         73      // 4 Bits, Bit 7-4
+#define LOG_fOOffLedDuration                    81      // uint16_t
+#define LOG_fOOffPAArea                         75      // 4 Bits, Bit 7-4
 #define     LOG_fOOffPAAreaMask 0xF0
 #define     LOG_fOOffPAAreaShift 4
-#define LOG_fOOffPALine                         73      // 4 Bits, Bit 3-0
+#define LOG_fOOffPALine                         75      // 4 Bits, Bit 3-0
 #define     LOG_fOOffPALineMask 0x0F
 #define     LOG_fOOffPALineShift 0
-#define LOG_fOOffPADevice                       74      // uint8_t
-#define LOG_fOOffFunction                       73      // 8 Bits, Bit 7-0
-#define LOG_fOOffKOKind                         78      // 2 Bits, Bit 7-6
+#define LOG_fOOffPADevice                       76      // uint8_t
+#define LOG_fOOffFunction                       75      // 8 Bits, Bit 7-0
+#define LOG_fOOffKOKind                         80      // 2 Bits, Bit 7-6
 #define     LOG_fOOffKOKindMask 0xC0
 #define     LOG_fOOffKOKindShift 6
-#define LOG_fOOffKONumber                       73      // uint16_t
-#define LOG_fOOffKONumberRel                    73      // int16_t
-#define LOG_fOOffKODpt                          75      // 8 Bits, Bit 7-0
-#define LOG_fOOffKOSend                         78      // 2 Bits, Bit 5-4
+#define LOG_fOOffKONumber                       75      // uint16_t
+#define LOG_fOOffKONumberRel                    75      // int16_t
+#define LOG_fOOffKODpt                          77      // 8 Bits, Bit 7-0
+#define LOG_fOOffKOSend                         80      // 2 Bits, Bit 5-4
 #define     LOG_fOOffKOSendMask 0x30
 #define     LOG_fOOffKOSendShift 4
-#define LOG_fOOffKOSendNumber                   79      // uint16_t
-#define LOG_fOOffKOSendNumberRel                79      // int16_t
+#define LOG_fOOffKOSendNumber                   81      // uint16_t
+#define LOG_fOOffKOSendNumberRel                81      // int16_t
 
 // Zeit bis der Kanal nach einem Neustart aktiv wird
 #define ParamLOG_fChannelDelayBase                   ((knx.paramByte(LOG_ParamCalcIndex(LOG_fChannelDelayBase)) & LOG_fChannelDelayBaseMask) >> LOG_fChannelDelayBaseShift)
@@ -2275,9 +2280,9 @@
 // Zeit bis der Kanal nach einem Neustart aktiv wird (in Millisekunden)
 #define ParamLOG_fChannelDelayTimeMS                 (paramDelay(knx.paramWord(LOG_ParamCalcIndex(LOG_fChannelDelayTime))))
 // Logik-Operation
-#define ParamLOG_fLogic                              (knx.paramByte(LOG_ParamCalcIndex(LOG_fLogic)))
+#define ParamLOG_fLogic                              (PT_Logic)(knx.paramByte(LOG_ParamCalcIndex(LOG_fLogic)))
 // Logik auswerten
-#define ParamLOG_fCalculate                          (knx.paramByte(LOG_ParamCalcIndex(LOG_fCalculate)) & LOG_fCalculateMask)
+#define ParamLOG_fCalculate                          (PT_Calculate)(knx.paramByte(LOG_ParamCalcIndex(LOG_fCalculate)) & LOG_fCalculateMask)
 // Kanal deaktivieren (zu Testzwecken)
 #define ParamLOG_fDisable                            ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fDisable)) & LOG_fDisableMask))
 // Tor geht sofort wieder zu
@@ -2299,23 +2304,23 @@
 // Logik sendet ihren Wert weiter
 #define ParamLOG_fTriggerTime                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fTriggerTime)))
 // Beim schließen vom Tor wird
-#define ParamLOG_fTriggerGateClose                   ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTriggerGateClose)) & LOG_fTriggerGateCloseMask) >> LOG_fTriggerGateCloseShift)
+#define ParamLOG_fTriggerGateClose                   (PT_GateTrigger)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTriggerGateClose)) & LOG_fTriggerGateCloseMask) >> LOG_fTriggerGateCloseShift)
 // Beim öffnen vom Tor wird
-#define ParamLOG_fTriggerGateOpen                    ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTriggerGateOpen)) & LOG_fTriggerGateOpenMask) >> LOG_fTriggerGateOpenShift)
+#define ParamLOG_fTriggerGateOpen                    (PT_GateTrigger)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTriggerGateOpen)) & LOG_fTriggerGateOpenMask) >> LOG_fTriggerGateOpenShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE1ConvertInt                       ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertInt)) & LOG_fE1ConvertIntMask) >> LOG_fE1ConvertIntShift)
+#define ParamLOG_fE1ConvertInt                       (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertInt)) & LOG_fE1ConvertIntMask) >> LOG_fE1ConvertIntShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE1Convert                          ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1Convert)) & LOG_fE1ConvertMask) >> LOG_fE1ConvertShift)
+#define ParamLOG_fE1Convert                          (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1Convert)) & LOG_fE1ConvertMask) >> LOG_fE1ConvertShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE1ConvertFloat                     ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertFloat)) & LOG_fE1ConvertFloatMask) >> LOG_fE1ConvertFloatShift)
+#define ParamLOG_fE1ConvertFloat                     (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertFloat)) & LOG_fE1ConvertFloatMask) >> LOG_fE1ConvertFloatShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE1ConvertSpecial                   ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertSpecial)) & LOG_fE1ConvertSpecialMask) >> LOG_fE1ConvertSpecialShift)
+#define ParamLOG_fE1ConvertSpecial                   (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertSpecial)) & LOG_fE1ConvertSpecialMask) >> LOG_fE1ConvertSpecialShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE1ConvertBool                      ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertBool)) & LOG_fE1ConvertBoolMask) >> LOG_fE1ConvertBoolShift)
+#define ParamLOG_fE1ConvertBool                      (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1ConvertBool)) & LOG_fE1ConvertBoolMask) >> LOG_fE1ConvertBoolShift)
 // Eingang 1
-#define ParamLOG_fE1                                 (knx.paramByte(LOG_ParamCalcIndex(LOG_fE1)) & LOG_fE1Mask)
+#define ParamLOG_fE1                                 (PT_InputEnable)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE1)) & LOG_fE1Mask)
 // DPT für Eingang
-#define ParamLOG_fE1Dpt                              (knx.paramByte(LOG_ParamCalcIndex(LOG_fE1Dpt)))
+#define ParamLOG_fE1Dpt                              (PT_LogicDpt)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE1Dpt)))
 // Eingang wird gelesen alle
 #define ParamLOG_fE1RepeatBase                       ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1RepeatBase)) & LOG_fE1RepeatBaseMask) >> LOG_fE1RepeatBaseShift)
 // Eingang wird gelesen alle
@@ -2327,15 +2332,15 @@
 //     Nummer des Kommunikationsobjekts
 #define ParamLOG_fE1OtherKORel                       ((int16_t)knx.paramWord(LOG_ParamCalcIndex(LOG_fE1OtherKORel)))
 // Falls Vorbelegung aus dem Speicher nicht möglich oder nicht gewünscht, dann vorbelegen mit
-#define ParamLOG_fE1Default                          (knx.paramByte(LOG_ParamCalcIndex(LOG_fE1Default)) & LOG_fE1DefaultMask)
+#define ParamLOG_fE1Default                          (PT_InputDefault)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE1Default)) & LOG_fE1DefaultMask)
 // Eingang vorbelegen mit
-#define ParamLOG_fE1DefaultExt                       (knx.paramByte(LOG_ParamCalcIndex(LOG_fE1DefaultExt)) & LOG_fE1DefaultExtMask)
+#define ParamLOG_fE1DefaultExt                       (PT_InputDefault)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE1DefaultExt)) & LOG_fE1DefaultExtMask)
 // Eingangswert speichern und beim nächsten Neustart als Vorbelegung nutzen?
 #define ParamLOG_fE1DefaultEEPROM                    ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE1DefaultEEPROM)) & LOG_fE1DefaultEEPROMMask))
 // Nur so lange zyklisch lesen, bis erstes Telegramm eingeht
 #define ParamLOG_fE1DefaultRepeat                    ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE1DefaultRepeat)) & LOG_fE1DefaultRepeatMask))
 // Kommunikationsobjekt für Eingang
-#define ParamLOG_fE1UseOtherKO                       ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1UseOtherKO)) & LOG_fE1UseOtherKOMask) >> LOG_fE1UseOtherKOShift)
+#define ParamLOG_fE1UseOtherKO                       (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE1UseOtherKO)) & LOG_fE1UseOtherKOMask) >> LOG_fE1UseOtherKOShift)
 // Von-Wert
 #define ParamLOG_fE1LowDelta                         ((int32_t)knx.paramInt(LOG_ParamCalcIndex(LOG_fE1LowDelta)))
 // Bis-Wert
@@ -2525,19 +2530,19 @@
 // Eingang ist konstant
 #define ParamLOG_fE1LowDptRGBFix                     ((int32_t)knx.paramInt(LOG_ParamCalcIndex(LOG_fE1LowDptRGBFix)))
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE2ConvertInt                       ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertInt)) & LOG_fE2ConvertIntMask) >> LOG_fE2ConvertIntShift)
+#define ParamLOG_fE2ConvertInt                       (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertInt)) & LOG_fE2ConvertIntMask) >> LOG_fE2ConvertIntShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE2Convert                          ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2Convert)) & LOG_fE2ConvertMask) >> LOG_fE2ConvertShift)
+#define ParamLOG_fE2Convert                          (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2Convert)) & LOG_fE2ConvertMask) >> LOG_fE2ConvertShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE2ConvertFloat                     ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertFloat)) & LOG_fE2ConvertFloatMask) >> LOG_fE2ConvertFloatShift)
+#define ParamLOG_fE2ConvertFloat                     (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertFloat)) & LOG_fE2ConvertFloatMask) >> LOG_fE2ConvertFloatShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE2ConvertSpecial                   ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertSpecial)) & LOG_fE2ConvertSpecialMask) >> LOG_fE2ConvertSpecialShift)
+#define ParamLOG_fE2ConvertSpecial                   (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertSpecial)) & LOG_fE2ConvertSpecialMask) >> LOG_fE2ConvertSpecialShift)
 // Wert für Eingang wird ermittelt durch
-#define ParamLOG_fE2ConvertBool                      ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertBool)) & LOG_fE2ConvertBoolMask) >> LOG_fE2ConvertBoolShift)
+#define ParamLOG_fE2ConvertBool                      (PT_InputConv)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2ConvertBool)) & LOG_fE2ConvertBoolMask) >> LOG_fE2ConvertBoolShift)
 // Eingang 2
-#define ParamLOG_fE2                                 (knx.paramByte(LOG_ParamCalcIndex(LOG_fE2)) & LOG_fE2Mask)
+#define ParamLOG_fE2                                 (PT_InputEnable)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE2)) & LOG_fE2Mask)
 // DPT für Eingang
-#define ParamLOG_fE2Dpt                              (knx.paramByte(LOG_ParamCalcIndex(LOG_fE2Dpt)))
+#define ParamLOG_fE2Dpt                              (PT_LogicDpt)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE2Dpt)))
 // Eingang wird gelesen alle
 #define ParamLOG_fE2RepeatBase                       ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2RepeatBase)) & LOG_fE2RepeatBaseMask) >> LOG_fE2RepeatBaseShift)
 // Eingang wird gelesen alle
@@ -2549,15 +2554,15 @@
 //     Nummer des Kommunikationsobjekts
 #define ParamLOG_fE2OtherKORel                       ((int16_t)knx.paramWord(LOG_ParamCalcIndex(LOG_fE2OtherKORel)))
 // Falls Vorbelegung aus dem Speicher nicht möglich oder nicht gewünscht, dann vorbelegen mit
-#define ParamLOG_fE2Default                          (knx.paramByte(LOG_ParamCalcIndex(LOG_fE2Default)) & LOG_fE2DefaultMask)
+#define ParamLOG_fE2Default                          (PT_InputDefault)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE2Default)) & LOG_fE2DefaultMask)
 // Eingang vorbelegen mit
-#define ParamLOG_fE2DefaultExt                       (knx.paramByte(LOG_ParamCalcIndex(LOG_fE2DefaultExt)) & LOG_fE2DefaultExtMask)
+#define ParamLOG_fE2DefaultExt                       (PT_InputDefault)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE2DefaultExt)) & LOG_fE2DefaultExtMask)
 // Eingangswert speichern und beim nächsten Neustart als Vorbelegung nutzen?
 #define ParamLOG_fE2DefaultEEPROM                    ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE2DefaultEEPROM)) & LOG_fE2DefaultEEPROMMask))
 // Nur so lange zyklisch lesen, bis erstes Telegramm eingeht
 #define ParamLOG_fE2DefaultRepeat                    ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fE2DefaultRepeat)) & LOG_fE2DefaultRepeatMask))
 // Kommunikationsobjekt für Eingang
-#define ParamLOG_fE2UseOtherKO                       ((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2UseOtherKO)) & LOG_fE2UseOtherKOMask) >> LOG_fE2UseOtherKOShift)
+#define ParamLOG_fE2UseOtherKO                       (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fE2UseOtherKO)) & LOG_fE2UseOtherKOMask) >> LOG_fE2UseOtherKOShift)
 // Von-Wert
 #define ParamLOG_fE2LowDelta                         ((int32_t)knx.paramInt(LOG_ParamCalcIndex(LOG_fE2LowDelta)))
 // Bis-Wert
@@ -2747,29 +2752,29 @@
 // Eingang ist konstant
 #define ParamLOG_fE2LowDptRGBFix                     ((int32_t)knx.paramInt(LOG_ParamCalcIndex(LOG_fE2LowDptRGBFix)))
 // Zeitbezug
-#define ParamLOG_fTd1DuskDawn                        ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd1DuskDawn)) & LOG_fTd1DuskDawnMask) >> LOG_fTd1DuskDawnShift)
+#define ParamLOG_fTd1DuskDawn                        (PT_DuskDawn)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd1DuskDawn)) & LOG_fTd1DuskDawnMask) >> LOG_fTd1DuskDawnShift)
 // Zeitbezug
-#define ParamLOG_fTd2DuskDawn                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fTd2DuskDawn)) & LOG_fTd2DuskDawnMask)
+#define ParamLOG_fTd2DuskDawn                        (PT_DuskDawn)(knx.paramByte(LOG_ParamCalcIndex(LOG_fTd2DuskDawn)) & LOG_fTd2DuskDawnMask)
 // Zeitbezug
-#define ParamLOG_fTd3DuskDawn                        ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd3DuskDawn)) & LOG_fTd3DuskDawnMask) >> LOG_fTd3DuskDawnShift)
+#define ParamLOG_fTd3DuskDawn                        (PT_DuskDawn)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd3DuskDawn)) & LOG_fTd3DuskDawnMask) >> LOG_fTd3DuskDawnShift)
 // Zeitbezug
-#define ParamLOG_fTd4DuskDawn                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fTd4DuskDawn)) & LOG_fTd4DuskDawnMask)
+#define ParamLOG_fTd4DuskDawn                        (PT_DuskDawn)(knx.paramByte(LOG_ParamCalcIndex(LOG_fTd4DuskDawn)) & LOG_fTd4DuskDawnMask)
 // Zeitbezug
-#define ParamLOG_fTd5DuskDawn                        ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd5DuskDawn)) & LOG_fTd5DuskDawnMask) >> LOG_fTd5DuskDawnShift)
+#define ParamLOG_fTd5DuskDawn                        (PT_DuskDawn)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd5DuskDawn)) & LOG_fTd5DuskDawnMask) >> LOG_fTd5DuskDawnShift)
 // Zeitbezug
-#define ParamLOG_fTd6DuskDawn                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fTd6DuskDawn)) & LOG_fTd6DuskDawnMask)
+#define ParamLOG_fTd6DuskDawn                        (PT_DuskDawn)(knx.paramByte(LOG_ParamCalcIndex(LOG_fTd6DuskDawn)) & LOG_fTd6DuskDawnMask)
 // Zeitbezug
-#define ParamLOG_fTd7DuskDawn                        ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd7DuskDawn)) & LOG_fTd7DuskDawnMask) >> LOG_fTd7DuskDawnShift)
+#define ParamLOG_fTd7DuskDawn                        (PT_DuskDawn)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTd7DuskDawn)) & LOG_fTd7DuskDawnMask) >> LOG_fTd7DuskDawnShift)
 // Zeitbezug
-#define ParamLOG_fTd8DuskDawn                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fTd8DuskDawn)) & LOG_fTd8DuskDawnMask)
+#define ParamLOG_fTd8DuskDawn                        (PT_DuskDawn)(knx.paramByte(LOG_ParamCalcIndex(LOG_fTd8DuskDawn)) & LOG_fTd8DuskDawnMask)
 // Typ der Zeitschaltuhr
-#define ParamLOG_fTYearDay                           ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTYearDay)) & LOG_fTYearDayMask) >> LOG_fTYearDayShift)
+#define ParamLOG_fTYearDay                           (PT_YearDay)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTYearDay)) & LOG_fTYearDayMask) >> LOG_fTYearDayShift)
 // Feiertagsbehandlung
-#define ParamLOG_fTHoliday                           ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTHoliday)) & LOG_fTHolidayMask) >> LOG_fTHolidayShift)
+#define ParamLOG_fTHoliday                           (PT_Holiday)((knx.paramByte(LOG_ParamCalcIndex(LOG_fTHoliday)) & LOG_fTHolidayMask) >> LOG_fTHolidayShift)
 // Bei Neustart letzte Schaltzeit nachholen
 #define ParamLOG_fTRestoreState                      ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTRestoreState)) & LOG_fTRestoreStateMask) >> LOG_fTRestoreStateShift)
 // Urlaubsbehandlung
-#define ParamLOG_fTVacation                          (knx.paramByte(LOG_ParamCalcIndex(LOG_fTVacation)) & LOG_fTVacationMask)
+#define ParamLOG_fTVacation                          (PT_Vacation)(knx.paramByte(LOG_ParamCalcIndex(LOG_fTVacation)) & LOG_fTVacationMask)
 // Zahlenwert
 #define ParamLOG_fTd1ValueNum                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fTd1ValueNum)))
 // Zahlenwert
@@ -2995,13 +3000,13 @@
 // Monat
 #define ParamLOG_fTy4Month                           ((knx.paramByte(LOG_ParamCalcIndex(LOG_fTy4Month)) & LOG_fTy4MonthMask) >> LOG_fTy4MonthShift)
 // Interner Eingang 3
-#define ParamLOG_fI1                                 ((knx.paramByte(LOG_ParamCalcIndex(LOG_fI1)) & LOG_fI1Mask) >> LOG_fI1Shift)
+#define ParamLOG_fI1                                 (PT_InputEnable)((knx.paramByte(LOG_ParamCalcIndex(LOG_fI1)) & LOG_fI1Mask) >> LOG_fI1Shift)
 // Art der Verknüpfung
-#define ParamLOG_fI1Kind                             ((knx.paramByte(LOG_ParamCalcIndex(LOG_fI1Kind)) & LOG_fI1KindMask) >> LOG_fI1KindShift)
+#define ParamLOG_fI1Kind                             (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fI1Kind)) & LOG_fI1KindMask) >> LOG_fI1KindShift)
 // Internen Eingang als Trigger nutzen(ist immer logisch EIN)
 #define ParamLOG_fI1AsTrigger                        ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fI1AsTrigger)) & LOG_fI1AsTriggerMask))
 // Interner Eingang wird versorgt vom
-#define ParamLOG_fI1InternalInputType                ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fI1InternalInputType)) & LOG_fI1InternalInputTypeMask))
+#define ParamLOG_fI1InternalInputType                (PT_InternalInputType)((knx.paramByte(LOG_ParamCalcIndex(LOG_fI1InternalInputType)) & LOG_fI1InternalInputTypeMask) >> LOG_fI1InternalInputTypeShift)
 // Internen Eingang verbinden mit Kanal Nr.
 #define ParamLOG_fI1Function                         (knx.paramByte(LOG_ParamCalcIndex(LOG_fI1Function)))
 // Internen Eingang verbinden mit Kanal Nr.
@@ -3009,13 +3014,13 @@
 // Statuskanal
 #define ParamLOG_fI1StatusLed                        (knx.paramWord(LOG_ParamCalcIndex(LOG_fI1StatusLed)))
 // Interner Eingang 4
-#define ParamLOG_fI2                                 ((knx.paramByte(LOG_ParamCalcIndex(LOG_fI2)) & LOG_fI2Mask) >> LOG_fI2Shift)
+#define ParamLOG_fI2                                 (PT_InputEnable)((knx.paramByte(LOG_ParamCalcIndex(LOG_fI2)) & LOG_fI2Mask) >> LOG_fI2Shift)
 // Art der Verknüpfung
-#define ParamLOG_fI2Kind                             ((knx.paramByte(LOG_ParamCalcIndex(LOG_fI2Kind)) & LOG_fI2KindMask) >> LOG_fI2KindShift)
+#define ParamLOG_fI2Kind                             (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fI2Kind)) & LOG_fI2KindMask) >> LOG_fI2KindShift)
 // Internen Eingang als Trigger nutzen(ist immer logisch EIN)
 #define ParamLOG_fI2AsTrigger                        ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fI2AsTrigger)) & LOG_fI2AsTriggerMask))
 // Interner Eingang wird versorgt vom
-#define ParamLOG_fI2InternalInputType                ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fI2InternalInputType)) & LOG_fI2InternalInputTypeMask))
+#define ParamLOG_fI2InternalInputType                (PT_InternalInputType)((knx.paramByte(LOG_ParamCalcIndex(LOG_fI2InternalInputType)) & LOG_fI2InternalInputTypeMask) >> LOG_fI2InternalInputTypeShift)
 // Internen Eingang verbinden mit Kanal Nr.
 #define ParamLOG_fI2Function                         (knx.paramByte(LOG_ParamCalcIndex(LOG_fI2Function)))
 // Internen Eingang verbinden mit Kanal Nr.
@@ -3061,13 +3066,13 @@
 // Ausgang schaltet zeitverzögert
 #define ParamLOG_fODelay                             ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fODelay)) & LOG_fODelayMask))
 // Erneutes EIN führt zu
-#define ParamLOG_fODelayOnRepeat                     ((knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOnRepeat)) & LOG_fODelayOnRepeatMask) >> LOG_fODelayOnRepeatShift)
+#define ParamLOG_fODelayOnRepeat                     (PT_OnOffRepeat)((knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOnRepeat)) & LOG_fODelayOnRepeatMask) >> LOG_fODelayOnRepeatShift)
 // Darauffolgendes AUS führt zu
-#define ParamLOG_fODelayOnReset                      ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOnReset)) & LOG_fODelayOnResetMask))
+#define ParamLOG_fODelayOnReset                      (PT_OnOffReset)((knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOnReset)) & LOG_fODelayOnResetMask) >> LOG_fODelayOnResetShift)
 // Erneutes AUS führt zu
-#define ParamLOG_fODelayOffRepeat                    ((knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOffRepeat)) & LOG_fODelayOffRepeatMask) >> LOG_fODelayOffRepeatShift)
+#define ParamLOG_fODelayOffRepeat                    (PT_OnOffRepeat)((knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOffRepeat)) & LOG_fODelayOffRepeatMask) >> LOG_fODelayOffRepeatShift)
 // Darauffolgendes EIN führt zu
-#define ParamLOG_fODelayOffReset                     ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOffReset)) & LOG_fODelayOffResetMask))
+#define ParamLOG_fODelayOffReset                     (PT_OnOffReset)((knx.paramByte(LOG_ParamCalcIndex(LOG_fODelayOffReset)) & LOG_fODelayOffResetMask) >> LOG_fODelayOffResetShift)
 // Ausgang hat eine Treppenlichtfunktion
 #define ParamLOG_fOStair                             ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOStair)) & LOG_fOStairMask))
 // Treppenlicht kann verlängert werden
@@ -3077,13 +3082,27 @@
 // Ausgang wiederholt zyklisch
 #define ParamLOG_fORepeat                            ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fORepeat)) & LOG_fORepeatMask))
 // Wiederholungsfilter
-#define ParamLOG_fOOutputFilter                      ((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOutputFilter)) & LOG_fOOutputFilterMask) >> LOG_fOOutputFilterShift)
+#define ParamLOG_fOOutputFilter                      (PT_OutputFilter)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOutputFilter)) & LOG_fOOutputFilterMask) >> LOG_fOOutputFilterShift)
 // Sendeverhalten für Ausgang
-#define ParamLOG_fOSendOnChange                      ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOSendOnChange)) & LOG_fOSendOnChangeMask))
+#define ParamLOG_fOSendOnChange                      (PT_SendOnChange)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOSendOnChange)) & LOG_fOSendOnChangeMask) >> LOG_fOSendOnChangeShift)
+// Sperre aktivieren
+#define ParamLOG_fOLockEnabled                       ((bool)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockEnabled)) & LOG_fOLockEnabledMask))
 // DPT für Ausgang
-#define ParamLOG_fODpt                               (knx.paramByte(LOG_ParamCalcIndex(LOG_fODpt)))
+#define ParamLOG_fODpt                               (PT_LogicDpt)(knx.paramByte(LOG_ParamCalcIndex(LOG_fODpt)))
+// Beim Sperren
+#define ParamLOG_fOLockTriggerLock                   (PT_LockTrigger)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockTriggerLock)) & LOG_fOLockTriggerLockMask) >> LOG_fOLockTriggerLockShift)
+// Beim Entsperren
+#define ParamLOG_fOLockTriggerUnlock                 (PT_LockTrigger)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockTriggerUnlock)) & LOG_fOLockTriggerUnlockMask) >> LOG_fOLockTriggerUnlockShift)
+// Anschließend die Signalverarbeitung
+#define ParamLOG_fOLockResetQueue                    (PT_LockResetQueue)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockResetQueue)) & LOG_fOLockResetQueueMask) >> LOG_fOLockResetQueueShift)
+// Art der Verknüpfung
+#define ParamLOG_fOLockKind                          (PT_KORelInput)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockKind)) & LOG_fOLockKindMask)
+// Sperre verbinden mit Kanal Nr.
+#define ParamLOG_fOLockFunction                      (knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockFunction)))
+// Sperre verbinden mit Kanal Nr.
+#define ParamLOG_fOLockFunctionRel                   ((int8_t)knx.paramByte(LOG_ParamCalcIndex(LOG_fOLockFunctionRel)))
 // Wert für EIN senden?
-#define ParamLOG_fOOnAll                             (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnAll)))
+#define ParamLOG_fOOnAll                             (PT_OutputSend)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnAll)))
 //     Wert für EIN senden als
 #define ParamLOG_fOOnDpt1                            (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnDpt1)))
 //     Wert für EIN senden als
@@ -3120,7 +3139,7 @@
 //     Status-LED Kanal
 #define ParamLOG_fOOnLedProvider                     (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnLedProvider)) & LOG_fOOnLedProviderMask)
 //     Status-LED Effekt
-#define ParamLOG_fOOnLedEffect                       (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnLedEffect)) & LOG_fOOnLedEffectMask)
+#define ParamLOG_fOOnLedEffect                       (PT_StatusLedEffect)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnLedEffect)) & LOG_fOOnLedEffectMask)
 //     Status-LED Effektdauer
 #define ParamLOG_fOOnLedDuration                     (knx.paramWord(LOG_ParamCalcIndex(LOG_fOOnLedDuration)))
 // 
@@ -3132,21 +3151,21 @@
 //     Wert für EIN ermitteln als
 #define ParamLOG_fOOnFunction                        (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnFunction)))
 //     Nummer des Kommunikationsobjekts
-#define ParamLOG_fOOnKOKind                          ((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnKOKind)) & LOG_fOOnKOKindMask) >> LOG_fOOnKOKindShift)
+#define ParamLOG_fOOnKOKind                          (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnKOKind)) & LOG_fOOnKOKindMask) >> LOG_fOOnKOKindShift)
 //     Nummer des Kommunikationsobjekts
 #define ParamLOG_fOOnKONumber                        (knx.paramWord(LOG_ParamCalcIndex(LOG_fOOnKONumber)))
 //     Nummer des Kommunikationsobjekts
 #define ParamLOG_fOOnKONumberRel                     ((int16_t)knx.paramWord(LOG_ParamCalcIndex(LOG_fOOnKONumberRel)))
 //     DPT des Kommunikationsobjekts
-#define ParamLOG_fOOnKODpt                           (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnKODpt)))
+#define ParamLOG_fOOnKODpt                           (PT_LogicDpt)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnKODpt)))
 //     Wert für EIN an ein zusätzliches    KO senden?
-#define ParamLOG_fOOnKOSend                          ((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnKOSend)) & LOG_fOOnKOSendMask) >> LOG_fOOnKOSendShift)
+#define ParamLOG_fOOnKOSend                          (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOnKOSend)) & LOG_fOOnKOSendMask) >> LOG_fOOnKOSendShift)
 //         Nummer des zusätzlichen KO
 #define ParamLOG_fOOnKOSendNumber                    (knx.paramWord(LOG_ParamCalcIndex(LOG_fOOnKOSendNumber)))
 //         Nummer des zusätzlichen KO
 #define ParamLOG_fOOnKOSendNumberRel                 ((int16_t)knx.paramWord(LOG_ParamCalcIndex(LOG_fOOnKOSendNumberRel)))
 // Wert für AUS senden?
-#define ParamLOG_fOOffAll                            (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffAll)))
+#define ParamLOG_fOOffAll                            (PT_OutputSend)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffAll)))
 //     Wert für AUS senden als
 #define ParamLOG_fOOffDpt1                           (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffDpt1)))
 //     Wert für AUS senden als
@@ -3183,7 +3202,7 @@
 //     Status-LED-Kanal
 #define ParamLOG_fOOffLedProvider                    (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffLedProvider)) & LOG_fOOffLedProviderMask)
 //     Status-LED Effekt
-#define ParamLOG_fOOffLedEffect                      (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffLedEffect)) & LOG_fOOffLedEffectMask)
+#define ParamLOG_fOOffLedEffect                      (PT_StatusLedEffect)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffLedEffect)) & LOG_fOOffLedEffectMask)
 //     Status-LED Effektdauer
 #define ParamLOG_fOOffLedDuration                    (knx.paramWord(LOG_ParamCalcIndex(LOG_fOOffLedDuration)))
 // 
@@ -3195,15 +3214,15 @@
 //     Wert für AUS ermitteln als
 #define ParamLOG_fOOffFunction                       (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffFunction)))
 //     Nummer des Kommunikationsobjekts
-#define ParamLOG_fOOffKOKind                         ((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffKOKind)) & LOG_fOOffKOKindMask) >> LOG_fOOffKOKindShift)
+#define ParamLOG_fOOffKOKind                         (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffKOKind)) & LOG_fOOffKOKindMask) >> LOG_fOOffKOKindShift)
 //     Nummer des Kommunikationsobjekts
 #define ParamLOG_fOOffKONumber                       (knx.paramWord(LOG_ParamCalcIndex(LOG_fOOffKONumber)))
 //     Nummer des Kommunikationsobjekts
 #define ParamLOG_fOOffKONumberRel                    ((int16_t)knx.paramWord(LOG_ParamCalcIndex(LOG_fOOffKONumberRel)))
 //     DPT des Kommunikationsobjekts
-#define ParamLOG_fOOffKODpt                          (knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffKODpt)))
+#define ParamLOG_fOOffKODpt                          (PT_LogicDpt)(knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffKODpt)))
 //     Wert für AUS an ein zusätzliches    KO senden?
-#define ParamLOG_fOOffKOSend                         ((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffKOSend)) & LOG_fOOffKOSendMask) >> LOG_fOOffKOSendShift)
+#define ParamLOG_fOOffKOSend                         (PT_KORelInput)((knx.paramByte(LOG_ParamCalcIndex(LOG_fOOffKOSend)) & LOG_fOOffKOSendMask) >> LOG_fOOffKOSendShift)
 //         Nummer des zusätzlichen KO
 #define ParamLOG_fOOffKOSendNumber                   (knx.paramWord(LOG_ParamCalcIndex(LOG_fOOffKOSendNumber)))
 //         Nummer des zusätzlichen KO
@@ -3239,7 +3258,7 @@
 #define BASE_KommentarModuleModuleParamSize 0
 #define BASE_KommentarModuleSubmodulesParamSize 0
 #define BASE_KommentarModuleParamSize 0
-#define BASE_KommentarModuleParamOffset 5650
+#define BASE_KommentarModuleParamOffset 5660
 #define BASE_KommentarModuleCalcIndex(index, m1) (index + BASE_KommentarModuleParamOffset + _channelIndex * BASE_KommentarModuleCount * BASE_KommentarModuleParamSize + m1 * BASE_KommentarModuleParamSize)
 
 
@@ -3300,6 +3319,197 @@
 #define PT_offset_none 0
 #define PT_offset_plus 1
 #define PT_offset_minus 2
+
+enum class PT_Logic
+{
+    AUS = 0,
+    UND = 1,
+    ODER = 2,
+    EXOR = 3,
+    TOR = 4,
+    SCHALTER = 6,
+    ZEITSCHALTUHR = 5
+};
+
+enum class PT_Calculate
+{
+    Invalid = 0,
+    Valid = 1
+};
+
+enum class PT_GateTrigger
+{
+    None = 0,
+    Off = 1,
+    On = 2,
+    Input = 3
+};
+
+enum class PT_LockTrigger
+{
+    None = 0,
+    Off = 1,
+    On = 2,
+    Value = 3
+};
+
+enum class PT_LockResetQueue
+{
+    None = 0,
+    ResetAfterLock = 1,
+    ResetAfterUnlock = 2
+};
+
+enum class PT_InputEnable
+{
+    Inactive = 0,
+    ActiveNormal = 1,
+    ActiveInverted = 2
+};
+
+enum class PT_InputConv
+{
+    Wertintervall = 0,
+    Differenzintervall = 1,
+    Hysterese = 2,
+    Differenzhysterese = 3,
+    Einzelwerte = 4,
+    Konstante = 5,
+    Eingangswert = 6,
+    Trigger = 7
+};
+
+enum class PT_LogicDpt
+{
+    DPT_1 = 0,
+    DPT_2 = 1,
+    DPT_3 = 17,
+    DPT_5 = 2,
+    DPT_5001 = 3,
+    DPT_6 = 4,
+    DPT_7 = 5,
+    DPT_8 = 6,
+    DPT_9 = 7,
+    DPT_12 = 13,
+    DPT_13 = 14,
+    DPT_14 = 15,
+    DPT_16 = 8,
+    DPT_17 = 9,
+    DPT_232 = 10
+};
+
+enum class PT_InputDefault
+{
+    None = 0,
+    Bus = 1,
+    Off = 2,
+    On = 3
+};
+
+enum class PT_OnOffRepeat
+{
+    Verzoegerung_bleibt_bestehen = 0,
+    Verzoegerung_wird_verlaengert = 1,
+    Sofort_schalten_ohne_Verzoegerung = 2
+};
+
+enum class PT_OnOffReset
+{
+    Verzoegerung_bleibt_bestehen = 0,
+    Verzoegerung_beenden_ohne_zu_schalten = 1
+};
+
+enum class PT_OutputFilter
+{
+    Alle_Wiederholungen_durchlassen = 0,
+    Nur_EIN_Wiederholungen_durchlassen = 1,
+    Nur_AUS_Wiederholungen_durchlassen = 2,
+    Keine_Wiederholungen_durchlassen = 3
+};
+
+enum class PT_SendOnChange
+{
+    Alle_Werte_senden = 0,
+    Nur_geaenderte_Werte_senden = 1
+};
+
+enum class PT_OutputSend
+{
+    None = 0,
+    Constant = 1,
+    ValueInput1 = 2,
+    ValueInput2 = 3,
+    OtherKo = 9,
+    Function = 8,
+    ReadRequest = 4,
+    RestartDevice = 5,
+    StatusLed = 7
+};
+
+enum class PT_YearDay
+{
+    Tagesschaltuhr = 0,
+    Jahresschaltuhr = 1,
+    Tagesschaltuhr_verbunden = 2,
+    Jahresschaltuhr_verbunden = 3
+};
+
+enum class PT_Holiday
+{
+    Feiertage_nicht_beachten = 0,
+    An_Feiertagen_nicht_schalten = 1,
+    Nur_an_Feiertagen_schalten = 2,
+    Feiertage_wie_Sonntage_behandeln = 3
+};
+
+enum class PT_Vacation
+{
+    Urlaub_nicht_beachten = 0,
+    Bei_Urlaub_nicht_schalten = 1,
+    Nur_bei_Urlaub_schalten = 2,
+    Urlaub_wie_Sonntag_behandeln = 3
+};
+
+enum class PT_DuskDawn
+{
+    Inactive = 0,
+    PointInTime = 1,
+    Sunrise_Plus = 4,
+    Sunrise_Minus = 5,
+    Sunrise_Earliest = 6,
+    Sunrise_Latest = 7,
+    Sunrise_DegreeUp = 12,
+    Sunrise_DegreeDown = 14,
+    Sunset_Plus = 8,
+    Sunset_Minus = 9,
+    Sunset_Earliest = 10,
+    Sunset_Latest = 11,
+    Sunset_DegreeUp = 13,
+    Sunset_DegreeDown = 15
+};
+
+enum class PT_KORelInput
+{
+    None = 0,
+    Absolute = 1,
+    Relative = 2,
+    Bitmask = 3
+};
+
+enum class PT_StatusLedEffect
+{
+    Aus = 0,
+    Ein = 1,
+    Blinken = 2,
+    Pulsieren = 3,
+    Aufblitzen = 4
+};
+
+enum class PT_InternalInputType
+{
+    Anderen_Logikkanal = 0,
+    Statuskanal = 1
+};
 
 
 

@@ -27,15 +27,12 @@
 
   <op:define prefix="BASE" ModuleType="10"
     share="../lib/OGM-Common/src/Common.share.xml">
-    <op:verify File="../lib/OGM-Common/library.json" ModuleVersion="1.7" />
-  </op:define>
-
-  <op:define prefix="OAM" ModuleType="99"
-    share="../src/DaliGateway.base.xml">
+    <op:verify File="../lib/OGM-Common/library.json" ModuleVersion="1.8" />
   </op:define>
 
   <op:define prefix="NET" ModuleType="18"
-      share="../lib/OFM-Network/src/Network.share.xml">
+      share="../lib/OFM-Network/src/Network.share.xml"
+      noConfigTransfer="true">
       <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.4" />
   </op:define>
 
@@ -46,6 +43,7 @@
 
   <!-- Uses ModuleType 41 internal for share and 42 for single -->
   <op:define prefix="DGW" ModuleType="4"
+    configTransferName="Dali-GW (Einzeladressen)"
     share="../lib/OFM-Dali/src/DaliModule.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.single.templ.xml"
     NumChannels="64" KoOffset="300" KoSingleOffset="20">
@@ -54,22 +52,22 @@
 
   <!-- Uses ModuleType 43 internal -->
   <op:define prefix="DGWG" ModuleType="4"
-    noConfigTransfer="true"
+    configTransferName="Dali-GW (Gruppenadressen)"
     prefixDoc="DGW"
     template="../lib/OFM-Dali/src/DaliModule.group.templ.xml"
     NumChannels="16" KoOffset="1800" />
 
   <!-- Uses ModuleType 44 internal -->
   <op:define prefix="DGWS" ModuleType="4"
-    noConfigTransfer="true"
+    configTransferName="Dali-GW (Szenen)"
     prefixDoc="DGW"
     share="../lib/OFM-Dali/src/DaliModule.scene.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.scene.templ.xml"
     NumChannels="64" />
 
     <!-- Uses ModuleType 45 internal -->
-  <op:define prefix="DGWH" ModuleType="4"
-    noConfigTransfer="true"
+    <op:define prefix="DGWH" ModuleType="4"
+    configTransferName="Dali-GW (HCL)"
     prefixDoc="DGW"
     share="../lib/OFM-Dali/src/DaliModule.hcl.share.xml"
     template="../lib/OFM-Dali/src/DaliModule.hcl.templ.xml"
@@ -80,7 +78,7 @@
     share="../lib/OFM-LogicModule/src/Logikmodul.share.xml"
     template="../lib/OFM-LogicModule/src/Logikmodul.templ.xml"
     NumChannels="5" KoOffset="100">
-    <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="4.0" /> 
+    <op:verify File="../lib/OFM-LogicModule/library.json" ModuleVersion="4.3" /> 
   </op:define>
 
   <!-- <generate /> -->
