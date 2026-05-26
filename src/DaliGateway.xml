@@ -16,7 +16,7 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="0.10.1"
+    ApplicationVersion="0.11.0"
     ReplacesVersions="0.0"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
@@ -33,7 +33,7 @@
   <op:define prefix="NET" ModuleType="18"
       share="../lib/OFM-Network/src/Network.share.xml"
       noConfigTransfer="true">
-      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.4" />
+      <op:verify File="../lib/OFM-Network/library.json" ModuleVersion="0.6" />
   </op:define>
 
   <op:define prefix="UCT" ModuleType="19"
