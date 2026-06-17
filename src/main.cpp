@@ -6,7 +6,6 @@
 #ifdef ARDUINO_ARCH_ESP32
 #include "NetworkModule.h"
 #include "IotGateway.h"
-IotGateway iotGateway;
 #endif
 
 bool setup0_ready = false;
@@ -38,10 +37,9 @@ void setup()
         }
         openknxDaliModule.setup1(knx.configured());
 
-    #ifdef ARDUINO_ARCH_ESP32
+        IotGateway iotGateway;
         iotGateway.setup();
         iotGateway.addMaster(&openknxDaliModule.daliMaster);
-    #endif
 
         setup1_ready = true;
         for (;;)

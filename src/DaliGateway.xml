@@ -13,11 +13,13 @@
   <op:config name="%BASE_Info2LedFunc%" value="0" />
   <op:config name="%BASE_Info3LedFunc%" value="500" />
 
+  <op:config name="%NET_ServiceHTTP%" value="1" />
+
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
     ApplicationVersion="0.11.0"
-    ReplacesVersions="0.0"
+    ReplacesVersions="0.0 0.10"
     ApplicationRevision="0"
     ProductName="Dali-Gateway"
     BusCurrent="10"
