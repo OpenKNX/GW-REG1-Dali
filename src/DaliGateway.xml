@@ -18,9 +18,9 @@
   <op:ETS
     OpenKnxId="0xA4"
     ApplicationNumber="1"
-    ApplicationVersion="0.11.0"
-    ReplacesVersions="0.0 0.10"
-    ApplicationRevision="0"
+    ApplicationVersion="0.12.0"
+    ReplacesVersions="0.0 0.10 0.11"
+    ApplicationRevision="1"
     ProductName="Dali-Gateway"
     BusCurrent="10"
     BuildSuffix=""
